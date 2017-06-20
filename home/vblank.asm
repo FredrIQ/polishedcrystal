@@ -26,7 +26,9 @@ endr
 	ld h, [hl]
 	ld l, a
 
-	call _hl_
+	call VBlank0
+	call VBlank0
+	call VBlank2
 
 	call GameTimer
 
@@ -139,15 +141,6 @@ VBlank0:: ; 2b1
 
 	call Joypad
 
-	ld a, BANK(_UpdateSound)
-	rst Bankswitch
-	call _UpdateSound
-	ld a, [hROMBankBackup]
-	rst Bankswitch
-
-	ld a, [hSeconds]
-	ld [hSecondsBackup], a
-
 	ret
 ; 325
 
@@ -164,6 +157,9 @@ VBlank2:: ; 325
 
 	ld a, [hROMBankBackup]
 	rst Bankswitch
+
+	ld a, [hSeconds]
+	ld [hSecondsBackup], a
 
 	xor a
 	ld [VBlankOccurred], a
