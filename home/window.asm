@@ -46,9 +46,6 @@ CloseText:: ; 2dcf
 	ld a, $90
 	ld [hWY], a
 	call ReplaceKrisSprite
-	xor a
-	ld [hBGMapMode], a
-
 	farcall ReturnFromMapSetupScript
 	farjp LoadOverworldFont
 ; 2e08

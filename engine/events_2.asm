@@ -1,4 +1,8 @@
 ReturnFromMapSetupScript:: ; b8000
+	xor a
+	ld [hBGMapMode], a
+
+	farcall RefreshSprites
 	ld a, [wMapGroup]
 	ld b, a
 	ld a, [wMapNumber]
