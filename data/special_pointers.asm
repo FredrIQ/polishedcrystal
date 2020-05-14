@@ -20,6 +20,12 @@ SpecialsPointers::
 	add_special Special_Colosseum
 	add_special Special_CableClubCheckWhichChris
 
+; Mobile Communications
+	add_special Mobile_Init
+	add_special Mobile_Abort
+	add_special Mobile_ISPLogin
+	add_special Special_CheckMobileAvailability
+
 ; Map Events
 	add_special BugContestJudging
 	add_special CheckPartyFullAfterContest

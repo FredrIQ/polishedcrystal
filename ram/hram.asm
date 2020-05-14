@@ -205,7 +205,9 @@ ENDU
 
 hCrashCode:: db
 
-	ds 12
+hMobile:: db
+
+	ds 11
 
 hFunction::
 hFunctionJump::     db ; $c3 jp

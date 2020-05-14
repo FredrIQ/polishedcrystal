@@ -50,6 +50,11 @@ SECTION "Poke Ball Effects", ROMX
 INCLUDE "engine/items/poke_balls.asm"
 
 
+SECTION "Mobile Communication", ROMX
+
+INCLUDE "engine/mobile.asm"
+
+
 SECTION "Load Map Part", ROMX
 
 ; do not separate

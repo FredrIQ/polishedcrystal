@@ -60,6 +60,8 @@ INCLUDE "home/battle.asm"
 INCLUDE "home/sprite_anims.asm"
 INCLUDE "home/audio.asm"
 INCLUDE "home/restore_music.asm"
+INCLUDE "home/vwf.asm"
+INCLUDE "home/mobile.asm"
 
 ; data used within home
 INCLUDE "data/text/ngrams.asm"

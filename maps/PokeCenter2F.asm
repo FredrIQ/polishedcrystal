@@ -20,7 +20,7 @@ PokeCenter2F_MapScriptHeader:
 	db 3 ; object events
 	object_event  5,  2, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, LinkReceptionistScript_Trade, -1
 	object_event  9,  2, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, LinkReceptionistScript_Battle, -1
-	object_event 13,  3, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, Text_TimeCapsuleClosed, -1
+	object_event 13,  3, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, LinkReceptionistScript_Mobile, -1
 
 	const_def 1 ; object constants
 	const POKECENTER2F_TRADE_RECEPTIONIST
@@ -243,6 +243,67 @@ Script_BattleRoomClosed:
 	cont "being adjusted."
 	done
 
+LinkReceptionistScript_Mobile:
+if !DEF(DEBUG)
+	checkevent EVENT_GAVE_MYSTERY_EGG_TO_ELM
+	iffalse Script_MobileSystemClosed
+endc
+	opentext
+	writetext Text_MobileReceptionistIntro
+	yesorno
+	iffalse .Cancel
+	writetext Text_PleaseWait
+	special Mobile_Init
+	special Special_CheckMobileAvailability
+	iffalse .AdapterNotConnected
+	writetext Text_MustSaveGame
+	yesorno
+	iffalse .Aborted
+	special Special_TryQuickSave
+	iffalse .Aborted
+	writetext Text_ConnectingToServer
+	callasm PCMA_ConnectAndListPlayers
+	ifequal $1, .Aborted
+	ifequal $2, .ConnectionLost
+	ifequal $3, .ISPLoginFailure
+	scall PokeCenter2F_CheckGender
+	warpcheck
+	end
+
+.AdapterNotConnected:
+	writetext Text_AdapterNotConnected
+	jump .AbortLink
+
+.ISPLoginFailure:
+	writetext Text_FailedISPLogin
+.ConnectionLost:
+	writetext Text_ConnectionLost
+.Aborted:
+	writetext Text_PleaseComeAgain
+.AbortLink:
+	special Mobile_Abort
+.Cancel:
+	endtext
+
+PCMA_ConnectAndListPlayers:
+	; Login to ISP
+	farcall Mobile_ISPLogin
+	ld a, 3
+	ldh [hScriptVar], a
+	ret z
+
+	ld a, 2
+	ldh [hScriptVar], a
+	ret
+
+Script_MobileSystemClosed:
+	jumpthistextfaceplayer
+
+	text "I'm sorry--the"
+	line "Mobile System is"
+	cont "being adjusted."
+	done
+
 PokeCenter2F_CheckGender:
 	checkflag ENGINE_PLAYER_IS_FEMALE
 	iftrue .Female
@@ -310,6 +371,17 @@ PokeCenter2FMovementData_PlayerSpinsClockwiseEndsFacingLeft:
 	turn_head_left
 	step_end
 
+Text_MobileReceptionistIntro:
+	text "Welcome to the"
+	line "Mobile System."
+
+	para "You may connect to"
+	line "the Internet here."
+
+	para "Would you like to"
+	line "connect?"
+	done
+
 Text_BattleReceptionistIntro:
 	text "Welcome to Cable"
 	line "Club Colosseum."
@@ -338,6 +410,30 @@ Text_FriendNotReady:
 	line "ready."
 	prompt
 
+Text_AdapterNotConnected:
+	text "The Mobile Adapter"
+	line "isn't connected."
+
+	para "Please refer to"
+	line "the manual for"
+	cont "this game for how"
+	cont "to connect."
+	prompt
+
+Text_ConnectionLost:
+	text "The connection was"
+	line "lost unexpectedly."
+	prompt
+
+Text_FailedISPLogin:
+	text "Failed to connect"
+	line "to ISP."
+
+	para "Make sure your"
+	line "Mobile Adapter is"
+	cont "set up correctly."
+	prompt
+
 Text_MustSaveGame:
 	text "Before opening the"
 	line "link, you must"
@@ -346,6 +442,11 @@ Text_MustSaveGame:
 
 Text_PleaseWait:
 	text "Please wait."
+	done
+
+Text_ConnectingToServer:
+	text "Connecting to"
+	line "server…"
 	done
 
 Text_LinkTimedOut:

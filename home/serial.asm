@@ -6,6 +6,13 @@ Serial::
 	push bc
 	push af
 
+	ldh a, [hMobile]
+	and a
+	jr z, .not_mobile
+	farcall MobileSerial
+	jr .done
+
+.not_mobile
 	ldh a, [hSerialConnectionStatus]
 	inc a ; is it equal to -1?
 	jr z, .init_player_number
@@ -65,6 +72,7 @@ Serial::
 	ld a, SERIAL_NO_DATA_BYTE
 	ldh [hSerialSend], a
 
+.done
 	pop af
 	pop bc
 	pop de

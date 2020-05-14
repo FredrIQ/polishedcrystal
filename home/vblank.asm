@@ -72,6 +72,19 @@ VBlank::
 	ldh a, [hROMBankBackup]
 	rst Bankswitch
 
+	; mobile adapter keep-alive
+	ldh a, [hMobile]
+	cp MOBILE_STANDBY
+	jr nz, .no_mobile
+	ld a, [wMobileSessionEnabled]
+	and a
+	jr z, .no_mobile
+	ld a, MOBILE_RECV_BYTE
+	ldh [rSB], a
+	ld a, (1 << rSC_ON) | (1 << rSC_CGB) | (1 << rSC_CLOCK)
+	ldh [rSC], a
+
+.no_mobile
 	pop af
 	pop bc
 	pop de

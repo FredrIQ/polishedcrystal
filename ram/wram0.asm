@@ -905,7 +905,21 @@ wcb84:: ds 102
 	ds 96
 wcc4a:: ds 84
 wcc9e:: ds 130
+NEXTU
+; Assumes map blockdata for Pokécenters never exceed 308 bytes (size of PCC).
+	ds 308 ; may contain map blockdata
 
+wMobilePacket::
+wMobilePacketCommand:: db
+wMobilePacketSize:: db
+wMobilePacketContent:: ds MOBILE_MAX_PACKET_SIZE
+wMobilePacketChecksum:: dw
+wMobilePacketDevice:: db
+wMobilePacketResult:: db
+wMobilePacketProgress:: db ; overall packet progress
+wMobilePendingData:: db ; packet offset (TODO: handle 245-254B of content)
+
+wMobileSessionEnabled:: db ; used to check if we're connected to a MA
 ENDU
 
 

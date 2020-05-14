@@ -1528,6 +1528,12 @@ wAbilityName:: ds 20
 ENDU
 
 
+SECTION "Mobile Adapter Config", WRAMX
+
+wMobileConfig:: ds MOBILE_CONFIGURATION_SIZE
+wMobileIP:: ds 4
+
+
 SECTION "Window Stack", WRAMX
 
 wWindowStack:: ds $1000 - 1

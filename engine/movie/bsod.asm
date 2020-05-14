@@ -47,6 +47,12 @@ BSOD:
 	dec a ; a == ERR_EGG_SPECIES?
 	ld de, .EggSpecies
 	jr z, .PrintErrorType
+	dec a ; a == ERR_LARGE_PACKET?
+	ld de, .LargeMobilePacket
+	jr z, .PrintErrorType
+	dec a ; a == ERR_MOBILE?
+	ld de, .UnhandledMAError
+	jr z, .PrintErrorType
 	dec a ; a == ERR_EXECUTING_RAM?
 	ld de, .ExecutingRAM
 	jr z, .PrintErrorType
@@ -121,6 +127,12 @@ endc
 
 .EggSpecies:
 	db "<PK><MN> species is Egg@"
+
+.LargeMobilePacket:
+	db "257+B MA packet@"
+
+.UnhandledMAError:
+	db "MA error@"
 
 .ExecutingRAM:
 	db "Executing RAM@"
