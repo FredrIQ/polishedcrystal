@@ -49,3 +49,20 @@ GetFarHalfword::
 	pop af
 	rst Bankswitch
 	ret
+
+FarCopy256ASCII:
+; Copies 0-256 bytes from a:hl to de and returns length in bc until first 0 byte
+	call StackCallInBankA
+Copy256ASCII:
+	ld bc, 0
+.loop
+	ld a, [hli]
+	and a
+	ret z
+	ld [de], a
+	inc de
+	inc bc
+	ld a, b
+	and a
+	ret nz
+	jr .loop

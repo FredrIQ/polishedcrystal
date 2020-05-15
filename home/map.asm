@@ -522,6 +522,11 @@ LoadBlockData::
 	ld hl, wOverworldMapBlocks
 	ld bc, wOverworldMapBlocksEnd - wOverworldMapBlocks
 	xor a
+	ld a, [hMobile]
+	and a
+	jr z, .got_bytecount
+	ld bc, 308
+.got_bytecount
 	rst ByteFill
 	call ChangeMap
 	call FillMapConnections

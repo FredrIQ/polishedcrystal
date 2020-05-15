@@ -276,6 +276,7 @@ endc
 
 .ISPLoginFailure:
 	writetext Text_FailedISPLogin
+	jump .AbortLink
 .ConnectionLost:
 	writetext Text_ConnectionLost
 .Aborted:
@@ -292,6 +293,14 @@ PCMA_ConnectAndListPlayers:
 	ldh [hScriptVar], a
 	ret z
 
+	; Connect to online server
+	farcall PO_Connect
+	jr z, .cannot_connect
+	ld a, 1
+	ldh [hScriptVar], a
+	ret
+
+.cannot_connect
 	ld a, 2
 	ldh [hScriptVar], a
 	ret
@@ -421,8 +430,8 @@ Text_AdapterNotConnected:
 	prompt
 
 Text_ConnectionLost:
-	text "The connection was"
-	line "lost unexpectedly."
+	text "Can't connect to"
+	line "Polished Online."
 	prompt
 
 Text_FailedISPLogin:
@@ -446,7 +455,7 @@ Text_PleaseWait:
 
 Text_ConnectingToServer:
 	text "Connecting to"
-	line "server…"
+	line "Polished Online…"
 	done
 
 Text_LinkTimedOut:

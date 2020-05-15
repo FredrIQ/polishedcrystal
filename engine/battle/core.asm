@@ -5304,9 +5304,6 @@ ParseEnemyAction:
 	jr z, .not_linked
 	call EmptyBattleTextBox
 	call LoadTileMapToTempTileMap
-	ld a, [wBattlePlayerAction]
-	and a
-	call z, LinkBattleSendReceiveAction
 	call Call_LoadTempTileMapToTileMap
 	ld a, [wBattleAction]
 	cp BATTLEACTION_STRUGGLE
@@ -5390,11 +5387,27 @@ LinkBattleError:
 	call StdBattleTextBox
 	jp SoftReset
 
+LinkBattleSendRaw:
+; Ignores current battle state and sends whatever is in a without updating
+; link result
+	ld b, a
+	ld a, [wBattleAction]
+	push af
+	ld a, b
+	call BattleDoSendLink
+	pop af
+	ld [wBattleAction], a
+	ret
+
 LinkBattleSendReceiveAction:
 ; Note that only the lower 4 bits is usable. The higher 4 determines what kind
 ; of linking we are performing.
-	call .StageForSend
+	call LinkBattle_StageForSend
+BattleDoSendLink:
 	ld [wLinkBattleSentAction], a
+	call MobileLinkTransfer
+	ret c
+	ret nz
 	call PlaceWaitingText
 	ld a, [wLinkBattleSentAction]
 	ld [wPlayerLinkAction], a
@@ -5426,7 +5439,7 @@ LinkBattleSendReceiveAction:
 	ld [wBattleAction], a
 	ret
 
-.StageForSend:
+LinkBattle_StageForSend:
 	ld a, [wBattlePlayerAction]
 	and a
 	jr nz, .switch
@@ -5446,6 +5459,32 @@ LinkBattleSendReceiveAction:
 	ld a, b
 .use_move
 	and $0f
+	ret
+
+MobileLinkTransfer:
+; Returns z if not on mobile, c if disconnected
+	ldh a, [hMobile]
+	and a
+	ret z
+	ld a, [wLinkBattleSentAction]
+	and $f
+	cp BATTLEACTION_NEWRANDOM
+	jr z, .firstloop
+	ld hl, BattleText_WaitingForOpponent
+	call StdBattleTextBox
+	jr .firstloop
+
+.loop
+	ld c, 60
+	call DelayFrames
+.firstloop
+	ld a, PO_CMD_BATTLETURN
+	farcall PO_ServerCommand
+	ret c
+	jr z, .loop
+	ld a, [wOtherPlayerLinkAction]
+	ld [wBattleAction], a
+	or 1
 	ret
 
 LoadEnemyMon:
@@ -6038,6 +6077,36 @@ _BattleRandom::
 	and a
 	jp z, Random
 
+	ldh a, [hMobile]
+	and a
+	jr z, .link_rng
+
+	; Uses random numbers provided by the server
+	push hl
+	push de
+	push bc
+.got_newrng
+	ld a, [wPO_RNGPointer]
+	ld c, a
+	inc a
+	and $f
+	jr z, .request_new_numbers
+	ld [wPO_RNGPointer], a
+	ld b, 0
+	ld hl, wPO_RNGStream
+	add hl, bc
+	ld a, [hl]
+	pop bc
+	pop de
+	pop hl
+	ret
+
+.request_new_numbers
+	ld a, BATTLEACTION_NEWRANDOM
+	call LinkBattleSendRaw
+	jr .got_newrng
+
+.link_rng
 ; The PRNG operates in streams of 10 values.
 
 ; Which value are we trying to pull?

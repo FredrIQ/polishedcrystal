@@ -643,6 +643,8 @@ wNumFleeAttempts:: db
 wLinkOTExchangeStart::
 wOTPlayerName:: ds NAME_LENGTH
 wOTPlayerID:: dw
+
+wOTPokemonData::
 wOTPartyCount:: db
 wOTPartySpecies:: ds PARTY_LENGTH + 1 ; legacy scripts don't check PartyCount
 
@@ -740,7 +742,9 @@ wReceiveCallDelay_StartTime:: ds 3
 wBugContestMinsRemaining:: db
 wBugContestSecsRemaining:: db
 
-	ds 2 ; unused
+wOTPlayerGender:: db
+
+	ds 1 ; unused
 
 wMapStatusEnd::
 

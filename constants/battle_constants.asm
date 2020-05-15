@@ -346,9 +346,10 @@ HAZARDS_TOXIC_SPIKES EQU %11000000
 	const BATTLEACTION_SWITCH6
 	const BATTLEACTION_A
 	const BATTLEACTION_B
-	const BATTLEACTION_C
+	const BATTLEACTION_NEWRANDOM ; get a new set of random numbers from server
 	const BATTLEACTION_STRUGGLE
 	const BATTLEACTION_FORFEIT
+	const BATTLEACTION_WAIT ; Other player has yet to perform an action
 
 	const_def
 	const WIN

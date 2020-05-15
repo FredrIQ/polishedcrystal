@@ -13,9 +13,11 @@ SERIAL_NO_DATA_BYTE EQU $fe
 ; for player/enemy party data
 SERIAL_PATCH_LIST_PART_TERMINATOR EQU $ff
 
-const_value = 2
+	const LINK_NONE
+	const LINK_TIMECAPSULE ; currently unused
 	const LINK_TRADECENTER
 	const LINK_COLOSSEUM
+	const LINK_MOBILE
 
 SERIAL_TRADECENTER EQU $70
 SERIAL_BATTLE      EQU $80

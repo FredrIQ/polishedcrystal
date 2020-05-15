@@ -76,7 +76,8 @@ VBlank::
 	ldh a, [hMobile]
 	cp MOBILE_STANDBY
 	jr nz, .no_mobile
-	ld a, [wMobileSessionEnabled]
+	ld hl, wMobileSessionEnabled
+	ld a, [hl]
 	and a
 	jr z, .no_mobile
 	ld a, MOBILE_RECV_BYTE

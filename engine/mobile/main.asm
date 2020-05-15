@@ -19,6 +19,12 @@ Mobile_Init:
 	or 1 << SERIAL
 	ldh [rIE], a
 
+	; Let the adapter know we want to initialize. It may take up to around 25ms,
+	; so wait 2 frames (33ms).
+	call PingMobileAdapter
+	ld c, 2
+	call DelayFrames
+
 	; Initialization
 	ld hl, .NintendoText
 	ld a, MOBILE_COMMAND_BEGIN_SESSION
@@ -204,37 +210,80 @@ ResetChecksum:
 	pop af
 	ret
 
-SendMobileString:
-; Sends ASCII string in hl up to but not including null terminator as a packet,
-; using a as packet command.
-	; Reset checksum count
-	call ResetChecksum
+ExchangeTCPData:
+; Send TCP data for connection a, length b from hl and outputs
+; c bytes of the response in de. Returns c if we got a transfer
+; end response, nc otherwise, with actual length in b. If b is
+; less than the requested byte length, the last packet would have
+; written too much -- it is left unwritten to de and remains stored.
+; as part of the MA packet data.
+	ld [wMobileConnectionID], a
 
-	ld [wMobilePacketCommand], a
-	call Mobile_ChecksumAdd
-
-	; Prepare the packet data
+	; Send data
+	push de
 	ld de, wMobilePacketContent
-	ld b, 0
-.loop
-	ld a, [hli]
-	and a
-	jr z, .finished
 	ld [de], a
-	call Mobile_ChecksumAdd
 	inc de
+	push bc
+	ld c, b
+	ld b, 0
+	rst CopyBytes
+	pop bc
+	push bc
 	inc b
-	ld a, ERR_LARGE_PACKET
-	jp z, Crash
-	jr .loop
-.finished
-	; Set packet size
-	ld a, b
-	ld [wMobilePacketSize], a
-	call Mobile_ChecksumAdd
-	jr SendMobilePacket
+	ld a, MOBILE_COMMAND_TRANSFER_DATA
+	call SendAndWait
 
-SendMobileBytesFromContent:
+	; Handle response
+	pop bc
+	pop de
+	ld b, 0
+ContinueExchangeTCPData:
+.loop
+	; Check for transfer end
+	ld a, [wMobilePacketCommand]
+	cp MOBILE_COMMAND_TRANSFER_DATA_END ^ $80
+	scf
+	ret z
+
+	ld a, [wMobilePacketSize]
+	dec a
+
+	; Check for overflow or if we reached the requested byte length
+	add b
+	sub b
+	ccf
+	ret nc
+	add b
+	cp c
+	jr z, _GotRequestedTCPLength
+	ret nc
+
+	; We have more to copy
+ForceContinueExchangeTCPData:
+; Continues exchanging TCP data, forcing a copy of last packet even on overflow
+	ld b, a
+_GotRequestedTCPLength:
+	push bc
+	push af
+	ld c, a
+	ld b, 0
+	ld hl, wMobilePacketContent + 1
+	rst CopyBytes
+	pop af
+	pop bc
+	ret z ; got the requested amount of bytes
+_NextTCPSend:
+	push bc
+	push de
+	ld b, 1
+	ld a, MOBILE_COMMAND_TRANSFER_DATA
+	call SendAndWait
+	pop de
+	pop bc
+	jr ContinueExchangeTCPData
+
+SendMobileBytesFromContent::
 	ld hl, wMobilePacketContent
 	; fallthrough
 SendMobileBytesFromHL:
@@ -278,13 +327,12 @@ SendMobilePacket:
 	; Mark that we are sending data
 	ld a, MOBILE_SENDING
 	ldh [hMobile], a
-
-	; Reset packet progress
+	; fallthrough
+PingMobileAdapter:
+; Sends 0x4B to let the adapter know we want something
 	xor a
 	ld [wMobilePendingData], a
 	ld a, MOBILE_RECV_BYTE
-	; fallthrough
-MobileSendByte:
 	ldh [rSB], a
 	; fallthrough
 MobileRequestNextByte:
@@ -296,7 +344,7 @@ MobileRequestNextByte:
 SendAndWait::
 	call SendMobileBytesFromContent
 	; fallthrough
-AwaitMobileResponse:
+AwaitMobileResponse::
 ; Waits until ongoing mobile communication is complete. Returns c if mobile
 ; communication is offline.
 .loop
@@ -513,12 +561,6 @@ MobileFinishTransfer::
 	ld a, [wMobilePacketCommand]
 	cp MOBILE_ERROR_CHECKSUM
 	jr z, ReceiveMobilePacket
-
-	xor $80
-
-	; TODO: handle other errors
-	cp MOBILE_ERROR_COMMAND
-	jr z, MobileError
 	ret
 
 .sending
@@ -533,12 +575,7 @@ ReceiveMobilePacket:
 	; Mark that we are receiving data
 	ld a, MOBILE_RECEIVING
 	ldh [hMobile], a
-
-	; Reset packet progress
-	xor a
-	ld [wMobilePendingData], a
-	ld a, MOBILE_RECV_BYTE
-	jp MobileSendByte
+	jp PingMobileAdapter
 
 MobileError:
 ; If session isn't yet active, assume no MA connected

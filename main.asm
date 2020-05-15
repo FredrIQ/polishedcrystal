@@ -52,7 +52,8 @@ INCLUDE "engine/items/poke_balls.asm"
 
 SECTION "Mobile Communication", ROMX
 
-INCLUDE "engine/mobile.asm"
+INCLUDE "engine/mobile/main.asm"
+INCLUDE "engine/mobile/server.asm"
 
 
 SECTION "Load Map Part", ROMX

@@ -8,6 +8,11 @@ LinkBattleErrorText::
 	line "be reset."
 	prompt
 
+BattleText_WaitingForOpponent:
+	text "Waiting for"
+	line "opponent…"
+	prompt
+
 BattleText_PlayerPickedUpPayDayMoney:
 	text "<PLAYER> picked up"
 	line "¥"
