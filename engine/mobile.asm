@@ -47,7 +47,6 @@ MobileReadConfig:
 	ld hl, wMobilePacketContent
 	ld [hli], a
 	ld [hl], MOBILE_CONFIGURATION_SIZE / 2
-	dec hl
 	ld b, 2
 	push af
 	ld a, MOBILE_COMMAND_READ_CONFIGURATION_DATA
@@ -84,6 +83,7 @@ Mobile_ISPLogin::
 	ld b, 10
 .wait_for_telephone
 	call MobileLineBusy
+	ret c ; phone disconnected
 	jr z, .telephone_free
 	dec b
 	ret z
@@ -523,10 +523,9 @@ MobileFinishTransfer::
 
 .sending
 	ld a, [wMobilePacketResult]
-	xor $80
 
 	; If we ran into a checksum error, just retry.
-	cp MOBILE_ERROR_CHECKSUM
+	cp MOBILE_ERROR_CHECKSUM ^ $80
 	jp z, SendMobilePacket
 	; fallthrough
 ReceiveMobilePacket:
