@@ -294,133 +294,6 @@ NGRAMS_START EQU $09
 
 NGRAMS_END EQU $52
 
-	; Used for mobile communication
-	newcharmap ascii
-
-	charmap "<NUL>",    $00
-	charmap "<SOH>",    $01
-	charmap "<STX>",    $02
-	charmap "<ETX>",    $03
-	charmap "<EOT>",    $04
-	charmap "<ENQ>",    $05
-	charmap "<ACK>",    $06
-	charmap "<BEL>",    $07
-	charmap "<BS>",     $08
-	charmap "<TAB>",    $09
-	charmap "<LF>",     $0a
-	charmap "<VT>",     $0b
-	charmap "<FF>",     $0c
-	charmap "<CR>",     $0d
-	charmap "<SO>",     $0e
-	charmap "<SI>",     $0f
-	charmap "<DLE>",    $10
-	charmap "<DC1>",    $11
-	charmap "<DC2>",    $12
-	charmap "<DC3>",    $13
-	charmap "<DC4>",    $14
-	charmap "<NAK>",    $15
-	charmap "<SYN>",    $16
-	charmap "<ETB>",    $17
-	charmap "<CAN>",    $18
-	charmap "<EM>",     $19
-	charmap "<SUB>",    $1a
-	charmap "<ESC>",    $1b
-	charmap "<FS>",     $1c
-	charmap "<GS>",     $1d
-	charmap "<RS>",     $1e
-	charmap "<US>",     $1f
-	charmap " ",        $20
-	charmap "!",        $21
-	charmap "<QUOTE>",  $22
-	charmap "#",        $23
-	charmap "$",        $24
-	charmap "%",        $25
-	charmap "&",        $26
-	charmap "'",        $27
-	charmap "(",        $28
-	charmap ")",        $29
-	charmap "*",        $2a
-	charmap "+",        $2b
-	charmap ",",        $2c
-	charmap "-",        $2d
-	charmap ".",        $2e
-	charmap "/",        $2f
-	charmap "0",        $30
-	charmap "1",        $31
-	charmap "2",        $32
-	charmap "3",        $33
-	charmap "4",        $34
-	charmap "5",        $35
-	charmap "6",        $36
-	charmap "7",        $37
-	charmap "8",        $38
-	charmap "9",        $39
-	charmap ":",        $3a
-	charmap ";",        $3b
-	charmap "<",        $3c
-	charmap "=",        $3d
-	charmap ">",        $3e
-	charmap "?",        $3f
-	charmap "@",        $40
-	charmap "A",        $41
-	charmap "B",        $42
-	charmap "C",        $43
-	charmap "D",        $44
-	charmap "E",        $45
-	charmap "F",        $46
-	charmap "G",        $47
-	charmap "H",        $48
-	charmap "I",        $49
-	charmap "J",        $4a
-	charmap "K",        $4b
-	charmap "L",        $4c
-	charmap "M",        $4d
-	charmap "N",        $4e
-	charmap "O",        $4f
-	charmap "P",        $50
-	charmap "Q",        $51
-	charmap "R",        $52
-	charmap "S",        $53
-	charmap "T",        $54
-	charmap "U",        $55
-	charmap "V",        $56
-	charmap "W",        $57
-	charmap "X",        $58
-	charmap "Y",        $59
-	charmap "Z",        $5a
-	charmap "[",        $5b
-	charmap "<BSLASH>", $5c
-	charmap "]",        $5d
-	charmap "^",        $5e
-	charmap "_",        $5f
-	charmap "`",        $60
-	charmap "a",        $61
-	charmap "b",        $62
-	charmap "c",        $63
-	charmap "d",        $64
-	charmap "e",        $65
-	charmap "f",        $66
-	charmap "g",        $67
-	charmap "h",        $68
-	charmap "i",        $69
-	charmap "j",        $6a
-	charmap "k",        $6b
-	charmap "l",        $6c
-	charmap "m",        $6d
-	charmap "n",        $6e
-	charmap "o",        $6f
-	charmap "p",        $70
-	charmap "q",        $71
-	charmap "r",        $72
-	charmap "s",        $73
-	charmap "t",        $74
-	charmap "u",        $75
-	charmap "v",        $76
-	charmap "w",        $77
-	charmap "x",        $78
-	charmap "y",        $79
-	charmap "z",        $7a
-
 	setcharmap default
 
 rawchar: MACRO
@@ -431,6 +304,12 @@ rawchar: MACRO
 	endr
 	setcharmap default
 ENDM
+
+
+; Used for mobile communication
+pushc
+newcharmap ascii
+popc
 
 asciichar: MACRO
 	setcharmap ascii
