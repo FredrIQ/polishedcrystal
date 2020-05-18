@@ -9,7 +9,7 @@ Serial::
 	ldh a, [hMobile]
 	and a
 	jr z, .not_mobile
-	farcall MobileSerial
+	homecall MobileSerial
 	jr .done
 
 .not_mobile
