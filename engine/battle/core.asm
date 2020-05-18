@@ -1040,6 +1040,7 @@ GetEnemySwitchTarget:
 	; we've already performed LinkBattleSendReceiveAction
 	ld a, [wBattleAction]
 	sub BATTLEACTION_SWITCH1 - 1
+	inc a
 	ld [wEnemySwitchTarget], a
 	ret
 .ai_switch
