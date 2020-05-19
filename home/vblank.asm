@@ -80,6 +80,9 @@ VBlank::
 	ld a, [hl]
 	and a
 	jr z, .no_mobile
+	dec [hl]
+	jr nz, .no_mobile
+	ld [hl], 60
 	ld a, MOBILE_RECV_BYTE
 	ldh [rSB], a
 	ld a, (1 << rSC_ON) | (1 << rSC_CGB) | (1 << rSC_CLOCK)
