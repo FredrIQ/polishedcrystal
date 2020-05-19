@@ -417,7 +417,8 @@ MobileSerial::
 	ldh a, [rSB]
 	and a
 	ld [wMobilePacketResult], a
-	jp nz, .maerror_on_nz
+	; a certain emulator sends the wrong thing here...
+	; jp nz, .maerror_on_nz
 	jp MobileFinishTransfer
 
 .first_byte

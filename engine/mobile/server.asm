@@ -1,5 +1,5 @@
 ; Polished Online
-PO_PORT            EQU 12345
+PO_PORT            EQU 57409
 
 PO_CMD_DISCONNECT  EQU $00
 PO_CMD_STATUS      EQU $01
@@ -34,10 +34,10 @@ PO_ERROR_WITHANOTHER  EQU $06
 PO_ERROR_REJECTED     EQU $07
 
 PolishedOnline_Addr:
-	asciistr "home.fiq.se"
+	asciistr "fiq.se"
 
 PolishedOnline_BackupIP:
-	db 81, 231, 187, 16
+	db 71, 19, 149, 30
 
 PO_Connect::
 ; Connects to Polished Online. Returns z if we're unable to connect.
@@ -45,6 +45,8 @@ PO_Connect::
 	; call ConnectToDomain -- DNS query unimplemented in library
 	call DNSQuery
 	ld hl, wMobileDNSResponse
+	ld a, [hl]
+	and a
 	jr nz, .got_ip
 	ld hl, PolishedOnline_BackupIP
 .got_ip
