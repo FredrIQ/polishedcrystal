@@ -58,6 +58,7 @@ PO_Connect::
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
+.start
 	call LoadStandardMenuDataHeader
 	call ClearSprites
 	call ClearScreen
@@ -194,10 +195,11 @@ PO_Connect::
 	ld [wOptions2], a
 	xor a
 	ldh [hBGMapMode], a
+	ld [wLinkMode], a
 	farcall LoadPokemonData
-	ld c, 240
-	call DelayFrames
-	jr .disconnect
+	call LoadMapPart
+	call LoadStandardMenuDataHeader
+	jp .start
 
 .handle_signal
 	; Check if server connection was terminated
@@ -238,6 +240,7 @@ PO_Connect::
 	call DelayFrames
 .close_menu
 	call CloseSubmenu
+.done
 	pop af
 	ld [wOptions1], a
 	or 1
@@ -667,12 +670,18 @@ PO_ExchangeData:
 .got_required_data
 	ld a, [wPO_Data]
 	ld c, a
+	push bc
 	farcall ContinueExchangeTCPData
+	pop bc
 	jr c, .disconnected
 	ld hl, wPO_Data + 1
 	ld de, wPO_Data
-	ld bc, 255
+	push bc
+	ld bc, 254
 	rst CopyBytes
+	pop bc
+	ld a, c
+	ld [wPO_ResponseSize], a
 	ld a, [wPO_Command]
 	ld b, a
 	pop af

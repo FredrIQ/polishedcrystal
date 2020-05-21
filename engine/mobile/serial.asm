@@ -217,6 +217,7 @@ ExchangeTCPData:
 ; less than the requested byte length, the last packet would have
 ; written too much -- it is left unwritten to de and remains stored.
 ; as part of the MA packet data.
+; TODO: async alternative?
 	ld [wMobileConnectionID], a
 
 	; Send data

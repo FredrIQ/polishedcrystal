@@ -13,6 +13,11 @@ BattleText_WaitingForOpponent:
 	line "opponent…"
 	prompt
 
+BattleText_WaitingForPlayers:
+	text "Waiting for"
+	line "players…"
+	prompt
+
 BattleText_PlayerPickedUpPayDayMoney:
 	text "<PLAYER> picked up"
 	line "¥"

@@ -929,7 +929,7 @@ wPO_Command:: db
 UNION
 ; generic lowlevel representation for exchanging server data
 wPO_Content:: ds 254
-	ds 1 ; copy of last byte
+wPO_ResponseSize:: db
 NEXTU
 ; battle command + rng stream
 wPO_BattleCommand:: db

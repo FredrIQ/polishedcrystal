@@ -348,8 +348,8 @@ HAZARDS_TOXIC_SPIKES EQU %11000000
 	const BATTLEACTION_B
 	const BATTLEACTION_NEWRANDOM ; get a new set of random numbers from server
 	const BATTLEACTION_STRUGGLE
-	const BATTLEACTION_FORFEIT
-	const BATTLEACTION_WAIT ; Other player has yet to perform an action
+	const BATTLEACTION_FORFEIT ; sent on loss or forfeit -- draw if both send it
+	const BATTLEACTION_END ; tell the server to terminate the battle
 
 	const_def
 	const WIN
