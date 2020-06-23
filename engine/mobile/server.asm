@@ -456,7 +456,7 @@ PO_ServerCommand:
 	dec a
 	jr z, .SetInfo
 	dec a
-	jr z, .GetInfo
+	jp z, .GetInfo
 	dec a
 	jp z, .ListUsers
 	dec a
@@ -659,21 +659,28 @@ PO_ExchangeData:
 	ld a, [wPO_Command]
 	push af
 
-	; First, get length. Then get the rest
+	; First, get response length. Then get the rest
 	xor a
-	ld c, 1
+	ld c, 1 ; first response byte has content length
 	farcall ExchangeTCPData
 	jr c, .disconnected
 	jr z, .got_required_data
+
+	; Always populate wPO_Data with response so far. Causes another transfer,
+	; even if there's nothing more to receive.
 	farcall ForceContinueExchangeTCPData
 	jr c, .disconnected
 .got_required_data
 	ld a, [wPO_Data]
-	ld c, a
+
+	; Get the rest of the data
+	ld c, a ; response size
 	push bc
 	farcall ContinueExchangeTCPData
 	pop bc
 	jr c, .disconnected
+
+	; Shift data so that wPO_Data has the content without the response size
 	ld hl, wPO_Data + 1
 	ld de, wPO_Data
 	push bc
