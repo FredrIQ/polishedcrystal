@@ -233,8 +233,12 @@ IntimidateAbility:
 	ld hl, NoIntimidateAbilities
 	call IsInArray
 	jr nc, .intimidate_ok
+	call DisableAnimations
+	call ShowAbilityActivation
+	call ShowEnemyAbilityActivation
 	ld hl, BattleText_IntimidateResisted
-	jp StdBattleTextBox
+	call StdBattleTextBox
+	jp EnableAnimations
 
 .intimidate_ok
 	call DisableAnimations
@@ -1766,11 +1770,8 @@ _GetOpponentAbilityAfterMoldBreaker::
 	ld b, a
 	call GetTrueUserAbility
 	cp MOLD_BREAKER
-	jr z, .cont_check
 	ld a, b
-	jr .end
-.cont_check
-	ld a, b
+	jr nz, .end
 	ld de, 1
 	push hl
 	push bc
@@ -1778,11 +1779,9 @@ _GetOpponentAbilityAfterMoldBreaker::
 	call IsInArray
 	pop bc
 	pop hl
-	jr c, .suppressed
 	ld a, b
-	jr .end
-.suppressed:
-	ld a, NO_ABILITY
+	jr nc, .end
+	xor a ; ld a, NO_ABILITY
 .end
 	pop bc
 	pop de

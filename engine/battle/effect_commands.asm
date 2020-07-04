@@ -300,11 +300,9 @@ BattleCommand_checkturn:
 	bit FRZ, [hl]
 	jr z, .not_frozen
 
-	; Flame Wheel, Sacred Fire, Scald, and Flare Blitz thaw the user.
+	; Sacred Fire, Scald, and Flare Blitz thaw the user.
 	ld a, BATTLE_VARS_MOVE_ANIM
 	call GetBattleVar
-	cp FLAME_WHEEL
-	jr z, .thaw
 	cp SACRED_FIRE
 	jr z, .thaw
 	cp SCALD
@@ -1866,7 +1864,6 @@ BattleCommand_checkhit:
 	jr z, .blocked
 .not_blocked
 	xor a
-	and a
 	ret
 .blocked
 	ld a, 1
@@ -3355,7 +3352,6 @@ UnevolvedEviolite:
 	ret
 
 BattleCommand_damagestats:
-AttackDamage:
 ; Return move power d, player level e, enemy defense c and player attack b.
 
 	call ResetDamage
@@ -4865,7 +4861,7 @@ BattleCommand_forceraisestat:
 	ld b, -1
 ForceRaiseStat:
 	xor a
-_ForceRaiseStat:
+_ForceRaiseStat: ; no-optimize stub jump
 	jr ChangeStat
 
 BattleCommand_forcelowerstat:

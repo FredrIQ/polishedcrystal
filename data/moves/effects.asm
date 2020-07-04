@@ -456,6 +456,29 @@ SteelWing:
 	posthiteffects
 	endmove
 
+SpeedUpHit:
+FlameCharge:
+	checkobedience
+	usedmovetext
+	doturn
+	hastarget
+	checkhit
+	critical
+	effectchance
+	damagestats
+	damagecalc
+	stab
+	damagevariation
+	moveanim
+	failuretext
+	applydamage
+	criticaltext
+	supereffectivetext
+	raisestathit SPEED
+	postfainteffects
+	posthiteffects
+	endmove
+
 AllUpHit:
 Ancientpower:
 	checkobedience
@@ -1355,7 +1378,6 @@ BugBite:
 	damagecalc
 	stab
 	damagevariation
-	conditionalboost
 	moveanim
 	failuretext
 	bugbite ; before applydamage to steal HP berries before they take effect
@@ -1609,29 +1631,6 @@ MeanLook:
 	arenatrap
 	endmove
 
-FlameWheel:
-	checkobedience
-	usedmovetext
-	doturn
-	hastarget
-	checkhit
-	critical
-	effectchance
-	damagestats
-	damagecalc
-	stab
-	damagevariation
-	moveanim
-	failuretext
-	applydamage
-	criticaltext
-	supereffectivetext
-	defrost
-	postfainteffects
-	posthiteffects
-	burntarget
-	endmove
-
 Curse:
 	checkobedience
 	usedmovetext
@@ -1734,8 +1733,8 @@ Swagger:
 	confusetarget
 	endmove
 
-Avalanche:
 Acrobatics:
+Avalanche:
 Facade:
 Hex:
 Venoshock:
