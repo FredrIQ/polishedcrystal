@@ -36,10 +36,24 @@ Mobile_Init:
 	ld [wMobileSessionEnabled], a
 
 	; Read configuration file
-	jp MobileReadConfig
+	call MobileReadConfig
+	jp MobileSetDefaultConfig
 
 .NintendoText
 	db "NINTENDO", 0
+
+MobileSetDefaultConfig:
+	ld a, BANK(wMobileConfig)
+	call StackCallInWRAMBankA
+.Function:
+	ld hl, MobileDefaultConfig
+	ld de, wMobileConfig
+	ld bc, MOBILE_CONFIGURATION_SIZE
+	rst CopyBytes
+	ret
+
+MobileDefaultConfig:
+INCBIN "engine/mobile/default_config.bin"
 
 MobileReadConfig:
 ; Reads the MA configuration and stores it
