@@ -13,7 +13,7 @@ else
 RGBDS_DIR =
 endif
 
-RGBASM_FLAGS =
+RGBASM_FLAGS = -E -Weverything
 RGBLINK_FLAGS = -n $(ROM_NAME).sym -m $(ROM_NAME).map -l contents/contents.link -p $(FILLER)
 RGBFIX_FLAGS = -csjv -t $(TITLE) -i $(MCODE) -n $(ROMVERSION) -p $(FILLER) -k 01 -l 0x33 -m 0x10 -r 3
 
@@ -71,12 +71,12 @@ home.o \
 ram.o \
 audio.o \
 audio/music_player.o \
+data/overworld/tilesets.o \
 data/pokemon/dex_entries.o \
 data/pokemon/egg_moves.o \
 data/pokemon/evos_attacks.o \
 data/maps/map_data.o \
 data/text/common.o \
-data/tilesets.o \
 engine/movie/credits.o \
 engine/overworld/events.o \
 gfx/pics.o \

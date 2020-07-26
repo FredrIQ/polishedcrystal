@@ -1,8 +1,8 @@
 if DEF(FAITHFUL)
-	db  75,  85, 200,  30,  55,  65
+	db  75,  85, 200,  30,  55,  65 ; 510 BST
 	;   hp  atk  def  spd  sat  sdf
 else
-	db  75,  90, 200,  30,  55,  65
+	db  75,  90, 200,  30,  55,  65 ; 515 BST
 	;   hp  atk  def  spd  sat  sdf
 endc
 
@@ -13,9 +13,9 @@ endc
 	db METAL_COAT ; item 2
 	dn FEMALE_50, 4 ; gender, step cycles to hatch
 	dn 7, 7 ; frontpic dimensions
-	db ROCK_HEAD ; ability 1
-	db SAND_FORCE ; ability 2
-	db SHEER_FORCE ; hidden ability
+	db SHEER_FORCE ; ability 1
+	db STURDY ; ability 2
+	db SAND_FORCE ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn INANIMATE, INANIMATE ; egg groups
 
