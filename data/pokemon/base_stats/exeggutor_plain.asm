@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db MARANGABERRY ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db CHLOROPHYLL ; ability 1
-	db CHLOROPHYLL ; ability 2
-	db HARVEST ; hidden ability
+	INCBIN "gfx/pokemon/exeggutor_plain/front.dimensions"
+	abilities_for EXEGGUTOR, CHLOROPHYLL, CHLOROPHYLL, HARVEST
 	db SLOW ; growth rate
 	dn PLANT, PLANT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   2,   0
 	;         hp, atk, def, spd, sat, sdf
 

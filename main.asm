@@ -66,10 +66,12 @@ INCLUDE "engine/overworld/load_map_part.asm"
 SECTION "bank4", ROMX
 
 INCLUDE "engine/items/pack.asm"
+INCLUDE "engine/events/itemball.asm"
+INCLUDE "engine/events/fruit_trees.asm"
+INCLUDE "engine/gfx/item_icons.asm"
 INCLUDE "engine/overworld/time.asm"
 INCLUDE "engine/items/tmhm.asm"
 INCLUDE "engine/menus/naming_screen.asm"
-INCLUDE "engine/events/itemball.asm"
 INCLUDE "engine/events/heal_machine_anim.asm"
 INCLUDE "engine/events/whiteout.asm"
 INCLUDE "engine/events/forced_movement.asm"
@@ -204,7 +206,6 @@ INCLUDE "engine/pokemon/evolve.asm"
 
 SECTION "bank11", ROMX
 
-INCLUDE "engine/events/fruit_trees.asm"
 INCLUDE "engine/battle/ai/move.asm"
 INCLUDE "engine/pokemon/mail.asm"
 INCLUDE "engine/events/hidden_grottoes.asm"
@@ -223,7 +224,7 @@ INCLUDE "engine/events/buena_menu.asm"
 
 SECTION "Collision Permissions", ROMX
 
-INCLUDE "data/overworld/collision_permissions.asm"
+INCLUDE "data/collision_permissions.asm"
 
 
 SECTION "bank13", ROMX
@@ -427,7 +428,7 @@ SECTION "bank38", ROMX
 
 INCLUDE "engine/games/card_flip.asm"
 INCLUDE "engine/games/unown_puzzle.asm"
-;INCLUDE "engine/games/dummy_game.asm"
+;INCLUDE "engine/games/memory_game.asm"
 INCLUDE "engine/pokemon/bills_pc.asm"
 INCLUDE "engine/gfx/fade.asm"
 
@@ -435,7 +436,8 @@ INCLUDE "engine/gfx/fade.asm"
 SECTION "bank39", ROMX
 
 INCLUDE "engine/menus/options_menu.asm"
-INCLUDE "engine/movie/crystal_intro.asm"
+INCLUDE "engine/movie/splash.asm"
+INCLUDE "engine/movie/intro.asm"
 
 
 SECTION "Typefaces", ROMX
@@ -467,7 +469,6 @@ INCLUDE "engine/gfx/dma_transfer.asm"
 INCLUDE "gfx/emotes.asm"
 INCLUDE "engine/overworld/warp_connection.asm"
 INCLUDE "engine/battle/used_move_text.asm"
-INCLUDE "engine/gfx/item_icons.asm"
 
 
 SECTION "Title", ROMX
@@ -531,8 +532,9 @@ INCLUDE "engine/battle/stats.asm"
 SECTION "Item Text", ROMX
 
 INCLUDE "data/items/names.asm"
-INCLUDE "engine/items/print_item_description.asm"
+INCLUDE "data/items/key_names.asm"
 INCLUDE "data/items/apricorn_names.asm"
+INCLUDE "engine/items/print_item_description.asm"
 
 
 SECTION "Move and Landmark Text", ROMX

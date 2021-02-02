@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn ALL_FEMALE, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db POISON_POINT ; ability 1
-	db RIVALRY ; ability 2
-	db SHEER_FORCE ; hidden ability
+	INCBIN "gfx/pokemon/nidoqueen/front.dimensions"
+	abilities_for NIDOQUEEN, POISON_POINT, RIVALRY, SHEER_FORCE
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   3,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

@@ -16,14 +16,11 @@ endc
 	db ALWAYS_ITEM_2 ; item 1
 	db BIG_ROOT ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db CHLOROPHYLL ; ability 1
-	db CHLOROPHYLL ; ability 2
-	db GLUTTONY ; hidden ability
+	INCBIN "gfx/pokemon/victreebel/front.dimensions"
+	abilities_for VICTREEBEL, CHLOROPHYLL, CHLOROPHYLL, GLUTTONY
 	db MEDIUM_SLOW ; growth rate
 	dn PLANT, PLANT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   3,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

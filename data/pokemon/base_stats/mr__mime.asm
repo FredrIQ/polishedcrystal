@@ -12,14 +12,11 @@ endc
 	db PERSIM_BERRY ; item 1
 	db PERSIM_BERRY ; item 2
 	dn FEMALE_50, 4 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db SOUNDPROOF ; ability 1
-	db FILTER ; ability 2
-	db TECHNICIAN ; hidden ability
+	INCBIN "gfx/pokemon/mr__mime/front.dimensions"
+	abilities_for MR__MIME, SOUNDPROOF, FILTER, TECHNICIAN
 	db MEDIUM_FAST ; growth rate
 	dn HUMANSHAPE, HUMANSHAPE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   2
 	;         hp, atk, def, spd, sat, sdf
 

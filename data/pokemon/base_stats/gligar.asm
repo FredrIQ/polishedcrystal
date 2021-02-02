@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db RAZOR_FANG ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db HYPER_CUTTER ; ability 1
-	db SAND_VEIL ; ability 2
-	db IMMUNITY ; hidden ability
+	INCBIN "gfx/pokemon/gligar/front.dimensions"
+	abilities_for GLIGAR, HYPER_CUTTER, SAND_VEIL, IMMUNITY
 	db MEDIUM_SLOW ; growth rate
 	dn INSECT, INSECT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   1,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

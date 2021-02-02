@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 0 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db INTIMIDATE ; ability 1
-	db MOLD_BREAKER ; ability 2
-	db MOXIE ; hidden ability
+	INCBIN "gfx/pokemon/gyarados_plain/front.dimensions"
+	abilities_for GYARADOS, INTIMIDATE, MOXIE, MOLD_BREAKER
 	db SLOW ; growth rate
 	dn FISH, REPTILE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   2,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db DRAGON_SCALE ; item 2
 	dn FEMALE_50, 7 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db INNER_FOCUS ; ability 1
+	INCBIN "gfx/pokemon/dragonite/front.dimensions"
 if DEF(FAITHFUL)
-	db INNER_FOCUS ; ability 2
+	abilities_for DRAGONITE, INNER_FOCUS, INNER_FOCUS, MULTISCALE
 else
-	db MARVEL_SCALE ; ability 2
+	abilities_for DRAGONITE, INNER_FOCUS, MARVEL_SCALE, MULTISCALE
 endc
-	db MULTISCALE ; hidden ability
 	db SLOW ; growth rate
 	dn AMPHIBIAN, REPTILE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   3,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

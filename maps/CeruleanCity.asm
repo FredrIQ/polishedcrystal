@@ -1,10 +1,10 @@
 CeruleanCity_MapScriptHeader:
-	db 0 ; scene scripts
+	def_scene_scripts
 
-	db 1 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_NEWMAP, CeruleanCityFlyPoint
 
-	db 11 ; warp events
+	def_warp_events
 	warp_event  7, 11, CERULEAN_GYM_BADGE_SPEECH_HOUSE, 1
 	warp_event 28, 13, CERULEAN_POLICE_STATION, 1
 	warp_event 13, 15, CERULEAN_TRADE_SPEECH_HOUSE, 1
@@ -17,29 +17,29 @@ CeruleanCity_MapScriptHeader:
 	warp_event 19, 25, CERULEAN_COUPLE_HOUSE, 1
 	warp_event 29,  7, CERULEAN_WATER_SHOW_SPEECH_HOUSE, 1
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 8 ; bg events
-	bg_event 17, 20, SIGNPOST_JUMPTEXT, CeruleanCitySignText
-	bg_event 23, 19, SIGNPOST_JUMPTEXT, CeruleanGymSignText
-	bg_event 11, 25, SIGNPOST_JUMPTEXT, CeruleanBikeShopSignText
-	bg_event 25, 13, SIGNPOST_JUMPTEXT, CeruleanPoliceSignText
-	bg_event 23,  5, SIGNPOST_JUMPTEXT, CeruleanCapeSignText
-	bg_event 11, 19, SIGNPOST_JUMPTEXT, CeruleanBubblerText
-	bg_event 21, 27, SIGNPOST_JUMPTEXT, CeruleanTrainerTipsText
-	bg_event  4, 13, SIGNPOST_ITEM + BERSERK_GENE, EVENT_FOUND_BERSERK_GENE_IN_CERULEAN_CITY
+	def_bg_events
+	bg_event 17, 20, BGEVENT_JUMPTEXT, CeruleanCitySignText
+	bg_event 23, 19, BGEVENT_JUMPTEXT, CeruleanGymSignText
+	bg_event 11, 25, BGEVENT_JUMPTEXT, CeruleanBikeShopSignText
+	bg_event 25, 13, BGEVENT_JUMPTEXT, CeruleanPoliceSignText
+	bg_event 23,  5, BGEVENT_JUMPTEXT, CeruleanCapeSignText
+	bg_event 11, 19, BGEVENT_JUMPTEXT, CeruleanBubblerText
+	bg_event 21, 27, BGEVENT_JUMPTEXT, CeruleanTrainerTipsText
+	bg_event  4, 13, BGEVENT_ITEM + BERSERK_GENE, EVENT_FOUND_BERSERK_GENE_IN_CERULEAN_CITY
 
-	db 8 ; object events
-	object_event 21, 20, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, CooltrainerFScript_0x18402a, -1
-	object_event  6,  8, SPRITE_SCHOOLBOY, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 1, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, YoungsterScript_0x184064, -1
-	object_event 30, 22, SPRITE_COOL_DUDE, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 1, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, CooltrainerMScript_0x184009, -1
-	object_event 23, 11, SPRITE_POKEMANIAC, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_BLUE, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1841a8, -1
-	object_event 20, 20, SPRITE_MON_ICON, SPRITEMOVEDATA_DOLL, 0, SLOWBRO, -1, -1, PAL_NPC_RED, PERSONTYPE_POKEMON, SLOWBRO, CeruleanCitySlowbroText, -1
-	object_event 14, 18, SPRITE_FAT_GUY, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, FisherScript_0x18404a, -1
-	object_event  2, 10, SPRITE_ACE_TRAINER_M, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, CeruleanCaveGuardText, EVENT_BEAT_BLUE
-	object_event 44, 16, SPRITE_BALL_CUT_FRUIT, SPRITEMOVEDATA_CUTTABLE_TREE, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_9_CUT_TREE
+	def_object_events
+	object_event 21, 20, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_SCRIPT, 0, CooltrainerFScript_0x18402a, -1
+	object_event  6,  8, SPRITE_SCHOOLBOY, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 1, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, YoungsterScript_0x184064, -1
+	object_event 30, 22, SPRITE_COOL_DUDE, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 1, -1, -1, PAL_NPC_BLUE, OBJECTTYPE_SCRIPT, 0, CooltrainerMScript_0x184009, -1
+	object_event 23, 11, SPRITE_POKEMANIAC, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_BLUE, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1841a8, -1
+	object_event 20, 20, SPRITE_MON_ICON, SPRITEMOVEDATA_STILL, 0, SLOWBRO, -1, -1, PAL_NPC_RED, OBJECTTYPE_POKEMON, SLOWBRO, CeruleanCitySlowbroText, -1
+	object_event 14, 18, SPRITE_FAT_GUY, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, FisherScript_0x18404a, -1
+	object_event  2, 10, SPRITE_ACE_TRAINER_M, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptextfaceplayer, CeruleanCaveGuardText, EVENT_BEAT_BLUE
+	object_event 44, 16, SPRITE_BALL_CUT_FRUIT, SPRITEMOVEDATA_CUTTABLE_TREE, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_9_CUT_TREE
 
-	const_def 1 ; object constants
+	object_const_def
 	const CERULEANCITY_COOLTRAINER_F
 	const CERULEANCITY_YOUNGSTER
 
@@ -48,7 +48,7 @@ CeruleanCityFlyPoint:
 	return
 
 CooltrainerMScript_0x184009:
-	checkevent EVENT_RETURNED_MACHINE_PART
+	checkevent EVENT_RESTORED_POWER_TO_KANTO
 	iftrue_jumptextfaceplayer UnknownText_0x184144
 	jumptextfaceplayer UnknownText_0x1840bc
 
@@ -60,7 +60,7 @@ CooltrainerFScript_0x18402a:
 	jumptext UnknownText_0x18424b
 
 FisherScript_0x18404a:
-	checkevent EVENT_RETURNED_MACHINE_PART
+	checkevent EVENT_RESTORED_POWER_TO_KANTO
 	iftrue_jumptextfaceplayer UnknownText_0x18424e
 	checkevent EVENT_MET_ROCKET_GRUNT_AT_CERULEAN_GYM
 	iftrue_jumptextfaceplayer UnknownText_0x184275

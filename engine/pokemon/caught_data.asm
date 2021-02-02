@@ -71,7 +71,7 @@ CheckPartyFullAfterContest:
 	call GetPartyLocation
 	ld a, [hl]
 	ld [wCurPartyLevel], a
-	ld a, PARK_BALL
+	xor a ; PARK_BALL
 	ld [wCurItem], a
 	call SetCaughtData
 	ld a, [wPartyCount]
@@ -129,7 +129,7 @@ CheckPartyFullAfterContest:
 	ld a, [sBoxMon1Level]
 	ld [wCurPartyLevel], a
 	call CloseSRAM
-	ld a, PARK_BALL
+	xor a ; PARK_BALL
 	ld [wCurItem], a
 	call SetBoxMonCaughtData
 	ld a, BANK(sBoxMon1CaughtLocation)
@@ -188,6 +188,7 @@ SetBoxmonOrEggmonCaughtData:
 	rrca
 	rrca
 	rrca
+	and CAUGHTTIME_MASK
 	or b
 	ld b, a
 	; CaughtBall
@@ -233,6 +234,7 @@ SetGiftMonCaughtData:
 	rrca
 	rrca
 	rrca
+	and CAUGHTTIME_MASK
 	or b
 	ld b, a
 	; CaughtBall

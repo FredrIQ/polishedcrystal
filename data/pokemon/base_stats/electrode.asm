@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db CELL_BATTERY ; item 2
 	dn GENDERLESS, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SOUNDPROOF ; ability 1
-	db STATIC ; ability 2
-	db AFTERMATH ; hidden ability
+	INCBIN "gfx/pokemon/electrode/front.dimensions"
+	abilities_for ELECTRODE, SOUNDPROOF, STATIC, AFTERMATH
 	db MEDIUM_FAST ; growth rate
 	dn INANIMATE, INANIMATE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   2,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

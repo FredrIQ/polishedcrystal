@@ -11,14 +11,12 @@ endc
 	db ALWAYS_ITEM_2 ; item 1
 	db PETAYA_BERRY ; item 2
 	dn GENDERLESS, 15 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db PRESSURE ; ability 1
-	db INSOMNIA ; ability 2
-	db UNNERVE ; hidden ability
+	INCBIN "gfx/pokemon/mewtwo_armored/front.dimensions"
+	abilities_for MEWTWO, PRESSURE, INSOMNIA, UNNERVE
+	; assumes identical abilities to non-armored
 	db SLOW ; growth rate
 	dn NO_EGGS, NO_EGGS ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   3,   0
 	;         hp, atk, def, spd, sat, sdf
 

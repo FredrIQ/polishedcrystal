@@ -6,7 +6,7 @@ OptionsMenu:
 	call ClearBGPalettes
 	hlcoord 0, 0
 	lb bc, SCREEN_HEIGHT - 2, SCREEN_WIDTH - 2
-	call TextBox
+	call Textbox
 	hlcoord 2, 2
 	ld de, StringOptions1
 	rst PlaceString
@@ -561,7 +561,8 @@ Options_Typeface:
 	dw .Bold
 	dw .Italic
 	dw .Serif
-	dw .Braille
+	dw .Chicago
+	dw .MICR
 	dw .Unown
 
 .Normal:
@@ -574,8 +575,10 @@ Options_Typeface:
 	db "Italic @"
 .Serif:
 	db "Serif  @"
-.Braille:
-	db "Braille@"
+.Chicago:
+	db "Chicago@"
+.MICR:
+	db "MICR   @"
 .Unown:
 	db "Unown  @"
 
@@ -601,7 +604,7 @@ Options_NextPrevious:
 	push de
 	hlcoord 0, 0
 	lb bc, 16, 18
-	call TextBox
+	call Textbox
 	pop de
 	hlcoord 2, 2
 	rst PlaceString

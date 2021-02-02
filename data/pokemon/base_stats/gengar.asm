@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db SPELL_TAG ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db CURSED_BODY ; ability 1
+	INCBIN "gfx/pokemon/gengar/front.dimensions"
 if DEF(FAITHFUL)
-	db CURSED_BODY ; ability 2
+	abilities_for GENGAR, CURSED_BODY, CURSED_BODY, SHADOW_TAG
 else
-	db LEVITATE ; ability 2
+	abilities_for GENGAR, CURSED_BODY, LEVITATE, SHADOW_TAG
 endc
-	db SHADOW_TAG ; hidden ability
 	db MEDIUM_SLOW ; growth rate
 	dn AMORPHOUS, AMORPHOUS ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   3,   0
 	;         hp, atk, def, spd, sat, sdf
 

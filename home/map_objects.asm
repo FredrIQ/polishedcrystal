@@ -54,62 +54,31 @@ GetSpriteVTile::
 .using_vbk1
 	jp PopBCDEHL
 
-DoesSpriteHaveFacings::
-	push de
-	push hl
-
-	ld b, a
-	ldh a, [hROMBank]
-	push af
-	ld a, BANK(_DoesSpriteHaveFacings)
-	rst Bankswitch
-
-	ld a, b
-	call _DoesSpriteHaveFacings
-	ld c, a
-
-	pop de
-	ld a, d
-	rst Bankswitch
-
-	pop hl
-	pop de
-	ret
-
 GetPlayerStandingTile::
 	ld a, [wPlayerStandingTile]
 	; fallthrough
 
 GetTileCollision::
 ; Get the collision type of tile a.
-
-	push de
 	push hl
 
-	ld hl, TileCollisionTable
-	ld e, a
-	ld d, 0
-	add hl, de
+	add LOW(TileCollisionTable)
+	ld l, a
+	adc HIGH(TileCollisionTable)
+	sub l
+	ld h, a
 
-	ldh a, [hROMBank]
-	push af
 	ld a, BANK(TileCollisionTable)
-	rst Bankswitch
-	ld e, [hl]
-	pop af
-	rst Bankswitch
-
-	ld a, e
+	call GetFarByte
 	and $f ; lo nybble only
 
 	pop hl
-	pop de
 	ret
 
 GetMapObject::
 ; Return the location of map object a in bc.
 	ld hl, wMapObjects
-	ld bc, OBJECT_LENGTH
+	ld bc, MAPOBJECT_LENGTH
 	rst AddNTimes
 	ld b, h
 	ld c, l
@@ -165,6 +134,7 @@ CheckObjectTime::
 	db 1 << MORN ; 1
 	db 1 << DAY  ; 2
 	db 1 << NITE ; 4
+	db 1 << EVE  ; 8
 
 .check_hour
 	ld hl, MAPOBJECT_HOUR
@@ -251,7 +221,7 @@ CopyPlayerObjectTemplate::
 	ld [de], a
 	inc de
 	pop hl
-	ld bc, OBJECT_LENGTH - 1
+	ld bc, MAPOBJECT_LENGTH - 1
 	rst CopyBytes
 	ret
 
@@ -275,7 +245,7 @@ LoadMovementDataPointer::
 
 	ld hl, OBJECT_STEP_TYPE
 	add hl, bc
-	ld [hl], STEP_TYPE_00
+	ld [hl], STEP_TYPE_RESET
 
 	ld hl, wVramState
 	set 7, [hl]
@@ -289,7 +259,7 @@ FindFirstEmptyObjectStruct::
 	push bc
 	push de
 	ld hl, wObjectStructs
-	ld de, OBJECT_STRUCT_LENGTH
+	ld de, OBJECT_LENGTH
 	ld c, NUM_OBJECT_STRUCTS
 .loop
 	ld a, [hl]
@@ -311,31 +281,13 @@ FindFirstEmptyObjectStruct::
 	pop bc
 	ret
 
-GetSpriteMovementFunction::
-	ld hl, OBJECT_MOVEMENTTYPE
-	add hl, bc
-	ld a, [hl]
-	cp NUM_SPRITEMOVEDATA
-	jr c, .ok
-	xor a
-
-.ok
-	ld hl, SpriteMovementData
-	ld e, a
-	ld d, 0
-rept SPRITEMOVEDATA_FIELDS
-	add hl, de
-endr
-	ld a, [hl]
-	ret
-
 GetInitialFacing::
 	push bc
 	push de
 	ld e, a
 	ld d, 0
 	ld hl, SpriteMovementData + 1 ; init facing
-rept SPRITEMOVEDATA_FIELDS
+rept NUM_SPRITEMOVEDATA_FIELDS
 	add hl, de
 endr
 	ld a, BANK(SpriteMovementData)
@@ -345,73 +297,6 @@ endr
 	and $c
 	pop de
 	pop bc
-	ret
-
-CopySpriteMovementData::
-	ld l, a
-	ldh a, [hROMBank]
-	push af
-	ld a, BANK(SpriteMovementData)
-	rst Bankswitch
-	ld a, l
-	push bc
-
-	call .CopyData
-
-	pop bc
-	pop af
-	rst Bankswitch
-
-	ret
-
-.CopyData:
-	ld hl, OBJECT_MOVEMENTTYPE
-	add hl, de
-	ld [hl], a
-
-	push de
-	ld e, a
-	ld d, 0
-	ld hl, SpriteMovementData + 1 ; init facing
-rept SPRITEMOVEDATA_FIELDS
-	add hl, de
-endr
-	ld b, h
-	ld c, l
-	pop de
-
-	ld a, [bc]
-	inc bc
-	rlca
-	rlca
-	and %00001100
-	ld hl, OBJECT_FACING
-	add hl, de
-	ld [hl], a
-
-	ld a, [bc]
-	inc bc
-	ld hl, OBJECT_ACTION
-	add hl, de
-	ld [hl], a
-
-	ld a, [bc]
-	inc bc
-	ld hl, OBJECT_FLAGS1
-	add hl, de
-	ld [hl], a
-
-	ld a, [bc]
-	inc bc
-	ld hl, OBJECT_FLAGS2
-	add hl, de
-	ld [hl], a
-
-	ld a, [bc]
-	inc bc
-	ld hl, OBJECT_PALETTE
-	add hl, de
-	ld [hl], a
 	ret
 
 _GetMovementByte::
@@ -448,7 +333,7 @@ UpdateSprites::
 	farjp _UpdateSprites
 
 GetObjectStruct::
-	ld bc, OBJECT_STRUCT_LENGTH
+	ld bc, OBJECT_LENGTH
 	ld hl, wObjectStructs
 	rst AddNTimes
 	ld b, h

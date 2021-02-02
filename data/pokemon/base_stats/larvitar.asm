@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 7 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db GUTS ; ability 1
+	INCBIN "gfx/pokemon/larvitar/front.dimensions"
 if DEF(FAITHFUL)
-	db GUTS ; ability 2
+	abilities_for LARVITAR, GUTS, GUTS, SAND_VEIL
 else
-	db BATTLE_ARMOR ; ability 2
+	abilities_for LARVITAR, GUTS, BATTLE_ARMOR, SAND_VEIL
 endc
-	db SAND_VEIL ; hidden ability
 	db SLOW ; growth rate
 	dn MONSTER, MONSTER ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

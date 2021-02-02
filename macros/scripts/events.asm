@@ -548,8 +548,10 @@ buttonsound: MACRO
 pokepic: MACRO
 	db pokepic_command
 	db \1 ; pokemon
-if _NARG == 2
-	db \2 ; party flag
+if \1 == 0
+	db -1 ; party mon
+elif _NARG == 2
+	db \2 ; form
 else
 	db 0
 endc
@@ -584,7 +586,13 @@ loadmemtrainer: MACRO
 loadwildmon: MACRO
 	db loadwildmon_command
 	db \1 ; pokemon
+if _NARG == 3
+	db \2 ; form
+	db \3 ; level
+else
+	db 0  ; form
 	db \2 ; level
+endc
 	ENDM
 
 	enum loadtrainer_command
@@ -778,16 +786,10 @@ reloadmappart: MACRO
 	db reloadmappart_command
 	ENDM
 
-	enum writecmdqueue_command
-writecmdqueue: MACRO
-	db writecmdqueue_command
-	dw \1 ; queue_pointer
-	ENDM
-
-	enum delcmdqueue_command
-delcmdqueue: MACRO
-	db delcmdqueue_command
-	db \1 ; byte
+	enum usestonetable_command
+usestonetable: MACRO
+	db usestonetable_command
+	dw \1 ; stonetable_pointer
 	ENDM
 
 	enum playmusic_command
@@ -930,12 +932,6 @@ trade: MACRO
 askforphonenumber: MACRO
 	db askforphonenumber_command
 	db \1 ; number
-	ENDM
-
-	enum phonecall_command
-phonecall: MACRO
-	db phonecall_command
-	dw \1 ; caller_name
 	ENDM
 
 	enum hangup_command
@@ -1289,3 +1285,21 @@ ENDM
 keyitemnotify: MACRO
 	db keyitemnotify_command
 ENDM
+
+	enum givebp_command
+givebp: MACRO
+	db givebp_command
+	dw \1 ; bp
+	ENDM
+
+	enum takebp_command
+takebp: MACRO
+	db takebp_command
+	dw \1 ; bp
+	ENDM
+
+	enum checkbp_command
+checkbp: MACRO
+	db checkbp_command
+	dw \1 ; bp
+	ENDM

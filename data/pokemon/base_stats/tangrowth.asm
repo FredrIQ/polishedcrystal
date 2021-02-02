@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db CHLOROPHYLL ; ability 1
-	db LEAF_GUARD ; ability 2
-	db REGENERATOR ; hidden ability
+	INCBIN "gfx/pokemon/tangrowth/front.dimensions"
+	abilities_for TANGROWTH, CHLOROPHYLL, LEAF_GUARD, REGENERATOR
 	db MEDIUM_FAST ; growth rate
 	dn PLANT, PLANT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   2,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

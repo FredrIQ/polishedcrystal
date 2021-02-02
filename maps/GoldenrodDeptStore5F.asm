@@ -1,28 +1,28 @@
 GoldenrodDeptStore5F_MapScriptHeader:
-	db 0 ; scene scripts
+	def_scene_scripts
 
-	db 1 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_OBJECTS, GoldenrodDeptStore5FCheckIfSunday
 
-	db 3 ; warp events
+	def_warp_events
 	warp_event 12,  0, GOLDENROD_DEPT_STORE_4F, 1
 	warp_event 15,  0, GOLDENROD_DEPT_STORE_6F, 1
 	warp_event  2,  0, GOLDENROD_DEPT_STORE_ELEVATOR, 1
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 1 ; bg events
-	bg_event 14,  0, SIGNPOST_JUMPTEXT, GoldenrodDeptStore5FDirectoryText
+	def_bg_events
+	bg_event 14,  0, BGEVENT_JUMPTEXT, GoldenrodDeptStore5FDirectoryText
 
-	db 6 ; object events
-	object_event  7,  5, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ReceptionistScript_0x560ce, EVENT_GOLDENROD_DEPT_STORE_5F_HAPPINESS_EVENT_LADY
-	object_event  8,  5, SPRITE_CLERK, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, pokemart, MARTTYPE_TM, MART_GOLDENROD_5F_TM, -1
-	object_event  6,  3, SPRITE_COOL_DUDE, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, trade, TRADE_WITH_MIKE_FOR_MACHOP, -1
-	object_event  3,  6, SPRITE_CUTE_GIRL, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x562ad, -1
-	object_event  9,  1, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_DOWN, 2, 2, -1, -1, PAL_NPC_BROWN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x562f3, -1
-	object_event 13,  5, SPRITE_TWIN, SPRITEMOVEDATA_WANDER, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, GoldenrodDeptStore5FTwinScript, -1
+	def_object_events
+	object_event  7,  5, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, ReceptionistScript_0x560ce, EVENT_GOLDENROD_DEPT_STORE_5F_HAPPINESS_EVENT_LADY
+	object_event  8,  5, SPRITE_CLERK, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, pokemart, MARTTYPE_TM, MART_GOLDENROD_5F_TM, -1
+	object_event  6,  3, SPRITE_COOL_DUDE, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, trade, TRADE_WITH_MIKE_FOR_MACHOP, -1
+	object_event  3,  6, SPRITE_CUTE_GIRL, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x562ad, -1
+	object_event  9,  1, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_DOWN, 2, 2, -1, -1, PAL_NPC_BROWN, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x562f3, -1
+	object_event 13,  5, SPRITE_TWIN, SPRITEMOVEDATA_WANDER, 0, 0, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_SCRIPT, 0, GoldenrodDeptStore5FTwinScript, -1
 
-	const_def 1 ; object constants
+	object_const_def
 	const GOLDENRODDEPTSTORE5F_RECEPTIONIST
 
 GoldenrodDeptStore5FCheckIfSunday:
@@ -77,12 +77,8 @@ GoldenrodDeptStore5FTwinScript:
 	random MARANGABERRY - ORAN_BERRY + 1
 	addvar ORAN_BERRY
 	itemtotext $0, $1
-	giveitem ITEM_FROM_MEM
+	verbosegiveitem ITEM_FROM_MEM
 	iffalse_jumpopenedtext MysteryGiftGirl_NoRoomText
-	writetext MysteryGiftGirl_GiveItemText
-	specialsound
-	waitbutton
-	itemnotify
 	setflag ENGINE_DAILY_MYSTERY_GIFT
 	jumpthisopenedtext
 
@@ -122,13 +118,6 @@ UnknownText_0x56279:
 
 	para "But, I did find"
 	line "this Berry!"
-	done
-
-MysteryGiftGirl_GiveItemText:
-	text "<PLAYER> received"
-	line ""
-	text_from_ram wStringBuffer4
-	text "!"
 	done
 
 MysteryGiftGirl_NoRoomText:

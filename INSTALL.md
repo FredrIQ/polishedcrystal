@@ -50,7 +50,7 @@ Python 2.7 is required.
 ```bash
 sudo apt-get install make python gcc git bison
 
-git clone https://github.com/rednex/rgbds.git
+git clone https://github.com/gbdev/rgbds.git
 cd rgbds
 sudo make install
 cd ..
@@ -74,12 +74,15 @@ make [faithful] [nortc] [hgss|monochrome|noir] [debug]
 
 ## Mac OS X
 
+`md5sum`, `ghead` and `gtail` are required.  
+To install it: ```brew install coreutils```
+
 In **Terminal**, run:
 
 ```bash
 xcode-select --install
 
-git clone https://github.com/rednex/rgbds.git
+git clone https://github.com/gbdev/rgbds.git
 cd rgbds
 sudo make install
 cd ..

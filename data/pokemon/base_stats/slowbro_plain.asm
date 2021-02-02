@@ -12,14 +12,11 @@ endc
 	db NO_ITEM ; item 1
 	db KINGS_ROCK ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db OBLIVIOUS ; ability 1
-	db OWN_TEMPO ; ability 2
-	db REGENERATOR ; hidden ability
+	INCBIN "gfx/pokemon/slowbro_plain/front.dimensions"
+	abilities_for SLOWBRO, OBLIVIOUS, OWN_TEMPO, REGENERATOR
 	db MEDIUM_FAST ; growth rate
 	dn MONSTER, AMPHIBIAN ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   2,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

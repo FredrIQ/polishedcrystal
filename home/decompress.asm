@@ -267,17 +267,24 @@ LZ_LONG_HI       EQU %00000011
 ; Copy bitflipped data for bc bytes.
 	ld a, [de]
 	inc de
-	ld [hl], b ;use the current output as buffer
-	ld b, 0
-rept 8
-	rra
-	rl b
-endr
-	ld a, b
+	ld [hl], b ; use the current output as buffer
+
+; https://github.com/pret/pokecrystal/wiki/Optimizing-assembly-code#reverse-the-bits-of-a
+	ld b, a
+	rlca
+	rlca
+	xor b
+	and $aa
+	xor b
+	ld b, a
+	swap b
+	xor b
+	and $33
+	xor b
+	rrca
+
 	ld b, [hl]
-
 	ld [hli], a
-
 	dec c
 	jr nz, .flipped
 	dec b

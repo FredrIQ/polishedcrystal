@@ -8,10 +8,10 @@
 
 OpenMartDialog::
 	ld a, c
-	ld [wEngineBuffer1], a
+	ld [wMartType], a
 	call GetMart
 	call LoadMartPointer
-	ld a, [wEngineBuffer1]
+	ld a, [wMartType]
 	call StackJumpTable
 
 .dialogs
@@ -29,28 +29,28 @@ OpenMartDialog::
 	dw BTMart
 
 MartDialog:
-	xor a
-	ld [wEngineBuffer1], a
-	ld [wEngineBuffer5], a
+	xor a ; MARTTYPE_STANDARD, STANDARDMART_HOWMAYIHELPYOU
+	ld [wMartType], a
+	ld [wMartJumptableIndex], a
 	jp StandardMart
 
 HerbShop:
 	call FarReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_HerbShop_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_HerbShop_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 BargainShop:
 	ld b, BANK(BargainShopData)
 	ld de, BargainShopData
 	call LoadMartPointer
 	call ReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_BargainShop_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, wBargainShopFlags
 	ld a, [hli]
@@ -61,18 +61,18 @@ BargainShop:
 
 .skip_set
 	ld hl, Text_BargainShop_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 INCLUDE "data/items/bargain_shop.asm"
 
 Pharmacist:
 	call FarReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_Pharmacist_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_Pharmacist_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 RooftopSale:
 	ld b, BANK(RooftopSaleData1) ; BANK(RooftopSaleData2)
@@ -84,82 +84,82 @@ RooftopSale:
 .ok
 	call LoadMartPointer
 	call ReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_Mart_HowMayIHelpYou
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_Mart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 INCLUDE "data/items/rooftop_sale.asm"
 
 SilphMart:
 	call FarReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_SilphMart_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_SilphMart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 AdventurerMart:
 	call FarReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_AdventurerMart_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_AdventurerMart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 InformalMart:
 	call FarReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_InformalMart_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_InformalMart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 BazaarMart:
 	call FarReadMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_BazaarMart_Intro
-	call MartTextBox
+	call MartTextbox
 	call BuyMenu
 	ld hl, Text_BazaarMart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 TMMart:
 	call FarReadTMMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_Mart_HowMayIHelpYou
-	call MartTextBox
+	call MartTextbox
 	call BuyTMMenu
 	ld hl, Text_Mart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 BlueCardMart:
 	ld b, BANK(BlueCardMartData)
 	ld de, BlueCardMartData
 	call LoadMartPointer
 	call ReadBlueCardMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_BlueCardMart_HowMayIHelpYou
-	call MartTextBox
+	call MartTextbox
 	call BlueCardBuyMenu
 	ld hl, Text_BlueCardMart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 INCLUDE "data/items/buena_prizes.asm"
 
 BTMart:
 	call FarReadBTMart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_BTMart_HowMayIHelpYou
-	call MartTextBox
+	call MartTextbox
 	call BTBuyMenu
 	ld hl, Text_BTMart_ComeAgain
-	jp MartTextBox
+	jp MartTextbox
 
 LoadMartPointer:
 	ld a, b
@@ -173,7 +173,7 @@ LoadMartPointer:
 	ld bc, wCurMartEnd - wCurMart
 	rst ByteFill
 	xor a
-	ld [wEngineBuffer5], a
+	ld [wMartJumptableIndex], a
 	ld [wBargainShopFlags], a
 	ld [wFacingDirection], a
 	ret
@@ -190,10 +190,10 @@ GetMart:
 
 StandardMart:
 .loop
-	ld a, [wEngineBuffer5]
+	ld a, [wMartJumptableIndex]
 	ld hl, .MartFunctions
 	call JumpTable
-	ld [wEngineBuffer5], a
+	ld [wMartJumptableIndex], a
 	cp $ff
 	jr nz, .loop
 	ret
@@ -207,7 +207,7 @@ StandardMart:
 	dw .AnythingElse
 
 .HowMayIHelpYou:
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_Mart_HowMayIHelpYou
 	call PrintText
 	ld a, $1 ; top menu
@@ -215,7 +215,7 @@ StandardMart:
 
 .TopMenu:
 	ld hl, MenuDataHeader_BuySell
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call VerticalMenu
 	jr c, .quit
 	ld a, [wMenuCursorY]
@@ -250,12 +250,12 @@ StandardMart:
 .Quit:
 	call ExitMenu
 	ld hl, Text_Mart_ComeAgain
-	call MartTextBox
+	call MartTextbox
 	ld a, $ff ; exit
 	ret
 
 .AnythingElse:
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, Text_Mart_AnythingElse
 	call PrintText
 	ld a, $1 ; top menu
@@ -480,7 +480,7 @@ BuyMenu_InitGFX:
 ; Place the text box for bag quantity
 	hlcoord 0, 0
 	lb bc, 1, 8
-	call TextBox
+	call Textbox
 ; Place the left column
 	hlcoord 0, 3
 	ld de, .BuyLeftColumnTilemapString
@@ -502,7 +502,7 @@ BuyMenu_InitGFX:
 ; Place the textbox for displaying the item description
 ;	hlcoord 0, SCREEN_HEIGHT - 4 - 2
 ;	lb bc, 4, SCREEN_WIDTH - 2
-;	call TextBox
+;	call Textbox
 	call EnableLCD
 	call ApplyTilemapInVBlank
 	ld a, CGB_BUYMENU_PALS
@@ -528,7 +528,7 @@ BuyMenu_InitGFX:
 
 LoadBuyMenuText:
 ; load text from a nested table
-; which table is in wEngineBuffer1
+; which table is in wMartType
 ; which entry is in register a
 	push af
 	call GetMartDialogGroup ; gets a pointer from GetMartDialogGroup.MartTextFunctionPointers
@@ -558,7 +558,7 @@ MartAskPurchaseQuantity:
 	jp RooftopSaleAskPurchaseQuantity
 
 GetMartDialogGroup:
-	ld a, [wEngineBuffer1]
+	ld a, [wMartType]
 	ld e, a
 	ld d, 0
 	ld hl, .MartTextFunctionPointers
@@ -673,9 +673,9 @@ BuyMenuLoop:
 	farcall PlaceMoneyTopRight
 	call UpdateSprites
 	ld hl, MenuDataHeader_Buy
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call DoMartScrollingMenu
-	call SpeechTextBox
+	call SpeechTextbox
 	ld a, [wMenuJoypad]
 	cp B_BUTTON
 	jp z, MartMenuLoop_SetCarry
@@ -724,7 +724,7 @@ BuyMenuLoop:
 	call PrintText
 	call JoyWaitAorB
 .cancel
-	call SpeechTextBox
+	call SpeechTextbox
 	and a
 	ret
 
@@ -736,9 +736,9 @@ BuyTMMenuLoop:
 	farcall PlaceMoneyTopRight
 	call UpdateSprites
 	ld hl, TMMenuDataHeader_Buy
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call DoMartScrollingMenu
-	call SpeechTextBox
+	call SpeechTextbox
 	ld a, [wMenuJoypad]
 	cp B_BUTTON
 	jp z, MartMenuLoop_SetCarry
@@ -759,7 +759,7 @@ BuyTMMenuLoop:
 	call LoadBuyMenuText
 	call JoyWaitAorB
 .cancel
-	call SpeechTextBox
+	call SpeechTextbox
 	and a
 	ret
 
@@ -767,9 +767,9 @@ BlueCardBuyMenuLoop:
 	farcall PlaceBlueCardPointsTopRight
 	call UpdateSprites
 	ld hl, BlueCardMenuDataHeader_Buy
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call DoMartScrollingMenu
-	call SpeechTextBox
+	call SpeechTextbox
 	ld a, [wMenuJoypad]
 	cp B_BUTTON
 	jp z, MartMenuLoop_SetCarry
@@ -789,7 +789,7 @@ BlueCardBuyMenuLoop:
 	call LoadBuyMenuText
 	call JoyWaitAorB
 .cancel
-	call SpeechTextBox
+	call SpeechTextbox
 	and a
 	ret
 
@@ -797,9 +797,9 @@ BTBuyMenuLoop:
 	farcall PlaceBattlePointsTopRight
 	call UpdateSprites
 	ld hl, BTMenuDataHeader_Buy
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call DoMartScrollingMenu
-	call SpeechTextBox
+	call SpeechTextbox
 	ld a, [wMenuJoypad]
 	cp B_BUTTON
 	jp z, MartMenuLoop_SetCarry
@@ -813,15 +813,15 @@ BTBuyMenuLoop:
 	call ReceiveItem
 	jp nc, MartMenuLoop_InsufficientBagSpace
 	call PlayTransactionSound
-	ld a, [wBattlePoints]
-	ld hl, hMoneyTemp + 2
-	sub [hl]
-	ld [wBattlePoints], a
+	ld de, wBattlePoints
+	ld bc, hMoneyTemp + 1
+	ld a, 2
+	farcall SubtractFunds
 	ld a, MARTTEXT_HERE_YOU_GO
 	call LoadBuyMenuText
 	call JoyWaitAorB
 .cancel
-	call SpeechTextBox
+	call SpeechTextbox
 	and a
 	ret
 
@@ -929,11 +929,7 @@ BargainShopAskPurchaseQuantity:
 RooftopSaleAskPurchaseQuantity:
 	ld a, MARTTEXT_HOW_MANY
 	call LoadBuyMenuText
-	call .GetSalePrice
-	farcall RooftopSale_SelectQuantityToBuy
-	jp ExitMenu
 
-.GetSalePrice:
 	ld a, [wMartItemID]
 	ld e, a
 	ld d, 0
@@ -949,7 +945,9 @@ RooftopSaleAskPurchaseQuantity:
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
-	ret
+
+	farcall RooftopSale_SelectQuantityToBuy
+	jp ExitMenu
 
 TMMartAskPurchaseQuantity:
 	ld a, [wCurTMHM]
@@ -993,10 +991,10 @@ TMMartAskPurchaseQuantity:
 BTMartAskPurchaseQuantity:
 	ld a, MARTTEXT_HOW_MANY
 	call LoadBuyMenuText
-; store point cost in c
+
 	ld a, [wMartItemID]
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
@@ -1007,18 +1005,7 @@ BTMartAskPurchaseQuantity:
 	inc hl
 	ld a, [hl]
 	ld c, a
-	ld [wBuffer2], a
-	xor a
-	ld [wBuffer1], a
-; divide BP balance by cost to get maximum quantity
-	ld a, [wBattlePoints]
-	call SimpleDivide
-	ld a, b
-	and a
-	jr nz, .ok
-	ld a, 1
-.ok
-	ld [wItemQuantityBuffer], a
+
 	farcall BT_SelectQuantityToBuy
 	jp ExitMenu
 
@@ -1048,9 +1035,14 @@ BlueCardMartComparePoints:
 
 BTMartCompareBP:
 ; compare BP balance with cost
-	ldh a, [hMoneyTemp + 2]
+	ldh a, [hMoneyTemp + 1]
 	ld d, a
 	ld a, [wBattlePoints]
+	cp d
+	ret nz
+	ldh a, [hMoneyTemp + 2]
+	ld d, a
+	ld a, [wBattlePoints + 1]
 	cp d
 	ret
 
@@ -1395,7 +1387,7 @@ SellMenu:
 	farcall DepositSellInitPackBuffers
 .loop
 	farcall DepositSellPack
-	ld a, [wcf66]
+	ld a, [wPackUsedItem]
 	and a
 	jp z, .quit
 	call .TryToSellItem
@@ -1438,7 +1430,7 @@ SellMenu:
 	jr c, .declined
 	call ClearSpeechBox
 	ld hl, Text_Mart_ICanPayThisMuch
-	call PrintTextBoxText
+	call PrintTextboxText
 	call YesNoBox
 	jr c, .declined
 	ld de, wMoney
@@ -1450,7 +1442,7 @@ SellMenu:
 	predef PartyMonItemName
 	call ClearSpeechBox
 	ld hl, Text_Mart_SoldForAmount
-	call PrintTextBoxText
+	call PrintTextboxText
 	call PlayTransactionSound
 	farcall PlaceMoneyBottomLeft
 	call JoyWaitAorB
@@ -1528,7 +1520,7 @@ PlayTransactionSound:
 	ld de, SFX_TRANSACTION
 	jp PlaySFX
 
-MartTextBox:
-	call MenuTextBox
+MartTextbox:
+	call MenuTextbox
 	call JoyWaitAorB
 	jp ExitMenu

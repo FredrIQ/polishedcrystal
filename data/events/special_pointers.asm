@@ -36,7 +36,7 @@ SpecialsPointers::
 	add_special Special_MagikarpHouseSign
 	add_special HealParty
 	add_special PokemonCenterPC
-	add_special Special_KrissHousePC
+	add_special Special_PlayersHousePC
 	add_special Special_DayCareMan
 	add_special Special_DayCareLady
 	add_special Special_DayCareManOutside
@@ -51,7 +51,7 @@ SpecialsPointers::
 	add_special Special_UnownPuzzle
 	add_special Special_SlotMachine
 	add_special Special_CardFlip
-;	add_special Special_DummyNonfunctionalGameCornerGame
+;	add_special Special_UnusedMemoryGame
 	add_special FadeOutPalettes
 	add_special Special_FadeBlackQuickly
 	add_special FadeInPalettes
@@ -61,7 +61,7 @@ SpecialsPointers::
 	add_special UpdateTimePals
 	add_special ClearTileMap
 	add_special UpdateSprites
-	add_special ReplaceKrisSprite
+	add_special UpdatePlayerSprite
 	add_special Special_GameCornerPrizeMonCheckDex
 	add_special SpecialSeenMon
 	add_special WaitSFX

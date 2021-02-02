@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 2 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db INNER_FOCUS ; ability 1
+	INCBIN "gfx/pokemon/zubat/front.dimensions"
 if DEF(FAITHFUL)
-	db INNER_FOCUS ; ability 2
+	abilities_for ZUBAT, INNER_FOCUS, INNER_FOCUS, INFILTRATOR
 else
-	db ANTICIPATION ; ability 2
+	abilities_for ZUBAT, INNER_FOCUS, ANTICIPATION, INFILTRATOR
 endc
-	db INFILTRATOR ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn AVIAN, AVIAN ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

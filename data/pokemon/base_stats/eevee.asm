@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 6 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db RUN_AWAY ; ability 1
-	db ADAPTABILITY ; ability 2
-	db ANTICIPATION ; hidden ability
+	INCBIN "gfx/pokemon/eevee/front.dimensions"
+	abilities_for EEVEE, RUN_AWAY, ADAPTABILITY, ANTICIPATION
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   1
 	;         hp, atk, def, spd, sat, sdf
 

@@ -81,7 +81,7 @@ TryAddMonToParty:
 	; - sp+$6: party data for [wCurPartyMon], just past the level and species
 	; - sp+$4: return address for 'predef TryAddMonToParty'
 	; - sp+$2: af from _Predef (ReturnFarCall will pop this)
-	; - sp+$0: return address for 'call RetrieveHLAndCallFunction'
+	; - sp+$0: return address for 'call RetrieveAHLAndCallFunction'
 	ld hl, sp+$6
 	ld a, [hli]
 	ld h, [hl]
@@ -961,7 +961,7 @@ RestorePPofDepositedPokemon:
 	ld [wMenuCursorY], a
 	ret
 
-RetrievePokemonFromDaycareMan:
+RetrievePokemonFromDayCareMan:
 	ld a, [wBreedMon1Species]
 	ld [wCurPartySpecies], a
 	ld de, SFX_TRANSACTION
@@ -976,7 +976,7 @@ RetrievePokemonFromDaycareMan:
 	ld [wPokemonWithdrawDepositParameter], a
 	jr RetrieveBreedmon
 
-RetrievePokemonFromDaycareLady:
+RetrievePokemonFromDayCareLady:
 	ld a, [wBreedMon2Species]
 	ld [wCurPartySpecies], a
 	ld de, SFX_TRANSACTION
@@ -1033,7 +1033,7 @@ RetrieveBreedmon:
 	pop hl
 	rst CopyBytes
 	push hl
-	call Functionde1a
+	call GetLastPartyMon
 	ld hl, MON_FORM
 	add hl, de
 	ld a, [hl]
@@ -1042,7 +1042,7 @@ RetrieveBreedmon:
 	ld bc, BOXMON_STRUCT_LENGTH
 	rst CopyBytes
 	call GetBaseData
-	call Functionde1a
+	call GetLastPartyMon
 	ld b, d
 	ld c, e
 	ld hl, MON_LEVEL
@@ -1096,7 +1096,7 @@ RetrieveBreedmon:
 	and a
 	ret
 
-Functionde1a:
+GetLastPartyMon:
 	ld a, [wPartyCount]
 	dec a
 	ld hl, wPartyMon1Species
@@ -1106,11 +1106,11 @@ Functionde1a:
 	ld e, l
 	ret
 
-DepositMonWithDaycareMan:
+DepositMonWithDayCareMan:
 	ld de, wBreedMon1Nick
 	jr _DepositBreedmon
 
-DepositMonWithDaycareLady:
+DepositMonWithDayCareLady:
 	ld de, wBreedMon2Nick
 
 _DepositBreedmon:
@@ -1652,7 +1652,7 @@ CalcPkmnStats:
 ; Calculates all 6 Stats of a Pkmn
 ; b: Hyper Training (bit 7-2), apply EVs (bit 0)
 ; 'c' counts from 1-6 and points with 'wBaseStats' to the base value
-; hl is the path to the EVs
+; hl is the path to the EVs - 1
 ; de is a pointer where the 6 stats are placed
 
 	ld c, $0
@@ -2136,7 +2136,7 @@ TextJump_WasSentToBillsPC:
 
 InitNickname:
 	push de
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call DisableSpriteUpdates
 	pop de
 	push de

@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db PINK_BOW ; item 2
 	dn FEMALE_12_5, 6 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db CUTE_CHARM ; ability 1
+	INCBIN "gfx/pokemon/sylveon/front.dimensions"
 if DEF(FAITHFUL)
-	db CUTE_CHARM ; ability 2
+	abilities_for SYLVEON, CUTE_CHARM, CUTE_CHARM, PIXILATE
 else
-	db SERENE_GRACE ; ability 2
+	abilities_for SYLVEON, CUTE_CHARM, SERENE_GRACE, PIXILATE
 endc
-	db PIXILATE ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   2
 	;         hp, atk, def, spd, sat, sdf
 

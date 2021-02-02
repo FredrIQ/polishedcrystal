@@ -69,7 +69,7 @@ NotificationAbilities:
 	call DisableAnimations
 	call ShowAbilityActivation
 	pop hl
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 ImmunityAbility:
@@ -102,7 +102,7 @@ HealStatusAbility:
 	xor a
 	ld [hl], a
 	ld hl, BecameHealthyText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 	ldh a, [hBattleTurn]
 	and a
@@ -112,7 +112,7 @@ HealStatusAbility:
 OwnTempoAbility:
 	ld a, BATTLE_VARS_SUBSTATUS3
 	call GetBattleVar
-	and SUBSTATUS_CONFUSED
+	bit SUBSTATUS_CONFUSED, a
 	ret z ; not confused
 	call DisableAnimations
 	call ShowAbilityActivation
@@ -120,27 +120,27 @@ OwnTempoAbility:
 	call GetBattleVarAddr
 	res SUBSTATUS_CONFUSED, [hl]
 	ld hl, ConfusedNoMoreText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 ObliviousAbility:
 	ld a, BATTLE_VARS_SUBSTATUS1
 	call GetBattleVar
-	and SUBSTATUS_IN_LOVE
+	bit SUBSTATUS_IN_LOVE, a
 	ret z ; not infatuated
 	call DisableAnimations
 	call ShowAbilityActivation
 	ld a, BATTLE_VARS_SUBSTATUS1
 	call GetBattleVarAddr
 	res SUBSTATUS_IN_LOVE, [hl]
-	ld hl, ConfusedNoMoreText
-	call StdBattleTextBox
+	ld hl, NoLongerInfatuatedText
+	call StdBattleTextbox
 	jp EnableAnimations
 
 TraceAbility:
 	call GetOpponentAbility
 	inc a
-	ret z
+	ret z ; Neutralizing Gas sentinel upon fainting
 	dec a
 	ret z
 	cp TRACE
@@ -159,7 +159,7 @@ TraceAbility:
 	call ShowAbilityActivation
 	call ShowEnemyAbilityActivation
 	ld hl, TraceActivationText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 
 	ld a, BATTLE_VARS_ABILITY
@@ -169,7 +169,7 @@ TraceAbility:
 	jp RunActivationAbilitiesInner
 .trace_failure
 	ld hl, TraceFailureText
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 ; Lasts 5 turns consistent with Generation VI.
 DrizzleAbility:
@@ -237,7 +237,7 @@ IntimidateAbility:
 	call ShowAbilityActivation
 	call ShowEnemyAbilityActivation
 	ld hl, BattleText_IntimidateResisted
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 .intimidate_ok
@@ -368,7 +368,7 @@ AnticipationAbility:
 	call DisableAnimations
 	call ShowEnemyAbilityActivation
 	ld hl, ShudderedText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 .done
 	; now restore the move struct
@@ -477,7 +477,7 @@ ForewarnAbility:
 	ld [wNamedObjectIndexBuffer], a
 	call GetMoveName
 	ld hl, ForewarnText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 FriskAbility:
@@ -489,7 +489,7 @@ FriskAbility:
 	call ShowAbilityActivation
 	call GetCurItemName
 	ld hl, FriskedItemText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 RunEnemyOwnTempoAbility:
@@ -510,7 +510,7 @@ SynchronizeAbility:
 	ld a, BATTLE_VARS_STATUS
 	call GetBattleVar
 	and 1 << PAR | 1 << BRN | 1 << PSN
-	ret z ; not statused
+	ret z ; not statused or frozen/asleep (which doesn't proc Synchronize)
 	call DisableAnimations
 	call ShowAbilityActivation
 	farcall ResetMiss
@@ -571,7 +571,7 @@ AftermathAbility:
 	call GetQuarterMaxHP
 	predef SubtractHPFromUser
 	ld hl, IsHurtText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 	jp SwitchTurn
 
@@ -713,6 +713,10 @@ PoisonTouchAbility:
 	cp SHIELD_DUST
 	ret z
 PoisonPointAbility:
+	; there are 2 poison resistance abilities, so check one here
+	call GetOpponentAbility
+	cp PASTEL_VEIL
+	ret z
 	call CheckIfTargetIsPoisonType
 	ret z
 	call CheckIfTargetIsSteelType
@@ -771,7 +775,7 @@ CheckNullificationAbilities:
 ; Doesn't deal with the active effect of this, but just checking if they apply vs
 ; an opponent's used attack (not Overcoat vs powder which is checked with Grass)
 	; Most abilities depends on types and can use a lookup table, but a few
-	; doesn't. Check these first.
+	; don't. Check these first.
 	call GetOpponentAbilityAfterMoldBreaker
 	ld b, a
 	cp DAMP
@@ -826,11 +830,9 @@ CheckNullificationAbilities:
 	ret nc
 
 .ability_ok
-	; Set wAttackMissed to 3 (means ability immunity kicked in), and wTypeMatchup
-	; to 0 (not neccessary for the engine itself, but helps the AI)
 	ld a, ATKFAIL_ABILITY
 	ld [wAttackMissed], a
-	xor a
+	xor a ; kind of redundant, but helpful for the AI
 	ld [wTypeMatchup], a
 	ret
 
@@ -850,7 +852,7 @@ RunEnemyNullificationAbilities:
 	call ShowAbilityActivation
 	call SwitchTurn
 	ld hl, DoesntAffectText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 	jp SwitchTurn
 
@@ -875,7 +877,7 @@ DampAbility:
 	call DisableAnimations
 	call ShowAbilityActivation
 	ld hl, CannotUseText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 RunStatIncreaseAbilities:
@@ -953,7 +955,7 @@ StatUpAbility:
 	call ShowAbilityActivation
 	call SwitchTurn
 	ld hl, DoesntAffectText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 	call SwitchTurn
 .done
@@ -982,12 +984,12 @@ FlashFireAbility:
 	jr nz, .already_fired_up
 	set SUBSTATUS_FLASH_FIRE, [hl]
 	ld hl, FirePoweredUpText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 .already_fired_up
 	call SwitchTurn
 	ld hl, DoesntAffectText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call EnableAnimations
 	jp SwitchTurn
 
@@ -1001,11 +1003,11 @@ WaterAbsorbAbility:
 	call GetQuarterMaxHP
 	farcall RestoreHP
 	ld hl, RegainedHealthText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 .full_hp
 	ld hl, HPIsFullText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 ApplySpeedAbilities:
@@ -1129,7 +1131,7 @@ SolarPowerWeatherAbility:
 	call GetEighthMaxHP
 	predef SubtractHPFromUser
 	ld hl, IsHurtText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 IceBodyAbility:
@@ -1156,30 +1158,32 @@ WeatherRecoveryAbility:
 .restore
 	farcall RestoreHP
 	ld hl, RegainedHealthText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp EnableAnimations
 
 EndturnAbilitiesA:
-	ld hl, .ability_table
+	ld hl, EndturnAbilityTableA
+	jr _EndturnAbilities
+
+EndturnAbilitiesB:
+; these 2 routines are deliberately seperate to maintain vanilla accuracy
+	ld hl, EndturnAbilityTableB
+	; fallthrough
+_EndturnAbilities:
+	push hl
+	call HasUserFainted
+	pop hl
+	ret z
 	call UserAbilityJumptable
 	ld hl, StatusHealAbilities
 	jp UserAbilityJumptable
 
-.ability_table
+EndturnAbilityTableA:
 	dbw SHED_SKIN, ShedSkinAbility
 	dbw HYDRATION, HydrationAbility
 	dbw -1, -1
 
-HandleAbilities:
-; Abilities handled at the end of the turn.
-	call HasUserFainted
-	ret z
-	ld hl, EndTurnAbilities
-	call UserAbilityJumptable
-	ld hl, StatusHealAbilities
-	jp UserAbilityJumptable
-
-EndTurnAbilities:
+EndturnAbilityTableB:
 	dbw HARVEST, HarvestAbility
 	dbw MOODY, MoodyAbility
 	dbw PICKUP, PickupAbility
@@ -1289,7 +1293,7 @@ RegainItemByAbility:
 	push hl
 	call GetItemName
 	pop hl
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop bc
 	ldh a, [hBattleTurn]
 	and a
@@ -1911,7 +1915,7 @@ RunPostBattleAbilities::
 	ld b, PICKUP
 	call PerformAbilityGFX
 	ld hl, BattleText_PickedUpItem
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop de
 	pop bc
 	jp EnableAnimations

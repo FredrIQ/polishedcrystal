@@ -7,14 +7,11 @@
 	db ALWAYS_ITEM_2 ; item 1
 	db ASPEAR_BERRY ; item 2
 	dn FEMALE_75, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db SNOW_CLOAK ; ability 1
-	db SNOW_CLOAK ; ability 2
-	db SNOW_WARNING ; hidden ability
+	INCBIN "gfx/pokemon/ninetales_alolan/front.dimensions"
+	abilities_for NINETALES_ALOLAN, SNOW_CLOAK, SNOW_CLOAK, SNOW_WARNING
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   1
 	;         hp, atk, def, spd, sat, sdf
 

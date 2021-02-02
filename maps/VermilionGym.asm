@@ -1,47 +1,47 @@
 VermilionGym_MapScriptHeader:
-	db 0 ; scene scripts
+	def_scene_scripts
 
-	db 1 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_OBJECTS, VermilionGymDoorsScript
 
-	db 2 ; warp events
+	def_warp_events
 	warp_event  4, 17, VERMILION_CITY, 7
 	warp_event  5, 17, VERMILION_CITY, 7
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 17 ; bg events
-	bg_event  1,  7, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  3,  7, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  5,  7, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  7,  7, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  9,  7, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  1,  9, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  3,  9, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  5,  9, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  7,  9, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  9,  9, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  1, 11, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  3, 11, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  5, 11, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  7, 11, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  9, 11, SIGNPOST_READ, VermilionGymTrashCanScript
-	bg_event  3, 15, SIGNPOST_READ, VermilionGymStatue
-	bg_event  6, 15, SIGNPOST_READ, VermilionGymStatue
+	def_bg_events
+	bg_event  1,  7, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  3,  7, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  5,  7, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  7,  7, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  9,  7, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  1,  9, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  3,  9, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  5,  9, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  7,  9, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  9,  9, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  1, 11, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  3, 11, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  5, 11, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  7, 11, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  9, 11, BGEVENT_READ, VermilionGymTrashCanScript
+	bg_event  3, 15, BGEVENT_READ, VermilionGymStatue
+	bg_event  6, 15, BGEVENT_READ, VermilionGymStatue
 
-	db 10 ; object events
-	object_event  4,  5, SPRITE_ELECTRIC_FENCE_LEFT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_1
-	object_event  5,  5, SPRITE_ELECTRIC_FENCE_RIGHT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_1
-	object_event  4,  4, SPRITE_ELECTRIC_FENCE_LEFT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_2
-	object_event  5,  4, SPRITE_ELECTRIC_FENCE_RIGHT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_2
-	object_event  5,  2, SPRITE_SURGE, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, SurgeScript_0x1920a5, -1
-	object_event  8,  8, SPRITE_GENTLEMAN, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 4, GenericTrainerGentlemanGregory, -1
-	object_event  4,  7, SPRITE_ROCKER, SPRITEMOVEDATA_STANDING_DOWN, 0, 3, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerGuitaristmVincent, -1
-	object_event  0, 10, SPRITE_JUGGLER, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 4, GenericTrainerJugglerHorton, -1
-	object_event  7, 10, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_GENERICTRAINER, 2, GenericTrainerGuitaristfJanet, -1
-	object_event  7, 15, SPRITE_GYM_GUY, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 1, VermilionGymGuyScript, -1
+	def_object_events
+	object_event  4,  5, SPRITE_ELECTRIC_FENCE_LEFT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_1
+	object_event  5,  5, SPRITE_ELECTRIC_FENCE_RIGHT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_1
+	object_event  4,  4, SPRITE_ELECTRIC_FENCE_LEFT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_2
+	object_event  5,  4, SPRITE_ELECTRIC_FENCE_RIGHT, SPRITEMOVEDATA_SPINCLOCKWISE, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptext, VermilionGymElectricFenceText, EVENT_VERMILION_GYM_SWITCH_2
+	object_event  5,  2, SPRITE_SURGE, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, SurgeScript_0x1920a5, -1
+	object_event  8,  8, SPRITE_GENTLEMAN, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, OBJECTTYPE_GENERICTRAINER, 4, GenericTrainerGentlemanGregory, -1
+	object_event  4,  7, SPRITE_ROCKER, SPRITEMOVEDATA_STANDING_DOWN, 0, 3, -1, -1, 0, OBJECTTYPE_GENERICTRAINER, 3, GenericTrainerGuitaristmVincent, -1
+	object_event  0, 10, SPRITE_JUGGLER, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, OBJECTTYPE_GENERICTRAINER, 4, GenericTrainerJugglerHorton, -1
+	object_event  7, 10, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_RED, OBJECTTYPE_GENERICTRAINER, 2, GenericTrainerGuitaristfJanet, -1
+	object_event  7, 15, SPRITE_GYM_GUY, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_BLUE, OBJECTTYPE_SCRIPT, 1, VermilionGymGuyScript, -1
 
-	const_def 1 ; object constants
+	object_const_def
 	const VERMILIONGYM_FENCE_1_LEFT
 	const VERMILIONGYM_FENCE_1_RIGHT
 	const VERMILIONGYM_FENCE_2_LEFT

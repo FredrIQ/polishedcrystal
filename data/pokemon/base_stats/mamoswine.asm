@@ -7,14 +7,11 @@
 	db RAWST_BERRY ; item 1
 	db NEVERMELTICE ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db OBLIVIOUS ; ability 1
-	db SNOW_CLOAK ; ability 2
-	db THICK_FAT ; hidden ability
+	INCBIN "gfx/pokemon/mamoswine/front.dimensions"
+	abilities_for MAMOSWINE, OBLIVIOUS, SNOW_CLOAK, THICK_FAT
 	db SLOW ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   3,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

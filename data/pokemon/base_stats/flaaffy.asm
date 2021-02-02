@@ -17,18 +17,15 @@ endc
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db STATIC ; ability 1
-	db STATIC ; ability 2
+	INCBIN "gfx/pokemon/flaaffy/front.dimensions"
 if DEF(FAITHFUL)
-	db STATIC ; hidden ability
+	abilities_for FLAAFFY, STATIC, STATIC, STATIC
 else
-	db MOTOR_DRIVE ; hidden ability
+	abilities_for FLAAFFY, STATIC, STATIC, MOTOR_DRIVE
 endc
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   2,   0
 	;         hp, atk, def, spd, sat, sdf
 

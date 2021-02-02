@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SYNCHRONIZE ; ability 1
-	db EARLY_BIRD ; ability 2
-	db MAGIC_BOUNCE ; hidden ability
+	INCBIN "gfx/pokemon/natu/front.dimensions"
+	abilities_for NATU, SYNCHRONIZE, EARLY_BIRD, MAGIC_BOUNCE
 	db MEDIUM_FAST ; growth rate
 	dn AVIAN, AVIAN ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   1,   0
 	;         hp, atk, def, spd, sat, sdf
 

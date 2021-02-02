@@ -7,14 +7,11 @@
 	db ORAN_BERRY ; item 1
 	db LIGHT_BALL ; item 2
 	dn FEMALE_50, 1 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db STATIC ; ability 1
-	db STATIC ; ability 2
-	db LIGHTNING_ROD ; hidden ability
+	INCBIN "gfx/pokemon/pichu_plain/front.dimensions"
+	abilities_for PICHU, STATIC, STATIC, LIGHTNING_ROD
 	db MEDIUM_FAST ; growth rate
 	dn NO_EGGS, NO_EGGS ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

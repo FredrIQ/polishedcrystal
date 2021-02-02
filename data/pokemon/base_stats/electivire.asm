@@ -16,14 +16,11 @@ endc
 	db PERSIM_BERRY ; item 1
 	db ELECTIRIZER ; item 2
 	dn FEMALE_25, 4 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db MOTOR_DRIVE ; ability 1
-	db MOTOR_DRIVE ; ability 2
-	db VITAL_SPIRIT ; hidden ability
+	INCBIN "gfx/pokemon/electivire/front.dimensions"
+	abilities_for ELECTIVIRE, MOTOR_DRIVE, MOTOR_DRIVE, VITAL_SPIRIT
 	db MEDIUM_FAST ; growth rate
 	dn HUMANSHAPE, HUMANSHAPE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   3,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

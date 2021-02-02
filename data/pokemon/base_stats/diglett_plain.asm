@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db SOFT_SAND ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SAND_VEIL ; ability 1
-	db ARENA_TRAP ; ability 2
-	db SAND_FORCE ; hidden ability
+	INCBIN "gfx/pokemon/diglett_plain/front.dimensions"
+	abilities_for DIGLETT, SAND_VEIL, ARENA_TRAP, SAND_FORCE
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

@@ -52,7 +52,7 @@ CheckBadge:
 	call CheckEngineFlag
 	ret nc
 	ld hl, .BadgeRequiredText
-	call MenuTextBoxBackup ; push text to queue
+	call MenuTextboxBackup ; push text to queue
 	scf
 	ret
 
@@ -130,7 +130,7 @@ CheckForSurfingPikachu:
 FieldMovePokepicScript:
 	copybytetovar wBuffer6
 	refreshscreen
-	pokepic 0, 1
+	pokepic 0
 	cry 0
 	waitsfx
 	closepokepic
@@ -139,7 +139,7 @@ FieldMovePokepicScript:
 
 FieldMoveFailed:
 	ld hl, .CantUseHere
-	jp MenuTextBoxBackup
+	jp MenuTextboxBackup
 
 .CantUseHere:
 	; Can't use that here.
@@ -187,7 +187,7 @@ CutFunction:
 
 .FailCut:
 	ld hl, Text_NothingToCut
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	ld a, $80
 	ret
 
@@ -360,7 +360,7 @@ OWFlash:
 	pop hl
 	jr c, .useflash
 	ld a, [wTimeOfDayPalset]
-	cp %11111111 ; 3, 3, 3, 3
+	cp DARKNESS_PALSET
 	jr nz, .notadarkcave
 .useflash
 	call UseFlash
@@ -455,13 +455,13 @@ SurfFunction:
 
 .FailSurf:
 	ld hl, CantSurfText
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	ld a, $80
 	ret
 
 .AlreadySurfing:
 	ld hl, AlreadySurfingText
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	ld a, $80
 	ret
 
@@ -481,7 +481,7 @@ AutoSurfScript:
 	copybytetovar wBuffer2
 	writevarcode VAR_MOVEMENT
 
-	special ReplaceKrisSprite
+	special UpdatePlayerSprite
 	special PlayMapMusic
 ; step into the water
 	special Special_SurfStartStep ; (slow_step_x, step_end)
@@ -556,7 +556,7 @@ TrySurfOW::
 	jr z, .quit
 
 ; Must be facing water.
-	ld a, [wEngineBuffer1]
+	ld a, [wFacingTileID]
 	call GetTileCollision
 	dec a ; cp WATER_TILE
 	jr nz, .quit
@@ -603,7 +603,7 @@ AskSurfScript:
 
 CheckFlyAllowedOnMap:
 ; returns z is fly is allowed
-	call GetMapPermission
+	call GetMapEnvironment
 	call CheckOutdoorMap
 	ret z
 ; assumes all special roof maps are in different groups
@@ -669,7 +669,7 @@ FlyFunction:
 .outdoors
 	xor a
 	ldh [hMapAnims], a
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearSprites
 	farcall _FlyMap
 	ld a, e
@@ -717,7 +717,7 @@ FlyFunction:
 	callasm FlyFromAnim
 	farscall Script_AbortBugContest
 	special WarpToSpawnPoint
-	callasm DelayLoadingNewSprites
+	callasm SkipUpdateMapSprites
 	writecode VAR_MOVEMENT, PLAYER_NORMAL
 	newloadmap MAPSETUP_FLY
 	callasm FlyToAnim
@@ -728,7 +728,7 @@ FlyFunction:
 .ReturnFromFly:
 	farcall ReturnFromFly_SpawnOnlyPlayer
 	call DelayFrame
-	jp ReplaceKrisSprite
+	jp UpdatePlayerSprite
 
 WaterfallFunction:
 	call .TryWaterfall
@@ -864,7 +864,7 @@ EscapeRopeOrDig:
 	dw .FailDig
 
 .CheckCanDig:
-	call GetMapPermission
+	call GetMapEnvironment
 	cp CAVE
 	jr z, .incave
 	cp DUNGEON
@@ -913,7 +913,7 @@ EscapeRopeOrDig:
 	cp $2
 	jr nz, .failescaperope
 	ld hl, .Text_CantUseHere
-	call MenuTextBox
+	call MenuTextbox
 	call WaitPressAorB_BlinkCursor
 	call CloseWindow
 
@@ -956,11 +956,11 @@ EscapeRopeOrDig:
 
 .DigOut:
 	step_dig 32
-	hide_person
+	hide_object
 	step_end
 
 .DigReturn:
-	show_person
+	show_object
 	return_dig 32
 	step_end
 
@@ -1006,7 +1006,7 @@ TeleportFunction:
 
 .FailTeleport:
 	ld hl, .Text_CantUseHere
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	ld a, $80
 	ret
 
@@ -1608,7 +1608,6 @@ FishFunction:
 Script_NotEvenANibble:
 	scall Script_FishCastRod
 	farwritetext UnknownText_0x1c0965
-	loademote EMOTE_SHADOW
 	closetext
 	callasm PutTheRodAway
 	end
@@ -1688,7 +1687,6 @@ Script_FishCastRod:
 	reloadmappart
 	loadvar hBGMapMode, $0
 	special UpdateTimePals
-	loademote EMOTE_ROD
 	callasm LoadFishingGFX
 	loademote EMOTE_SHOCK
 	applymovement PLAYER, MovementData_0xd093
@@ -1705,7 +1703,7 @@ PutTheRodAway:
 	ld a, $1
 	ld [wPlayerAction], a
 	call UpdateSprites
-	jp ReplaceKrisSprite
+	jp UpdatePlayerSprite
 
 CurItemToScriptVar:
 	ld a, [wCurItem]
@@ -1765,14 +1763,14 @@ BikeFunction:
 	ret
 
 .CheckEnvironment:
-	call GetMapPermission
+	call GetMapEnvironment
 	call CheckOutdoorMap
 	jr z, .ok
 	cp CAVE
 	jr z, .ok
 	cp GATE
 	jr z, .ok
-	cp PERM_5
+	cp ISOLATED
 	jr nz, .nope
 
 .ok
@@ -1794,7 +1792,7 @@ Script_GetOnBike:
 	waitbutton
 FinishGettingOnBike:
 	closetext
-	special ReplaceKrisSprite
+	special UpdatePlayerSprite
 	special PlayMapMusic
 	end
 
@@ -1810,7 +1808,7 @@ Script_GetOffBike:
 	waitbutton
 FinishGettingOffBike:
 	closetext
-	special ReplaceKrisSprite
+	special UpdatePlayerSprite
 	special PlayMapMusic
 	end
 

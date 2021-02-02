@@ -1,4 +1,4 @@
-ReturnFromMapSetupScript::
+InitMapNameSign::
 	ld a, [wMapGroup]
 	ld b, a
 	ld a, [wMapNumber]
@@ -8,7 +8,7 @@ ReturnFromMapSetupScript::
 	call .CheckExcludedMap
 	jr z, .excluded_map
 
-	call GetMapPermission
+	call GetMapEnvironment
 	cp GATE
 	jr nz, .not_gate
 
@@ -226,20 +226,17 @@ LoadMapNameSignGFX:
 	jr .length_loop
 .got_length
 	pop hl
-	; bc = byte offset to center landmark name
+	; a = tile offset to center landmark name
 	ld a, SCREEN_WIDTH - 2
 	sub c
 	srl a
-	ld h, 0
-	ld l, a
-rept 4
-	add hl, hl
-endr
-	ld b, h
-	ld c, l
+	; bc = byte offset to center landmark name (a * 16, assumes a < 16)
+	swap a
+	ld c, a
+	ld b, 0
+	; de = start of vram buffer
 	ld hl, vTiles3 tile POPUP_MAP_NAME_START
 	add hl, bc
-	; de = start of vram buffer
 	ld d, h
 	ld e, l
 	; hl = start of landmark name
@@ -257,7 +254,7 @@ endr
 	cp " "
 	jr nz, .not_space
 .space
-	ld hl, TextBoxSpaceGFX
+	ld hl, TextboxSpaceGFX
 	jr .got_tile
 .not_space
 	sub $80
@@ -299,7 +296,7 @@ InitMapNameFrame:
 	ld de, wAttrMap - wTileMap
 	add hl, de
 	; top row
-	ld a, BEHIND_BG | PAL_BG_TEXT
+	ld a, PRIORITY | PAL_BG_TEXT
 	ld bc, SCREEN_WIDTH - 1
 	rst ByteFill
 	or X_FLIP

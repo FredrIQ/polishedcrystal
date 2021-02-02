@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db QUICK_CLAW ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db LIMBER ; ability 1
-	db TECHNICIAN ; ability 2
-	db UNNERVE ; hidden ability
+	INCBIN "gfx/pokemon/persian_plain/front.dimensions"
+	abilities_for PERSIAN, LIMBER, TECHNICIAN, UNNERVE
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   2,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

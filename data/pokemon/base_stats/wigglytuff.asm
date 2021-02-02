@@ -16,18 +16,15 @@ endc
 	db ORAN_BERRY ; item 1
 	db ORAN_BERRY ; item 2
 	dn FEMALE_75, 1 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db CUTE_CHARM ; ability 1
-	db COMPETITIVE ; ability 2
+	INCBIN "gfx/pokemon/wigglytuff/front.dimensions"
 if DEF(FAITHFUL)
-	db FRISK ; hidden ability
+	abilities_for WIGGLYTUFF, CUTE_CHARM, COMPETITIVE, FRISK
 else
-	db SOUNDPROOF ; hidden ability
+	abilities_for WIGGLYTUFF, CUTE_CHARM, COMPETITIVE, SOUNDPROOF
 endc
 	db FAST ; growth rate
 	dn FAERY, FAERY ; egg groups
 
-	; ev_yield
 	ev_yield   3,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

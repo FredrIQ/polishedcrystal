@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 1 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db HUSTLE ; ability 1
-	db SERENE_GRACE ; ability 2
-	db SUPER_LUCK ; hidden ability
+	INCBIN "gfx/pokemon/togetic/front.dimensions"
+	abilities_for TOGETIC, HUSTLE, SERENE_GRACE, SUPER_LUCK
 	db FAST ; growth rate
 	dn AVIAN, FAERY ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   2
 	;         hp, atk, def, spd, sat, sdf
 

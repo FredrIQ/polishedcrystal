@@ -137,9 +137,8 @@ wAutoInputLength:: db
 wMonStatusFlags:: db
 wGameLogicPaused:: db
 wSpriteUpdatesEnabled:: db
-	ds 1
 wMapTimeOfDay:: db
-	ds 5
+
 wPrevDexEntry:: db
 
 wPrevLandmark:: db
@@ -153,14 +152,17 @@ wLinkMode::
 
 wPlayerNextMovement:: db
 wPlayerMovement:: db
-	ds 2
+
 wMovementObject:: db
 wMovementDataPointer:: ds 3 ; dba
-	ds 4
-wMovementByteWasControlSwitch:: db
-wMovementPointer:: dw
-	ds 3
 
+wMovementByteWasControlSwitch:: db
+
+UNION
+wObjectPriorities:: ds NUM_OBJECT_STRUCTS
+NEXTU
+wMovementPointer:: dw
+	ds 2
 wTempObjectCopyMapObjectIndex:: db
 wTempObjectCopySprite:: db
 wTempObjectCopySpriteVTile:: db
@@ -170,6 +172,7 @@ wTempObjectCopyRange:: db
 wTempObjectCopyX:: db
 wTempObjectCopyY:: db
 wTempObjectCopyRadius:: db
+ENDU
 
 wTileDown:: db
 wTileUp:: db
@@ -184,6 +187,8 @@ wTilePermissions::
 ; bit 1: left
 ; bit 0: right
 	db
+
+	ds 13
 
 
 SECTION "Sprite Animations", WRAM0
@@ -218,7 +223,6 @@ wCurIconForm:: db
 wCurIconTile:: db
 
 wSpriteAnimAddrBackup::
-wSpriteAnimIDBuffer::
 wCurSpriteAddSubFlags::
 	dw
 wCurAnimVTile:: db
@@ -782,20 +786,20 @@ wDiscardPileEnd::
 wCardFlipEnd::
 
 ;NEXTU
-;; dummy game
-;wDummyGame::
-;wDummyGameCards:: ds 9 * 5
-;wDummyGameCardsEnd::
-;wDummyGameLastCardPicked:: db
-;wDummyGameCard1:: db
-;wDummyGameCard2:: db
-;wDummyGameCard1Location:: db
-;wDummyGameCard2Location:: db
-;wDummyGameNumberTriesRemaining:: db
-;wDummyGameLastMatches:: ds 5
-;wDummyGameCounter:: db
-;wDummyGameNumCardsMatched:: db
-;wDummyGameEnd::
+;; memory game
+;wMemoryGame::
+;wMemoryGameCards:: ds 9 * 5
+;wMemoryGameCardsEnd::
+;wMemoryGameLastCardPicked:: db
+;wMemoryGameCard1:: db
+;wMemoryGameCard2:: db
+;wMemoryGameCard1Location:: db
+;wMemoryGameCard2Location:: db
+;wMemoryGameNumberTriesRemaining:: db
+;wMemoryGameLastMatches:: ds 5
+;wMemoryGameCounter:: db
+;wMemoryGameNumCardsMatched:: db
+;wMemoryGameEnd::
 
 NEXTU
 ; Unown puzzle
@@ -998,15 +1002,19 @@ wPlayerLinkAction:: db
 wcf57:: db ; TODO: replace with meaningful label
 	ds 3
 wLinkTimeoutFrames:: dw
-wcf5d:: dw ; TODO: replace with meaningful label
+wLinkByteTimeout:: dw
 
 wJumptableIndex:: db ; must come right before the union
 
 UNION
 ; intro and title data
 wIntroSceneFrameCounter:: db
-wTitleScreenTimerLo:: db
-wTitleScreenTimerHi:: db
+wIntroSceneTimer:: db
+
+NEXTU
+; title data
+	ds 1
+wTitleScreenTimer:: dw
 
 NEXTU
 ; credits data
@@ -1015,30 +1023,76 @@ wCreditsBorderMon:: db
 wCreditsLYOverride:: db
 
 NEXTU
+; pokedex
+wPrevDexEntryJumptableIndex:: db
+wPrevDexEntryBackup:: db
+
+NEXTU
+; pokegear
+wPokegearCard:: db
+wPokegearMapRegion:: db
+
+NEXTU
+; pack
+wPackJumptableIndex:: db
+wCurPocket:: db
+wPackUsedItem:: db
+
+NEXTU
+; trainer card badges
+wTrainerCardBadgeFrameCounter:: db
+wTrainerCardBadgeTileID:: db
+
+NEXTU
+; slot machine
+wSlotsDelay:: db
+
+NEXTU
+; card flip
+wCardFlipCursorY:: db
+wCardFlipCursorX:: db
+wCardFlipWhichCard:: db
+
+;NEXTU
+;; unused memory game
+;wMemoryGameCardChoice:: db
+
+NEXTU
+; magnet train
+wMagnetTrainOffset:: db
+wMagnetTrainPosition:: db
+wMagnetTrainWaitCounter:: db
+
+NEXTU
 ; unown puzzle data
 wHoldingUnownPuzzlePiece:: db
 wUnownPuzzleCursorPosition:: db
 wUnownPuzzleHeldPiece:: db
 
 NEXTU
-; card flip data
-wCardFlipCursorY:: db
-wCardFlipCursorX:: db
-wCardFlipWhichCard:: db
+; battle transitions
+wBattleTransitionCounter:: db
+wBattleTransitionSineWaveOffset::
+wBattleTransitionSpinQuadrant:: db
+
+NEXTU
+; stats screen
+wStatsScreenFlags:: db
+
+NEXTU
+; battle tower
+wNrOfBeatenBattleTowerTrainers:: db
 
 NEXTU
 ; miscellaneous
-wDexEntryPrevJumptableIndex::
+wFrameCounter::
 wMomBankDigitCursorPosition::
-wNrOfBeatenBattleTowerTrainers::
+wNamingScreenLetterCase::
+wHallOfFameMonCounter::
+wTradeDialog::
 	db
-wCurPocket:: db
-
-NEXTU
-; unidentified
-wcf64:: db ; TODO: replace with meaningful labels
-wcf65:: db ; TODO: replace with meaningful labels
-wcf66:: db ; TODO: replace with meaningful labels
+wFrameCounter2:: db
+wUnusedTradeAnimPlayEvolutionMusic:: db
 
 ENDU
 

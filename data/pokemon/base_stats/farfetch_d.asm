@@ -20,14 +20,11 @@ endc
 	db NO_ITEM ; item 1
 	db STICK ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db KEEN_EYE ; ability 1
-	db INNER_FOCUS ; ability 2
-	db DEFIANT ; hidden ability
+	INCBIN "gfx/pokemon/farfetch_d/front.dimensions"
+	abilities_for FARFETCH_D, KEEN_EYE, INNER_FOCUS, DEFIANT
 	db MEDIUM_FAST ; growth rate
 	dn AVIAN, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

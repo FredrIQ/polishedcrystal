@@ -1,28 +1,28 @@
 GoldenrodBikeShop_MapScriptHeader:
-	db 0 ; scene scripts
+	def_scene_scripts
 
-	db 0 ; callbacks
+	def_callbacks
 
-	db 2 ; warp events
+	def_warp_events
 	warp_event  2,  7, GOLDENROD_CITY, 2
 	warp_event  3,  7, GOLDENROD_CITY, 2
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 10 ; bg events
-	bg_event  1,  2, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  0,  3, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  1,  3, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  0,  5, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  1,  5, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  0,  6, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  1,  6, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  6,  6, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  7,  6, SIGNPOST_JUMPTEXT, UnknownText_0x548ed
-	bg_event  3,  0, SIGNPOST_JUMPTEXT, UnknownText_0x548c0
+	def_bg_events
+	bg_event  1,  2, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  0,  3, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  1,  3, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  0,  5, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  1,  5, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  0,  6, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  1,  6, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  6,  6, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  7,  6, BGEVENT_JUMPTEXT, UnknownText_0x548ed
+	bg_event  3,  0, BGEVENT_JUMPTEXT, UnknownText_0x548c0
 
-	db 1 ; object events
-	object_event  7,  2, SPRITE_CLERK, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ClerkScript_0x54750, -1
+	def_object_events
+	object_event  7,  2, SPRITE_CLERK, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, ClerkScript_0x54750, -1
 
 ClerkScript_0x54750:
 	checkevent EVENT_GOT_BICYCLE
@@ -35,11 +35,7 @@ ClerkScript_0x54750:
 	writetext UnknownText_0x547f8
 	buttonsound
 	waitsfx
-	givekeyitem BICYCLE
-	writetext UnknownText_0x54848
-	playsound SFX_KEY_ITEM
-	waitsfx
-	keyitemnotify
+	verbosegivekeyitem BICYCLE
 	setflag ENGINE_BIKE_SHOP_CALL_ENABLED
 	setevent EVENT_GOT_BICYCLE
 	jumpthisopenedtext
@@ -73,11 +69,6 @@ UnknownText_0x547f8:
 
 	para "and I'll loan you"
 	line "a Bicycle."
-	done
-
-UnknownText_0x54848:
-	text "<PLAYER> borrowed a"
-	line "Bicycle."
 	done
 
 UnknownText_0x54898:

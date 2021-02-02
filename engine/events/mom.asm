@@ -87,9 +87,9 @@ Special_BankOfMom:
 .AccessBankOfMom:
 	ld hl, UnknownText_0x1665d
 	call PrintText
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	ld hl, MenuDataHeader_0x166b5
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call VerticalMenu
 	call CloseWindow
 	jr c, .cancel
@@ -129,8 +129,8 @@ Special_BankOfMom:
 	ld [hli], a
 	ld [hl], a
 	ld a, $6
-	ld [wcf64], a
-	call LoadStandardMenuDataHeader
+	ld [wMomBankDigitCursorPosition], a
+	call LoadStandardMenuHeader
 	call Mom_SetUpDepositMenu
 	call Mom_Wait10Frames
 	call Mom_WithdrawDepositMenuJoypad
@@ -193,8 +193,8 @@ Special_BankOfMom:
 	ld [hli], a
 	ld [hl], a
 	ld a, $6
-	ld [wcf64], a
-	call LoadStandardMenuDataHeader
+	ld [wMomBankDigitCursorPosition], a
+	call LoadStandardMenuHeader
 	call Mom_SetUpWithdrawMenu
 	call Mom_Wait10Frames
 	call Mom_WithdrawDepositMenuJoypad
@@ -410,7 +410,7 @@ Mom_ContinueMenuSetup:
 	ldh [hBGMapMode], a
 	hlcoord 0, 0
 	lb bc, 6, 18
-	call TextBox
+	call Textbox
 	hlcoord 1, 2
 	ld de, Mom_SavedString
 	rst PlaceString

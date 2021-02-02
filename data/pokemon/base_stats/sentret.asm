@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db ORAN_BERRY ; item 2
 	dn FEMALE_50, 2 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db RUN_AWAY ; ability 1
-	db KEEN_EYE ; ability 2
-	db FRISK ; hidden ability
+	INCBIN "gfx/pokemon/sentret/front.dimensions"
+	abilities_for SENTRET, RUN_AWAY, KEEN_EYE, FRISK
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

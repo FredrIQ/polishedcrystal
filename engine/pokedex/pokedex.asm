@@ -38,18 +38,17 @@ Pokedex:
 	xor a
 	ldh [hMapAnims], a
 	call InitPokedex
-	call DelayFrame
+	jr .handleLoop
 
-.main
+.loop
+	call Pokedex_RunJumptable
+.handleLoop
+	call DelayFrame
 	call JoyTextDelay
 	ld a, [wJumptableIndex]
 	bit 7, a
-	jr nz, .exit
-	call Pokedex_RunJumptable
-	call DelayFrame
-	jr .main
+	jr z, .loop
 
-.exit
 	ld de, SFX_READ_TEXT_2
 	call PlaySFX
 	call WaitSFX
@@ -78,16 +77,13 @@ InitPokedex:
 	call ClearTileMap
 	call Pokedex_LoadGFX
 
-	ld hl, wPokedexDataStart
-	ld bc, wPokedexDataEnd - wPokedexDataStart
-	xor a
-	rst ByteFill
-
 	xor a
 	ld [wJumptableIndex], a
-	ld [wDexEntryPrevJumptableIndex], a
-	ld [wcf65], a
-	ld [wcf66], a
+	ld [wPrevDexEntryJumptableIndex], a
+	ld [wPrevDexEntryBackup], a
+	ld hl, wPokedexDataStart
+	ld bc, wPokedexDataEnd - wPokedexDataStart
+	rst ByteFill
 
 	ld a, [wStatusFlags]
 	and 1 << 1 ; ENGINE_UNOWN_DEX
@@ -199,10 +195,10 @@ Pokedex_InitMainScreen:
 	call ApplyTilemapInVBlank
 
 	call Pokedex_ResetBGMapMode
-	ld a, -1
-	ld [wCurPartySpecies], a
 	xor a
 	ld [wDexMonShiny], a
+	dec a ; ld a, -1
+	ld [wCurPartySpecies], a
 	ld a, CGB_POKEDEX
 	call Pokedex_GetCGBLayout
 	call Pokedex_UpdateCursorOAM
@@ -248,7 +244,7 @@ Pokedex_UpdateMainScreen:
 	ld a, DEXSTATE_DEX_ENTRY_SCR
 	ld [wJumptableIndex], a
 	ld a, DEXSTATE_MAIN_SCR
-	ld [wDexEntryPrevJumptableIndex], a
+	ld [wPrevDexEntryJumptableIndex], a
 	ret
 
 .select
@@ -330,7 +326,7 @@ Pokedex_UpdateDexEntryScreen:
 	ld [wLastVolume], a
 .max_volume
 	call MaxVolume
-	ld a, [wDexEntryPrevJumptableIndex]
+	ld a, [wPrevDexEntryJumptableIndex]
 	ld [wJumptableIndex], a
 	ret
 
@@ -620,7 +616,7 @@ Pokedex_UpdateSearchScreen:
 	ld a, [wDexListingCursor]
 	ld [wDexListingCursorBackup], a
 	ld a, [wPrevDexEntry]
-	ld [wcf65], a
+	ld [wPrevDexEntryBackup], a
 	xor a
 	ld [wDexListingScrollOffset], a
 	ld [wDexListingCursor], a
@@ -693,7 +689,7 @@ Pokedex_UpdateSearchResultsScreen:
 	ld a, DEXSTATE_DEX_ENTRY_SCR
 	ld [wJumptableIndex], a
 	ld a, DEXSTATE_SEARCH_RESULTS_SCR
-	ld [wDexEntryPrevJumptableIndex], a
+	ld [wPrevDexEntryJumptableIndex], a
 	ret
 
 .return_to_search_screen
@@ -701,7 +697,7 @@ Pokedex_UpdateSearchResultsScreen:
 	ld [wDexListingScrollOffset], a
 	ld a, [wDexListingCursorBackup]
 	ld [wDexListingCursor], a
-	ld a, [wcf65]
+	ld a, [wPrevDexEntryBackup]
 	ld [wPrevDexEntry], a
 	call Pokedex_BlackOutBG
 	call ClearSprites

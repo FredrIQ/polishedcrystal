@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db BLAZE ; ability 1
-	db SOLAR_POWER ; ability 2
-	db FLAME_BODY ; hidden ability
+	INCBIN "gfx/pokemon/charmeleon/front.dimensions"
+	abilities_for CHARMELEON, BLAZE, SOLAR_POWER, FLAME_BODY
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, REPTILE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   1,   0
 	;         hp, atk, def, spd, sat, sdf
 

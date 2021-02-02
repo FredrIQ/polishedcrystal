@@ -6,10 +6,10 @@ _DoItemEffect::
 	ld a, 1
 	ld [wItemEffectSucceeded], a
 	ld a, [wCurItem]
-	dec a
 	call StackJumpTable
 
 ItemEffects:
+	dw PokeBallEffect     ; PARK_BALL
 	dw PokeBallEffect     ; POKE_BALL
 	dw PokeBallEffect     ; GREAT_BALL
 	dw PokeBallEffect     ; ULTRA_BALL
@@ -22,7 +22,7 @@ ItemEffects:
 	dw PokeBallEffect     ; FAST_BALL
 	dw PokeBallEffect     ; HEAVY_BALL
 	dw PokeBallEffect     ; LOVE_BALL
-	dw PokeBallEffect     ; PARK_BALL
+	dw AbilityPatch       ; ABILITYPATCH
 	dw PokeBallEffect     ; REPEAT_BALL
 	dw PokeBallEffect     ; TIMER_BALL
 	dw PokeBallEffect     ; NEST_BALL
@@ -309,21 +309,25 @@ KeyItemEffects:
 	dw TypeChart          ; TYPE_CHART
 
 PokeBallEffect:
+	; Replacing caught balls
 	ld a, [wBattleMode]
 	and a ; overworld
 	jp z, Ball_ReplacePartyMonCaughtBall
-	farcall DoesNuzlockeModePreventCapture
-	jp c, Ball_NuzlockeFailureMessage
 
-.NoNuzlockeCheck
-	ld a, [wBattleMode]
+	; Using balls in trainer battles
 	dec a
 	jp nz, UseBallInTrainerBattle
 
+	; Battling ghosts
 	ld a, [wBattleType]
 	cp BATTLETYPE_GHOST
 	jp z, Ball_MonCantBeCaughtMessage
 
+	; Everything below this are regular wild battles
+	farcall DoesNuzlockeModePreventCapture
+	jp c, Ball_NuzlockeFailureMessage
+
+.NoNuzlockeCheck
 	ld a, [wEnemySubStatus3] ; BATTLE_VARS_SUBSTATUS3_OPP
 	and 1 << SUBSTATUS_FLYING | 1 << SUBSTATUS_UNDERGROUND
 	jp nz, Ball_MonIsHiddenMessage
@@ -717,10 +721,12 @@ PokeBallEffect:
 	ld [wCurPartySpecies], a
 	farcall BattleCheckEnemyShininess
 	jr nc, .not_shiny
+	call SetEnemyTurn
 	ld a, 1 ; shiny anim
 	ld [wBattleAnimParam], a
 	ld de, ANIM_SEND_OUT_MON
 	farcall Call_PlayBattleAnim
+	call SetPlayerTurn
 .not_shiny
 
 	ld bc, wTempMonSpecies
@@ -1247,7 +1253,7 @@ PersimBerry:
 	call UseItemText
 
 	ld hl, ConfusedNoMoreText
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 RestoreHPEffect:
 	ld b, PARTYMENUACTION_HEALING_ITEM
@@ -1722,7 +1728,7 @@ FreshSnackFunction:
 .cant_use
 	push bc
 	ld hl, .Text_CantBeUsed
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	pop bc
 	jr .loop
 
@@ -1782,7 +1788,7 @@ GuardSpec:
 	ld [hl], a
 	call UseItemText
 	ld hl, MistText
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 DireHit:
 	ld hl, wPlayerSubStatus4
@@ -1817,7 +1823,7 @@ XItemEffect:
 
 BlueCard:
 	ld hl, .bluecardtext
-	jp MenuTextBoxWaitButton
+	jp MenuTextboxWaitButton
 
 .bluecardtext
 	text_jump UnknownText_0x1c5c5e
@@ -1825,7 +1831,7 @@ BlueCard:
 
 CoinCase:
 	ld hl, .coincasetext
-	jp MenuTextBoxWaitButton
+	jp MenuTextboxWaitButton
 
 .coincasetext
 	text_jump UnknownText_0x1c5c7b
@@ -1833,10 +1839,10 @@ CoinCase:
 
 ApricornBox:
 	ld hl, .MenuDataHeader
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	hlcoord 5, 1
 	lb bc, 9, 13
-	call TextBox
+	call Textbox
 	call UpdateSprites
 	call ApplyTilemap
 	hlcoord 6, 3
@@ -2227,7 +2233,7 @@ UseBallInTrainerBattle:
 	ld [wFXAnimIDLo], a
 	ld a, d
 	ld [wFXAnimIDHi], a
-	xor a
+	ld a, -1 ; trainer blocked the ball
 	ld [wBattleAnimParam], a
 	ldh [hBattleTurn], a
 	ld [wNumHits], a
@@ -2267,7 +2273,7 @@ Ball_NuzlockeFailureMessage:
 	call PrintText
 
 	ld a, [wCurItem]
-	cp PARK_BALL
+	and a ; PARK_BALL?
 	ret z
 	cp SAFARI_BALL
 	ret z
@@ -2279,7 +2285,7 @@ ItemWasntUsedMessage:
 	jp PrintText
 
 Ball_ReplacePartyMonCaughtBall:
-	ld b, PARTYMENUACTION_00
+	ld b, PARTYMENUACTION_CHOOSE_POKEMON
 	call UseItem_SelectMon
 	jp c, ItemNotUsed_ExitMenu
 
@@ -2601,47 +2607,63 @@ GetMthMoveOfCurrentMon:
 	add hl, bc
 	ret
 
+AbilityPatch:
+; Switch between regular and hidden ability
+	; fallthrough (most code is shared with Ability Capsule)
 AbilityCap:
 ; If a pokémon doesn't have its hidden ability, switch between its
 ; 1st and 2nd ability
+	ld a, [wCurItem]
+	ld [wd002], a
+
 	ld b, PARTYMENUACTION_HEALING_ITEM
 	call UseItem_SelectMon
 .loop
 	ret c
 
 	push hl
+	call UseItem_GetBaseDataAndNickParameters
 	ld a, MON_ABILITY
 	call GetPartyParamLocation
-	ld a, [hl]
-	and ABILITY_MASK
-	cp HIDDEN_ABILITY
-	jr z, .no_effect
-
-	; Check if the ability would change
 	ld d, h
 	ld e, l
 	pop hl
 	push hl
-	push de
-	call UseItem_GetBaseDataAndNickParameters
-	pop de
+	ld a, [wd002]
+	cp ABILITYPATCH
+	ld a, [de]
+	ld b, ABILITY_2 ; xor to change later
+	jr z, .allow_change
+	ld b, ABILITY_1 | ABILITY_2
+	and ABILITY_MASK
+	jr z, .no_effect
+	cp HIDDEN_ABILITY
+	jr z, .no_effect
+
+	; Check if the ability would change
+	push bc
 	ld a, [wBaseAbility1]
 	ld b, a
 	ld a, [wBaseAbility2]
 	cp b
+	pop bc
 	jr z, .no_effect
 
+.allow_change
 	; Ability would change: ask for a confirmation
 	ld a, [de]
 	and ABILITY_MASK
+	xor b
+	ld c, a
+	ld hl, wBaseAbility1
 	cp ABILITY_1
-	ld a, [wBaseAbility2]
-	ld c, ABILITY_2
 	jr z, .got_new_ability
-	ld a, [wBaseAbility1]
-	ld c, ABILITY_1
+	inc hl
+	cp ABILITY_2
+	jr z, .got_new_ability
+	inc hl
 .got_new_ability
-	ld b, a
+	ld b, [hl]
 	push bc
 	push de
 	farcall BufferAbility

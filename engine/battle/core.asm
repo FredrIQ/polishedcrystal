@@ -96,7 +96,7 @@ DoBattle:
 	call SendInUserPkmn
 .not_linked_2
 	call AutomaticRainWhenOvercast
-	call HandleFirstAirBalloon
+	call SpikesDamageBoth ; for Air Balloon
 	call BoostGiovannisArmoredMewtwo
 	call RunBothActivationAbilities
 	jp BattleTurn
@@ -126,7 +126,7 @@ WildFled_EnemyFled_LinkBattleCanceled:
 	ld hl, BattleText_EnemyFled
 
 .print_text
-	call StdBattleTextBox
+	call StdBattleTextbox
 
 .skip_text
 	call StopDangerSound
@@ -257,6 +257,12 @@ HandleBerserkGene:
 	ret nz
 	farcall UseStatItemText
 	farcall ConsumeUserItem
+
+	; Own Tempo prevents confusion. Safeguard, however, doesn't.
+	call GetTrueUserAbility
+	cp OWN_TEMPO
+	ret z
+
 	ld a, BATTLE_VARS_SUBSTATUS3
 	call GetBattleVarAddr
 	bit SUBSTATUS_CONFUSED, [hl]
@@ -277,7 +283,7 @@ HandleBerserkGene:
 	call Call_PlayBattleAnim_OnlyIfVisible
 	call SwitchTurn
 	ld hl, BecameConfusedText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp SwitchTurn
 
 CheckOpponentForfeit:
@@ -594,7 +600,7 @@ ProcessEnemyFleeing:
 	; enemy failed to flee
 	call SetEnemyTurn
 	ld hl, BattleText_EnemyCantEscape
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 EnemyCanFlee:
 	ld a, [wBattleMode]
@@ -905,7 +911,7 @@ ForceDeferredSwitch:
 	jr z, .got_text
 	ld hl, BattleText_WentBackToEnemy
 .got_text
-	call StdBattleTextBox
+	call StdBattleTextbox
 
 .msg_done
 	pop hl
@@ -986,7 +992,7 @@ ForceDeferredSwitch:
 	farcall GetUserItem
 	call GetCurItemName
 	ld hl, BattleText_UsersStringBuffer1Activated
-	call StdBattleTextBox
+	call StdBattleTextbox
 	farcall ConsumeUserItem
 	pop hl
 	ret
@@ -1011,7 +1017,7 @@ GetBothSwitchTarget:
 
 GetPlayerSwitchTarget:
 ; Returns switch target in a
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call SetUpBattlePartyMenu_NoLoop
 	call ForcePickSwitchMonInBattle
 
@@ -1389,7 +1395,7 @@ endr
 	ld hl, DraggedOutText
 	ld a, [wDeferredSwitch]
 	bit SWITCH_FORCED, a
-	call nz, StdBattleTextBox
+	call nz, StdBattleTextbox
 	call LoadTileMapToTempTileMap
 	ldh a, [hBattleTurn]
 	and a
@@ -1678,7 +1684,7 @@ LeppaRestorePP:
 	rst CopyBytes
 	call GetCurItemName
 	ld hl, BattleText_UserRecoveredPPUsing
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop de
 	pop bc
 
@@ -2011,7 +2017,7 @@ FaintUserPokemon:
 	jr z, .text
 	ld hl, BattleText_EnemyPkmnFainted
 .text
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call LoadTileMapToTempTileMap
 
 SuppressUserNeutralizingGas:
@@ -2072,7 +2078,7 @@ WinTrainerBattle:
 	ld hl, BattleText_EnemyWasDefeated
 
 .PlaceBattleEndText
-	call StdBattleTextBox
+	call StdBattleTextbox
 
 	ld a, [wLinkMode]
 	and a
@@ -2102,7 +2108,7 @@ WinTrainerBattle:
 	call BattleWinSlideInEnemyTrainerFrontpic
 	ld c, 40
 	call DelayFrames
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	ld c, $3
 	farcall BattleTowerText
 	call WaitPressAorB_BlinkCursor
@@ -2166,11 +2172,11 @@ WinTrainerBattle:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 .KeepItAll:
 	ld hl, GotMoneyForWinningText
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 .SendMoneyToMom:
 	push bc
@@ -2329,7 +2335,7 @@ PlayerMonFaintHappinessMod:
 	predef_jump ChangeHappiness
 
 AskUseNextPokemon:
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call LoadTileMapToTempTileMap
 ; We don't need to be here if we're in a Trainer battle,
 ; as that decision is made for us.
@@ -2338,7 +2344,7 @@ AskUseNextPokemon:
 	ret nz
 
 	ld hl, BattleText_UseNextMon
-	call StdBattleTextBox
+	call StdBattleTextbox
 .loop
 	call YesNoBox
 	ld a, [wMenuCursorY]
@@ -2388,7 +2394,7 @@ SwitchMonAlreadyOut:
 	jr nz, .notout
 
 	ld hl, BattleText_PkmnIsAlreadyOut
-	call StdBattleTextBox
+	call StdBattleTextbox
 	scf
 	ret
 
@@ -2475,7 +2481,7 @@ LostBattle:
 	ld c, 40
 	call DelayFrames
 
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	ld c, 2
 	farcall BattleTowerText
 	call WaitPressAorB_BlinkCursor
@@ -2508,7 +2514,7 @@ LostBattle:
 	ld hl, LostAgainstText
 
 .text
-	call StdBattleTextBox
+	call StdBattleTextbox
 
 .end
 	scf
@@ -2645,7 +2651,7 @@ FinalPkmnMusicAndAnimation:
 	farcall CheckAnyOtherAliveEnemyMons
 	ret nz
 	; ...then hide the Pokémon...
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	ld c, 20
 	call DelayFrames
 	call SlideEnemyPicOut
@@ -2665,11 +2671,11 @@ FinalPkmnMusicAndAnimation:
 	push af
 	call BattleWinSlideInEnemyTrainerFrontpic
 	farcall GetFinalPkmnTextPointer
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop af
 	ld [wTempEnemyMonSpecies], a
 	; ...and return the Pokémon
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call ApplyTilemapInVBlank
 	call SlideEnemyPicOut
 	ld c, 10
@@ -2704,7 +2710,7 @@ OfferSwitch:
 	ld hl, BattleText_EnemyIsAboutToSwitchWillPlayerSwitchPkmn
 
 .PlaceBattleChangeText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call YesNoBox
 	ld a, [wMenuCursorY]
 	dec a
@@ -2873,7 +2879,7 @@ CheckIfCurPartyMonIsFitToFight:
 	ld hl, BattleText_TheresNoWillToBattle
 
 .print_textbox
-	call StdBattleTextBox
+	call StdBattleTextbox
 
 .finish_fail
 	xor a
@@ -2998,7 +3004,7 @@ BreakAttraction:
 	res SUBSTATUS_IN_LOVE, [hl]
 	ret
 
-HandleFirstAirBalloon:
+SpikesDamageBoth:
 ; for the first mon, Spikes logic doesn't run by itself, and we also want to perform
 ; speed checks to see whose air balloon to announce first.
 	ldh a, [hBattleTurn]
@@ -3159,7 +3165,7 @@ SpikesDamage_GotAbility:
 	call UpdateUserInParty
 
 	ld hl, BattleText_UserHurtBySpikes
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 .ToxicSpikes:
 	ld a, [hl]
@@ -3216,7 +3222,7 @@ SpikesDamage_GotAbility:
 	pop hl
 
 	call SwitchTurn
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop bc
 	ld a, c
 	and a
@@ -3236,7 +3242,7 @@ HandleAirBalloon:
 	ret nz
 	call GetCurItemName
 	ld hl, NotifyAirBalloonText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	xor a
 	ret
 
@@ -3320,7 +3326,7 @@ _HeldStatBoostBerry:
 	call ItemRecoveryAnim
 	call GetCurItemName
 	ld hl, BattleText_ItemRaisedCrit
-	call StdBattleTextBox
+	call StdBattleTextbox
 	xor a
 	ret
 
@@ -3368,7 +3374,7 @@ StealBattleItem:
 	farcall GetOpponentItem
 	call GetCurItemName
 	ld hl, RecoveredUsingText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	farjp ConsumeOpponentItem
 
 HandleHPHealingItem:
@@ -3394,7 +3400,7 @@ UseBattleItem:
 	farcall GetUserItem
 	call GetCurItemName
 	ld hl, RecoveredUsingText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	farjp ConsumeUserItem
 
 _HeldHPHealingItem:
@@ -3425,7 +3431,7 @@ ItemRecoveryAnim::
 	push hl
 	push de
 	push bc
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	ld a, RECOVER
 	ld [wFXAnimIDLo], a
 	xor a
@@ -3503,7 +3509,7 @@ UseConfusionHealingItem:
 	call GetCurItemName
 	call ItemRecoveryAnim
 	ld hl, BattleText_ItemHealedConfusion
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call GetPartymonItem
 	ldh a, [hBattleTurn]
 	and a
@@ -3668,7 +3674,7 @@ endr
 	jr c, .got_gender_char
 	ld a, "<MALE>"
 	jr nz, .got_gender_char
-	ld a, "<FEMALE>"
+	inc a ; "<FEMALE>"
 
 .got_gender_char
 	hlcoord 18, 8
@@ -3737,7 +3743,7 @@ endr
 	jr c, .got_gender
 	ld a, "<MALE>"
 	jr nz, .got_gender
-	ld a, "<FEMALE>"
+	inc a ; "<FEMALE>"
 
 .got_gender
 	hlcoord 8, 1
@@ -3856,9 +3862,9 @@ BattleMenu:
 	jr z, .ok
 	cp BATTLETYPE_SAFARI
 	jr z, .ok
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call UpdateBattleHuds
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call LoadTileMapToTempTileMap
 .ok
 
@@ -3922,7 +3928,7 @@ BattleMenu_Fight:
 
 BattleMenu_Bait:
 	ld hl, BattleText_ThrewBait
-	call StdBattleTextBox
+	call StdBattleTextbox
 	ld hl, wEnemyMonCatchRate
 	srl [hl] ; halve catch rate
 	; TODO: Play bait animation
@@ -3934,7 +3940,7 @@ BattleMenu_Rock:
 	call ClearSprites
 
 	ld hl, BattleText_ThrewRock
-	call StdBattleTextBox
+	call StdBattleTextbox
 	ld hl, wEnemyMonCatchRate
 	ld a, [hl]
 	add a ; double catch rate
@@ -4018,7 +4024,7 @@ BattleMenu_SafariBall:
 	and a
 	jp nz, .ItemsCantBeUsed
 
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 
 	ld a, [wBattleType]
 	cp BATTLETYPE_TUTORIAL
@@ -4048,7 +4054,7 @@ BattleMenu_SafariBall:
 	jr .got_item
 
 .contest
-	ld a, PARK_BALL
+	xor a ; PARK_BALL
 	ld [wCurItem], a
 	call DoItemEffect
 
@@ -4070,7 +4076,7 @@ BattleMenu_SafariBall:
 
 .ItemsCantBeUsed:
 	ld hl, BattleText_ItemsCantBeUsedHere
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp BattleMenu
 
 .UseItem:
@@ -4128,10 +4134,10 @@ BattleMenu_PKMN:
 	cp BATTLETYPE_SAFARI
 	jp z, BattleMenu_Bait ; "PKMN" is replaced with "Bait" in that mode
 
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 BattleMenuPKMN_ReturnFromStats:
 	call ExitMenu
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearBGPalettes
 BattleMenuPKMN_Loop:
 	call SetUpBattlePartyMenu
@@ -4193,7 +4199,7 @@ BattleMenuPKMN_Loop:
 	jr z, .got_menuheader
 	ld hl, .EggMenuHeader
 .got_menuheader
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	xor a
 	ldh [hBGMapMode], a
 	call MenuBox
@@ -4287,7 +4293,7 @@ TryPlayerSwitch:
 	cp d
 	jr nz, .check_trapped
 	ld hl, BattleText_PkmnIsAlreadyOut
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp BattleMenuPKMN_Loop
 
 .check_trapped
@@ -4304,7 +4310,7 @@ TryPlayerSwitch:
 	ld b, a
 	farcall BufferAbility
 	ld hl, BattleText_PkmnCantBeRecalledAbility
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp BattleMenuPKMN_Loop
 
 .check_other_trapped
@@ -4317,7 +4323,7 @@ TryPlayerSwitch:
 
 .trapped
 	ld hl, BattleText_PkmnCantBeRecalled
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp BattleMenuPKMN_Loop
 
 .try_switch
@@ -4424,7 +4430,7 @@ CheckRunSpeed:
 	call SetPlayerTurn
 	call GetItemName
 	ld hl, BattleText_UserFledUsingAStringBuffer1
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp .can_escape
 
 .no_flee_item
@@ -4528,7 +4534,7 @@ endr
 	ld hl, BattleText_PkmnCantBeRecalledAbility
 
 .print_inescapable_text
-	call StdBattleTextBox
+	call StdBattleTextbox
 .dont_forfeit
 	call LoadTileMapToTempTileMap
 	and a
@@ -4536,9 +4542,9 @@ endr
 
 .forfeit_to_trainer
 	ld hl, BattleText_AskForfeitTrainerBattle
-	call StdBattleTextBox
+	call StdBattleTextbox
 	ld hl, NoYesMenuDataHeader
-	call CopyMenuDataHeader
+	call CopyMenuHeader
 	call VerticalMenu
 	push af
 	call Call_LoadTempTileMapToTileMap
@@ -4548,7 +4554,7 @@ endr
 	cp $1
 	jr z, .dont_forfeit
 
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call StopDangerSound
 	call WaitSFX
 	ld de, SFX_KINESIS
@@ -4596,7 +4602,7 @@ endr
 	pop de
 	call WaitSFX
 	ld hl, BattleText_GotAwaySafely
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call WaitSFX
 	call LoadTileMapToTempTileMap
 	scf
@@ -4681,7 +4687,7 @@ MoveSelectionScreen:
 	hlcoord 4, 17 - NUM_MOVES - 1 - 4
 .got_dims
 	lb bc, 4, 14
-	call TextBox
+	call Textbox
 
 	hlcoord 6, 17 - NUM_MOVES
 	ld a, [wMoveSelectionMenuType]
@@ -4863,7 +4869,7 @@ MoveSelectionScreen:
 	push hl
 	call ClearSprites
 	pop hl
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call Call_LoadTempTileMapToTileMap
 	jp MoveSelectionScreen
 
@@ -4906,7 +4912,7 @@ MoveSelectionScreen:
 	ld a, STRUGGLE
 	ld [wCurPlayerMove], a
 	ld hl, BattleText_PkmnHasNoMovesLeft
-	call StdBattleTextBox
+	call StdBattleTextbox
 	ld c, 60
 	call DelayFrames
 	xor a
@@ -5090,7 +5096,7 @@ MoveInfoBox:
 	cp "┌"
 	push af
 	lb bc, 3, 9
-	call TextBox
+	call Textbox
 
 	ld hl, wMenuCursorY
 	dec [hl]
@@ -5394,7 +5400,7 @@ ParseEnemyAction:
 	ld a, [wLinkMode]
 	and a
 	jr z, .not_linked
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call LoadTileMapToTempTileMap
 	call Call_LoadTempTileMapToTileMap
 	ld a, [wBattleAction]
@@ -5476,7 +5482,7 @@ ResetVarsForSubstatusRage:
 LinkBattleError:
 ; TODO: handle link battle errors gracefully
 	ld hl, LinkBattleErrorText
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jp SoftReset
 
 LinkBattleSendRaw:
@@ -5563,7 +5569,7 @@ MobileLinkTransfer:
 	cp BATTLEACTION_NEWRANDOM
 	jr z, .firstloop
 	ld hl, BattleText_WaitingForOpponent
-	call StdBattleTextBox
+	call StdBattleTextbox
 	jr .firstloop
 
 .loop
@@ -5826,6 +5832,9 @@ GenerateWildForm:
 	push hl
 	push de
 	push bc
+	ld a, [wWildMonForm]
+	and a
+	jr nz, .done
 	ld a, [wTempEnemyMonSpecies]
 	ld b, a
 	ld hl, WildSpeciesForms
@@ -5840,6 +5849,7 @@ GenerateWildForm:
 	jr .loop
 .ok
 	call IndirectHL
+.done
 	ld [wCurForm], a
 	jp PopBCDEHL
 
@@ -5848,7 +5858,6 @@ WildSpeciesForms:
 	dbw MAGIKARP,  .Magikarp
 	dbw EKANS,     .EkansArbok
 	dbw ARBOK,     .EkansArbok
-	dbw GYARADOS,  .Gyarados
 	dbw SANDSHREW, .IceForm
 	dbw SANDSLASH, .IceForm
 	dbw VULPIX,    .IceForm
@@ -5889,13 +5898,6 @@ WildSpeciesForms:
 	ld a, ARBOK_JOHTO_FORM
 	ret z
 	inc a ; ARBOK_KANTO_FORM
-	ret
-
-.Gyarados:
-	ld a, [wBattleType]
-	cp BATTLETYPE_RED_GYARADOS
-	jr nz, .Default
-	ld a, GYARADOS_RED_FORM
 	ret
 
 .IceForm:
@@ -6404,7 +6406,7 @@ GiveExperiencePoints:
 	ld hl, wPartyMonNicknames
 	call GetNick
 	ld hl, Text_PkmnGainedExpPoint
-	call BattleTextBox
+	call BattleTextbox
 	ld a, [wStringBuffer2 + 2]
 	ldh [hQuotient + 2], a
 	ld a, [wStringBuffer2 + 1]
@@ -6539,7 +6541,7 @@ GiveExperiencePoints:
 	xor a
 	ld [wd265], a
 	call UpdatePlayerHUD
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	call LoadTileMapToTempTileMap
 	ld a, $1
 	ldh [hBGMapMode], a
@@ -6555,7 +6557,7 @@ GiveExperiencePoints:
 	call PlaySFX
 	call WaitSFX
 	ld hl, BattleText_StringBuffer1GrewToLevel
-	call StdBattleTextBox
+	call StdBattleTextbox
 	call LoadTileMapToTempTileMap
 
 .skip_animation2
@@ -6942,7 +6944,7 @@ AnimateExpBar:
 	ldh a, [hQuotient + 1]
 	ld [wd003], a
 	push af
-	ld a, [hQuotient]
+	ldh a, [hQuotient]
 	ld [wd002], a
 	push af
 	xor a ; PARTYMON
@@ -7030,7 +7032,7 @@ AnimateExpBar:
 	farcall AnimateEndOfExpBar
 	call WaitSFX
 	ld hl, BattleText_StringBuffer1GrewToLevel
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop de
 	inc e
 	ld b, $0
@@ -7078,12 +7080,7 @@ AnimateExpBar:
 	hlcoord 12, 11
 	call PlaceExpBar
 	pop de
-	ld a, $1
-	ldh [hBGMapMode], a
-	ld c, d
-	call DelayFrames
-	xor a
-	ldh [hBGMapMode], a
+	call .delay
 	pop bc
 	ld a, c
 	cp b
@@ -7094,12 +7091,7 @@ AnimateExpBar:
 	hlcoord 12, 11
 	call PlaceExpBar
 	pop de
-	ld a, $1
-	ldh [hBGMapMode], a
-	ld c, d
-	call DelayFrames
-	xor a
-	ldh [hBGMapMode], a
+	call .delay
 	dec d
 	jr nz, .min_number_of_frames
 	ld d, 1
@@ -7111,6 +7103,20 @@ AnimateExpBar:
 .end_animation
 	ld a, $1
 	ldh [hBGMapMode], a
+	ret
+
+.delay
+	xor a
+	ldh [hCGBPalUpdate], a
+	inc a
+	ldh [hBGMapMode], a
+	ldh [hBGMapHalf], a
+	ld c, d
+	call DelayFrames
+	xor a
+	ldh [hBGMapMode], a
+	inc a
+	ldh [hCGBPalUpdate], a
 	ret
 
 GetNewBaseExp:
@@ -7206,7 +7212,7 @@ INCLUDE "data/pokemon/base_exp_exceptions.asm"
 Function_BattleTextEnemySentOut:
 	farcall Battle_GetTrainerName
 	ld hl, BattleText_EnemySentOut
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 UserSentOutText:
 	ldh a, [hBattleTurn]
@@ -7271,7 +7277,7 @@ UserSentOutText:
 
 	ld hl, JumpText_YourFoesWeakGetmPkmn
 .skip_to_textbox
-	jp BattleTextBox
+	jp BattleTextbox
 
 JumpText_GoPkmn:
 	text_jump Text_GoPkmn
@@ -7301,7 +7307,7 @@ TextJump_BattleMonNick01:
 
 WithdrawPkmnText:
 	ld hl, .WithdrawPkmnText
-	jp BattleTextBox
+	jp BattleTextbox
 
 .WithdrawPkmnText:
 	text_jump Text_BattleMonNickComma
@@ -7401,7 +7407,7 @@ HandleSafariAngerEatingStatus:
 	push hl
 	call Call_LoadTempTileMapToTileMap
 	pop hl
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 FillInExpBar:
 	push hl
@@ -7524,7 +7530,7 @@ PlaceExpBar:
 .next
 	add $8
 	jr z, .loop2
-	add "<NOXP>" - 1
+	add "<NOXP>"
 	jr .skip
 
 .loop2
@@ -7651,7 +7657,7 @@ BattleIntro:
 	set 6, [hl] ; win tilemap 1
 	xor a
 	ldh [hBGMapMode], a
-	call EmptyBattleTextBox
+	call EmptyBattleTextbox
 	hlcoord 9, 7
 	lb bc, 5, 11
 	call ClearBox
@@ -7897,7 +7903,7 @@ CheckPayDay:
 	ld de, wMoney + 2
 	call AddBattleMoneyToAccount
 	ld hl, BattleText_PlayerPickedUpPayDayMoney
-	call StdBattleTextBox
+	call StdBattleTextbox
 	ld a, [wInBattleTowerBattle]
 	bit 0, a
 	ret z
@@ -8378,7 +8384,7 @@ InitBattleDisplay:
 	call .InitBackPic
 	hlcoord 0, 12
 	lb bc, 4, 18
-	call TextBox
+	call Textbox
 	hlcoord 1, 5
 	lb bc, 3, 7
 	call ClearBox
@@ -8588,7 +8594,7 @@ BattleStartMessage:
 	push hl
 	farcall BattleStart_TrainerHuds
 	pop hl
-	jp StdBattleTextBox
+	jp StdBattleTextbox
 
 CheckPluralTrainer:
 	ld a, [wOtherTrainerClass]
@@ -8628,8 +8634,8 @@ AutomaticRainWhenOvercast:
 	ld de, RAIN_DANCE
 	call Call_PlayBattleAnim
 	ld hl, DownpourText
-	call StdBattleTextBox
-	jp EmptyBattleTextBox
+	call StdBattleTextbox
+	jp EmptyBattleTextbox
 
 BoostGiovannisArmoredMewtwo:
 	ld a, [wOtherTrainerClass]
@@ -8638,8 +8644,7 @@ BoostGiovannisArmoredMewtwo:
 	ld a, [wOtherTrainerID]
 	cp GIOVANNI1
 	ret nz
-	ld a, 1
-	ldh [hBattleTurn], a
+	call SetEnemyTurn
 	ld de, ANIM_SHARPEN
 	call Call_PlayBattleAnim
 	ld b, ATTACK

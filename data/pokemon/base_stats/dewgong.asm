@@ -12,14 +12,11 @@ endc
 	db RAWST_BERRY ; item 1
 	db NEVERMELTICE ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db THICK_FAT ; ability 1
-	db HYDRATION ; ability 2
-	db ICE_BODY ; hidden ability
+	INCBIN "gfx/pokemon/dewgong/front.dimensions"
+	abilities_for DEWGONG, THICK_FAT, HYDRATION, ICE_BODY
 	db MEDIUM_FAST ; growth rate
 	dn AMPHIBIAN, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   2
 	;         hp, atk, def, spd, sat, sdf
 

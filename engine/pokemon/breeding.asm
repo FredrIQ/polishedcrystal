@@ -237,7 +237,7 @@ DoEggStep::
 
 OverworldHatchEgg::
 	call RefreshScreen
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call HatchEggs
 	call ExitAllMenus
 	call RestartMapMusic
@@ -747,11 +747,11 @@ EggHatch_AnimationSequence:
 	ld c, 80
 	call DelayFrames
 	xor a
-	ld [wcf64], a
+	ld [wFrameCounter], a
 	ldh a, [hSCX]
 	ld b, a
 .outerloop
-	ld hl, wcf64
+	ld hl, wFrameCounter
 	ld a, [hl]
 	inc [hl]
 	cp 8
@@ -810,7 +810,7 @@ Hatch_LoadFrontpicPal:
 	jp GetCGBLayout
 
 EggHatch_CrackShell:
-	ld a, [wcf64]
+	ld a, [wFrameCounter]
 	dec a
 	and $7
 	cp $7
@@ -902,7 +902,7 @@ Special_DayCareMon1:
 	call PrintText
 	ld a, [wBreedMon1Species]
 	call PlayCry
-	ld a, [wDaycareLady]
+	ld a, [wDayCareLady]
 	bit 0, a
 	jr z, DayCareMonCursor
 	call ButtonSound
@@ -915,7 +915,7 @@ Special_DayCareMon2:
 	call PrintText
 	ld a, [wBreedMon2Species]
 	call PlayCry
-	ld a, [wDaycareMan]
+	ld a, [wDayCareMan]
 	bit 0, a
 	jr z, DayCareMonCursor
 	call ButtonSound

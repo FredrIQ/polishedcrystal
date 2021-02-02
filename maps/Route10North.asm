@@ -1,31 +1,31 @@
 Route10North_MapScriptHeader:
-	db 2 ; scene scripts
+	def_scene_scripts
 	scene_script Route10NorthTrigger0
 	scene_script Route10NorthTrigger1
 
-	db 2 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_NEWMAP, Route10NorthFlyPoint
 	callback MAPCALLBACK_OBJECTS, Route10NorthZapdos
 
-	db 5 ; warp events
+	def_warp_events
 	warp_event 11, 35, ROUTE_10_POKECENTER_1F, 1
 	warp_event  3, 51, POWER_PLANT, 1
 	warp_event  4, 43, ROCK_TUNNEL_2F, 1
 	warp_event  8, 33, ROCK_TUNNEL_1F, 1
 	warp_event 10,  1, DIM_CAVE_5F, 1
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 2 ; bg events
-	bg_event  5, 53, SIGNPOST_JUMPTEXT, PowerPlantSignText
-	bg_event  7, 35, SIGNPOST_JUMPTEXT, RockTunnelSignText
+	def_bg_events
+	bg_event  5, 53, BGEVENT_JUMPTEXT, PowerPlantSignText
+	bg_event  7, 35, BGEVENT_JUMPTEXT, RockTunnelSignText
 
-	db 10 ; object events
-	object_event 13, 44, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, ZAPDOS, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, Route10Zapdos, EVENT_ROUTE_10_ZAPDOS
-	object_event  6, 52, SPRITE_LAWRENCE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCE_ROUTE_10
-	object_event 14, 52, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, ZAPDOS, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCES_ZAPDOS_ROUTE_10
-	object_event 12, 52, SPRITE_CHRIS, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CHRIS_IN_NAVEL_ROCK
-	object_event 12, 52, SPRITE_KRIS, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_KRIS_IN_NAVEL_ROCK
+	def_object_events
+	object_event 13, 44, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, ZAPDOS, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, Route10Zapdos, EVENT_ROUTE_10_ZAPDOS
+	object_event  6, 52, SPRITE_LAWRENCE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCE_ROUTE_10
+	object_event 14, 52, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, ZAPDOS, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCES_ZAPDOS_ROUTE_10
+	object_event 12, 52, SPRITE_CHRIS, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, ObjectEvent, EVENT_CHRIS_IN_NAVEL_ROCK
+	object_event 12, 52, SPRITE_KRIS, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, ObjectEvent, EVENT_KRIS_IN_NAVEL_ROCK
 	itemball_event 11,  3, FULL_RESTORE, 1, EVENT_ROUTE_10_FULL_RESTORE
 	cuttree_event  7, 21, EVENT_ROUTE_10_CUT_TREE_1
 	cuttree_event  9, 21, EVENT_ROUTE_10_CUT_TREE_2
@@ -35,7 +35,7 @@ Route10North_MapScriptHeader:
 ; SPRITE_MOM is not in this map's overworld sprite set, so it default to the
 ; player sprite, whatever gender they are.
 
-	const_def 1 ; object constants
+	object_const_def
 	const ROUTE10_ZAPDOS
 	const ROUTE10_LAWRENCE
 	const ROUTE10_LAWRENCES_ZAPDOS
@@ -52,7 +52,7 @@ Route10NorthFlyPoint:
 	return
 
 Route10NorthZapdos:
-	checkevent EVENT_RETURNED_MACHINE_PART
+	checkevent EVENT_RESTORED_POWER_TO_KANTO
 	iffalse .NoAppear
 	checkevent EVENT_ZAPDOS_GONE
 	iffalse .Appear
@@ -80,26 +80,26 @@ Route10NorthLawrenceEncounter1Script:
 	checkflag ENGINE_PLAYER_IS_FEMALE
 	iftrue .FemalePan
 	appear ROUTE10_CHRIS
-	applyonemovement PLAYER, hide_person
+	applyonemovement PLAYER, hide_object
 	applymovement PLAYER, Route10NorthMovementData_PanUp
 	pause 40
 	disappear ROUTE10_LAWRENCE
 	moveobject ROUTE10_LAWRENCE, 13, 52
 	appear ROUTE10_LAWRENCE
 	applymovement PLAYER, Route10NorthMovementData_PanDown
-	applyonemovement PLAYER, show_person
+	applyonemovement PLAYER, show_object
 	disappear ROUTE10_CHRIS
 	jump .Finish
 .FemalePan
 	appear ROUTE10_KRIS
-	applyonemovement PLAYER, hide_person
+	applyonemovement PLAYER, hide_object
 	applymovement PLAYER, Route10NorthMovementData_PanUp
 	pause 40
 	disappear ROUTE10_LAWRENCE
 	moveobject ROUTE10_LAWRENCE, 13, 52
 	appear ROUTE10_LAWRENCE
 	applymovement PLAYER, Route10NorthMovementData_PanDown
-	applyonemovement PLAYER, show_person
+	applyonemovement PLAYER, show_object
 	disappear ROUTE10_KRIS
 .Finish
 	turnobject ROUTE10_LAWRENCE, LEFT

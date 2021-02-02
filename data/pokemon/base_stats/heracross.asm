@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 4 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db SWARM ; ability 1
-	db GUTS ; ability 2
-	db MOXIE ; hidden ability
+	INCBIN "gfx/pokemon/heracross/front.dimensions"
+	abilities_for HERACROSS, MOXIE, GUTS, SKILL_LINK
 	db SLOW ; growth rate
 	dn INSECT, INSECT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   2,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

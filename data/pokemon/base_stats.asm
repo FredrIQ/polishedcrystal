@@ -1,6 +1,15 @@
 ev_yield: MACRO
+; hp, atk, def, spd, sat, sdf
 	db (\1 << 6) | (\2 << 4) | (\3 << 2) | \4
 	db (\5 << 6) | (\6 << 4)
+ENDM
+
+abilities_for: MACRO
+; mon, ability1, ability2, hiddenability
+	db \2, \3, \4
+ABIL_\1_\4 = HIDDEN_ABILITY
+ABIL_\1_\3 = ABILITY_2
+ABIL_\1_\2 = ABILITY_1
 ENDM
 
 tmhm: MACRO
@@ -10,7 +19,7 @@ tms49_72 = 0
 tms73_96 = 0
 tms97_112 = 0
 rept _NARG
-if def(\1_TMNUM)
+if DEF(\1_TMNUM)
 	if \1_TMNUM < 25
 tms1_24 = tms1_24 | (1 << ((\1_TMNUM) - 1))
 	elif \1_TMNUM < 49
@@ -199,9 +208,9 @@ INCLUDE "data/pokemon/base_stats/kabuto.asm"
 INCLUDE "data/pokemon/base_stats/kabutops.asm"
 INCLUDE "data/pokemon/base_stats/aerodactyl.asm"
 INCLUDE "data/pokemon/base_stats/snorlax.asm"
-INCLUDE "data/pokemon/base_stats/articuno.asm"
-INCLUDE "data/pokemon/base_stats/zapdos.asm"
-INCLUDE "data/pokemon/base_stats/moltres.asm"
+INCLUDE "data/pokemon/base_stats/articuno_plain.asm"
+INCLUDE "data/pokemon/base_stats/zapdos_plain.asm"
+INCLUDE "data/pokemon/base_stats/moltres_plain.asm"
 INCLUDE "data/pokemon/base_stats/dratini.asm"
 INCLUDE "data/pokemon/base_stats/dragonair.asm"
 INCLUDE "data/pokemon/base_stats/dragonite.asm"
@@ -250,7 +259,7 @@ INCLUDE "data/pokemon/base_stats/espeon.asm"
 INCLUDE "data/pokemon/base_stats/umbreon.asm"
 INCLUDE "data/pokemon/base_stats/murkrow.asm"
 INCLUDE "data/pokemon/base_stats/honchkrow.asm"
-INCLUDE "data/pokemon/base_stats/slowking.asm"
+INCLUDE "data/pokemon/base_stats/slowking_plain.asm"
 INCLUDE "data/pokemon/base_stats/misdreavus.asm"
 INCLUDE "data/pokemon/base_stats/mismagius.asm"
 INCLUDE "data/pokemon/base_stats/unown.asm"
@@ -336,4 +345,8 @@ INCLUDE "data/pokemon/base_stats/ponyta_galarian.asm"
 INCLUDE "data/pokemon/base_stats/rapidash_galarian.asm"
 INCLUDE "data/pokemon/base_stats/slowpoke_galarian.asm"
 INCLUDE "data/pokemon/base_stats/slowbro_galarian.asm"
+INCLUDE "data/pokemon/base_stats/slowking_galarian.asm"
 INCLUDE "data/pokemon/base_stats/weezing_galarian.asm"
+INCLUDE "data/pokemon/base_stats/articuno_galarian.asm"
+INCLUDE "data/pokemon/base_stats/zapdos_galarian.asm"
+INCLUDE "data/pokemon/base_stats/moltres_galarian.asm"

@@ -7,14 +7,11 @@
 	db RAWST_BERRY ; item 1
 	db SNOWBALL ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db OBLIVIOUS ; ability 1
-	db SNOW_CLOAK ; ability 2
-	db THICK_FAT ; hidden ability
+	INCBIN "gfx/pokemon/swinub/front.dimensions"
+	abilities_for SWINUB, OBLIVIOUS, SNOW_CLOAK, THICK_FAT
 	db SLOW ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

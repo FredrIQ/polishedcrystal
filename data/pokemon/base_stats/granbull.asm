@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_75, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db INTIMIDATE ; ability 1
-	db QUICK_FEET ; ability 2
-	db RATTLED ; hidden ability
+	INCBIN "gfx/pokemon/granbull/front.dimensions"
+	abilities_for GRANBULL, INTIMIDATE, QUICK_FEET, RATTLED
 	db FAST ; growth rate
 	dn FIELD, FAERY ; egg groups
 
-	; ev_yield
 	ev_yield   0,   2,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

@@ -15,7 +15,7 @@ SpecialHoOhChamber:
 	ret nz
 
 .open
-	call GetSecondaryMapHeaderPointer
+	call GetMapAttributesPointer
 	eventflagset EVENT_WALL_OPENED_IN_HO_OH_CHAMBER
 	ret
 
@@ -47,17 +47,17 @@ SpecialOmanyteChamber:
 	jr nz, .loop
 
 .open
-	call GetSecondaryMapHeaderPointer
+	call GetMapAttributesPointer
 	eventflagset EVENT_WALL_OPENED_IN_OMANYTE_CHAMBER
 	ret
 
 SpecialAerodactylChamber:
-	call GetSecondaryMapHeaderPointer
+	call GetMapAttributesPointer
 	ld a, h
-	cp HIGH(RuinsOfAlphAerodactylChamber_SecondMapHeader)
+	cp HIGH(RuinsOfAlphAerodactylChamber_MapAttributes)
 	jr nz, .nope
 	ld a, l
-	cp LOW(RuinsOfAlphAerodactylChamber_SecondMapHeader)
+	cp LOW(RuinsOfAlphAerodactylChamber_MapAttributes)
 	jr nz, .nope
 
 	eventflagset EVENT_WALL_OPENED_IN_AERODACTYL_CHAMBER
@@ -69,12 +69,12 @@ SpecialAerodactylChamber:
 	ret
 
 SpecialKabutoChamber:
-	call GetSecondaryMapHeaderPointer
+	call GetMapAttributesPointer
 	ld a, h
-	cp HIGH(RuinsOfAlphKabutoChamber_SecondMapHeader)
+	cp HIGH(RuinsOfAlphKabutoChamber_MapAttributes)
 	ret nz
 	ld a, l
-	cp LOW(RuinsOfAlphKabutoChamber_SecondMapHeader)
+	cp LOW(RuinsOfAlphKabutoChamber_MapAttributes)
 	ret nz
 
 	eventflagset EVENT_WALL_OPENED_IN_KABUTO_CHAMBER
@@ -93,7 +93,7 @@ Special_DisplayUnownWords:
 	jr nz, .loop
 
 .load
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	xor a
 	ldh [hBGMapMode], a
 	call MenuBox

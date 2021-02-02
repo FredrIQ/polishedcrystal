@@ -88,18 +88,6 @@ GetRemainingSpaceInPhoneList:
 
 INCLUDE "data/phone/permanent_numbers.asm"
 
-FarPlaceString:
-	ldh a, [hROMBank]
-	push af
-	ld a, b
-	rst Bankswitch
-
-	rst PlaceString
-
-	pop af
-	rst Bankswitch
-	ret
-
 CheckPhoneCall::
 ; Check if the phone is ringing in the overworld.
 
@@ -120,7 +108,7 @@ CheckPhoneCall::
 	cp b
 	jr nz, .no_call
 
-	call GetMapHeaderPhoneServiceNybble
+	call GetMapPhoneService
 	and a
 	jr nz, .no_call
 
@@ -151,14 +139,14 @@ CheckPhoneContactTimeOfDay:
 
 	farcall CheckTime
 	pop af
-	and (1 << MORN) + (1 << DAY) + (1 << NITE)
+	and (1 << MORN) + (1 << DAY) + (1 << NITE) + (1 << EVE)
 	and c
 
 	jp PopBCDEHL
 
 ChooseRandomCaller:
 ; If no one is available to call, don't return anything.
-	ld a, [wEngineBuffer3]
+	ld a, [wNumAvailableCallers]
 	and a
 	jr z, .NothingToSample
 
@@ -173,7 +161,7 @@ ChooseRandomCaller:
 ; Return the caller ID you just sampled.
 	ld c, a
 	ld b, 0
-	ld hl, wEngineBuffer4
+	ld hl, wAvailableCallers
 	add hl, bc
 	ld a, [hl]
 	scf
@@ -186,23 +174,23 @@ ChooseRandomCaller:
 GetAvailableCallers:
 	farcall CheckTime
 	ld a, c
-	ld [wEngineBuffer1], a
-	ld hl, wEngineBuffer3
-	ld bc, 11
+	ld [wCheckedTime], a
+	ld hl, wNumAvailableCallers
+	ld bc, 11 ; bug: should be CONTACT_LIST_SIZE + 1 (only clears first 10 contacts)
 	xor a
 	rst ByteFill
 	ld de, wPhoneList
 	ld a, CONTACT_LIST_SIZE
 
 .loop
-	ld [wEngineBuffer2], a
+	ld [wPhoneListIndex], a
 	ld a, [de]
 	and a
 	jr z, .not_good_for_call
 	ld hl, PhoneContacts + PHONE_CONTACT_SCRIPT2_TIME
-	ld bc, PHONE_TABLE_WIDTH
+	ld bc, PHONE_CONTACT_SIZE
 	rst AddNTimes
-	ld a, [wEngineBuffer1]
+	ld a, [wCheckedTime]
 	and [hl]
 	jr z, .not_good_for_call
 	ld bc, PHONE_CONTACT_MAP_GROUP - PHONE_CONTACT_SCRIPT2_TIME
@@ -215,18 +203,18 @@ GetAvailableCallers:
 	cp [hl]
 	jr z, .not_good_for_call
 .different_map
-	ld a, [wEngineBuffer3]
+	ld a, [wNumAvailableCallers]
 	ld c, a
 	ld b, $0
 	inc a
-	ld [wEngineBuffer3], a
-	ld hl, wEngineBuffer4
+	ld [wNumAvailableCallers], a
+	ld hl, wAvailableCallers
 	add hl, bc
 	ld a, [de]
 	ld [hl], a
 .not_good_for_call
 	inc de
-	ld a, [wEngineBuffer2]
+	ld a, [wPhoneListIndex]
 	dec a
 	jr nz, .loop
 	ret
@@ -256,7 +244,7 @@ CheckSpecialPhoneCall::
 	push hl
 	call LoadCallerScript
 	pop hl
-	ld de, wPhoneScriptPointer
+	ld de, wCallerContact + PHONE_CONTACT_SCRIPT2_BANK
 	ld a, [hli]
 	ld [de], a
 	inc de
@@ -291,34 +279,30 @@ CheckSpecialPhoneCall::
 SpecialCallOnlyWhenOutside:
 	ld a, [wEnvironment]
 	cp TOWN
-	jr z, .outside
+	jr z, SpecialCallWhereverYouAre
 	cp ROUTE
-	jr z, .outside
+	jr z, SpecialCallWhereverYouAre
 	xor a
-	ret
-
-.outside
-	scf
 	ret
 
 SpecialCallWhereverYouAre:
 	scf
 	ret
 
-Function90199:
+MakePhoneCallFromPokegear:
 	; Don't do the call if you're in a link communication
 	ld a, [wLinkMode]
 	and a
 	jr nz, .OutOfArea
 	; If you're in an area without phone service, don't do the call
-	call GetMapHeaderPhoneServiceNybble
+	call GetMapPhoneService
 	and a
 	jr nz, .OutOfArea
 	; If the person can't take a call at that time, don't do the call
 	ld a, b
 	ld [wCurCaller], a
 	ld hl, PhoneContacts
-	ld bc, PHONE_TABLE_WIDTH
+	ld bc, PHONE_CONTACT_SIZE
 	rst AddNTimes
 	ld d, h
 	ld e, l
@@ -402,7 +386,7 @@ LoadCallerScript:
 	rst AddNTimes
 	ld a, BANK(PhoneContacts)
 .proceed
-	ld de, wEngineBuffer2
+	ld de, wPhoneListIndex
 	ld bc, 12
 	jp FarCopyBytes
 
@@ -415,7 +399,7 @@ WrongNumber:
 Script_ReceivePhoneCall:
 	refreshscreen
 	callasm RingTwice_StartCall
-	ptcall wPhoneScriptPointer
+	ptcall wCallerContact + PHONE_CONTACT_SCRIPT2_BANK
 	waitbutton
 	callasm HangUp
 	closetext
@@ -442,92 +426,7 @@ RingTwice_StartCall:
 Phone_CallerTextboxWithName:
 	ld a, [wCurCaller]
 	ld b, a
-	jp Function90363
-
-PhoneCall::
-	ld a, b
-	ld [wPhoneScriptBank], a
-	ld a, e
-	ld [wPhoneCallerLo], a
-	ld a, d
-	ld [wPhoneCallerHi], a
-	call Phone_FirstOfTwoRings
-Phone_FirstOfTwoRings:
-	call Phone_StartRinging
-	call Phone_Wait20Frames
-	call Phone_CallerTextboxWithName2
-	call Phone_Wait20Frames
-	call Phone_CallerTextbox
-	call Phone_Wait20Frames
-Phone_CallerTextboxWithName2:
-	call Phone_CallerTextbox
-	hlcoord 1, 2
-	ld [hl], "<PHONE>"
-	inc hl
-	inc hl
-	ld a, [wPhoneScriptBank]
-	ld b, a
-	ld a, [wPhoneCallerLo]
-	ld e, a
-	ld a, [wPhoneCallerHi]
-	ld d, a
-	jp FarPlaceString
-
-Phone_NoSignal:
-	ld de, SFX_NO_SIGNAL
-	call PlaySFX
-	jr Phone_CallEnd
-
-HangUp::
-	call HangUp_Beep
-	call HangUp_Wait20Frames
-Phone_CallEnd:
-	call HangUp_BoopOn
-	call HangUp_Wait20Frames
-	call SpeechTextBox
-	call HangUp_Wait20Frames
-	call HangUp_BoopOn
-	call HangUp_Wait20Frames
-	call SpeechTextBox
-	call HangUp_Wait20Frames
-	call HangUp_BoopOn
-	call HangUp_Wait20Frames
-	call SpeechTextBox
-	jp HangUp_Wait20Frames
-
-HangUp_Beep:
-	ld hl, UnknownText_0x9032a
-	call PrintText
-	ld de, SFX_HANG_UP
-	jp PlaySFX
-
-UnknownText_0x9032a:
-	text_jump UnknownText_0x1c5580
-	text_end
-
-HangUp_BoopOn:
-	ld hl, UnknownText_0x90336
-	jp PrintText
-
-UnknownText_0x90336:
-	text_jump UnknownText_0x1c5588
-	text_end
-
-Phone_StartRinging:
-	call WaitSFX
-	ld de, SFX_CALL
-	call PlaySFX
-	call Phone_CallerTextbox
-	call UpdateSprites
-	jp ApplyTilemap
-
-HangUp_Wait20Frames:
-Phone_Wait20Frames:
-	ld c, 20
-	call DelayFrames
-	jp ApplyTilemap
-
-Function90363:
+Phone_TextboxWithName:
 	push bc
 	call Phone_CallerTextbox
 	hlcoord 1, 1
@@ -537,47 +436,11 @@ Function90363:
 	ld d, h
 	ld e, l
 	pop bc
-	jp Function90380
-
-Phone_CallerTextbox:
-	hlcoord 0, 0
-	lb bc, 2, SCREEN_WIDTH - 2
-	jp TextBox
-
-Function90380:
+GetCallerClassAndName:
 	ld h, d
 	ld l, e
 	ld a, b
 	call GetCallerTrainerClass
-	jp GetCallerName
-
-CheckCanDeletePhoneNumber:
-	ld a, c
-	call GetCallerTrainerClass
-;	ld a, c
-;	and a
-;	ret nz
-	ld a, b
-	cp PHONECONTACT_MOM
-	ret z
-	cp PHONECONTACT_ELM
-	ret z
-	cp PHONECONTACT_LYRA
-	ret z
-	ld c, $1
-	ret
-
-GetCallerTrainerClass:
-	push hl
-	ld hl, PhoneContacts + PHONE_CONTACT_TRAINER_CLASS
-	ld bc, PHONE_TABLE_WIDTH
-	rst AddNTimes
-	ld a, [hli]
-	ld b, [hl]
-	ld c, a
-	pop hl
-	ret
-
 GetCallerName:
 	ld a, c
 	and a
@@ -633,21 +496,91 @@ GetCallerName:
 .filler
 	db " -------@"
 
-NonTrainerCallerNames:
-	dw EmptyString
-	dw .mom
-	dw .bikeshop
-	dw .bill
-	dw .elm
-	dw .lyra
-	dw .buena
+Phone_NoSignal:
+	ld de, SFX_NO_SIGNAL
+	call PlaySFX
+	jr Phone_CallEnd
 
-.mom db "Mom:@"
-.bill db "Bill:<LNBRK>   #maniac@"
-.elm db "Prof.Elm:<LNBRK>   #mon Prof.@"
-.bikeshop db "Miracle Cycle:@"
-.lyra db "Lyra:<LNBRK>   <PK><MN> Trainer@"
-.buena db "Buena:<LNBRK>   Disc Jockey@"
+HangUp::
+	call HangUp_Beep
+	call HangUp_Wait20Frames
+Phone_CallEnd:
+	call HangUp_BoopOn
+	call HangUp_Wait20Frames
+	call SpeechTextbox
+	call HangUp_Wait20Frames
+	call HangUp_BoopOn
+	call HangUp_Wait20Frames
+	call SpeechTextbox
+	call HangUp_Wait20Frames
+	call HangUp_BoopOn
+	call HangUp_Wait20Frames
+	call SpeechTextbox
+	jp HangUp_Wait20Frames
+
+HangUp_Beep:
+	ld hl, UnknownText_0x9032a
+	call PrintText
+	ld de, SFX_HANG_UP
+	jp PlaySFX
+
+UnknownText_0x9032a:
+	text_jump UnknownText_0x1c5580
+	text_end
+
+HangUp_BoopOn:
+	ld hl, UnknownText_0x90336
+	jp PrintText
+
+UnknownText_0x90336:
+	text_jump UnknownText_0x1c5588
+	text_end
+
+Phone_StartRinging:
+	call WaitSFX
+	ld de, SFX_CALL
+	call PlaySFX
+	call Phone_CallerTextbox
+	call UpdateSprites
+	jp ApplyTilemap
+
+HangUp_Wait20Frames:
+Phone_Wait20Frames:
+	ld c, 20
+	call DelayFrames
+	jp ApplyTilemap
+
+Phone_CallerTextbox:
+	hlcoord 0, 0
+	lb bc, 2, SCREEN_WIDTH - 2
+	jp Textbox
+
+CheckCanDeletePhoneNumber:
+	ld a, c
+	call GetCallerTrainerClass
+;	ld a, c
+;	and a
+;	ret nz
+	ld a, b
+	cp PHONECONTACT_MOM
+	ret z
+	cp PHONECONTACT_ELM
+	ret z
+	cp PHONECONTACT_LYRA
+	ret z
+	ld c, $1
+	ret
+
+GetCallerTrainerClass:
+	push hl
+	ld hl, PhoneContacts + PHONE_CONTACT_TRAINER_CLASS
+	ld bc, PHONE_CONTACT_SIZE
+	rst AddNTimes
+	ld a, [hli]
+	ld b, [hl]
+	ld c, a
+	pop hl
+	ret
 
 Phone_GetTrainerName:
 	push hl
@@ -673,7 +606,7 @@ GetCallerLocation:
 	push de
 	ld a, [wCurCaller]
 	ld hl, PhoneContacts + PHONE_CONTACT_MAP_GROUP
-	ld bc, PHONE_TABLE_WIDTH
+	ld bc, PHONE_CONTACT_SIZE
 	rst AddNTimes
 	ld b, [hl]
 	inc hl
@@ -685,6 +618,22 @@ GetCallerLocation:
 	pop bc
 	pop de
 	ret
+
+NonTrainerCallerNames:
+	dw EmptyString
+	dw .mom
+	dw .bikeshop
+	dw .bill
+	dw .elm
+	dw .lyra
+	dw .buena
+
+.mom:      db "Mom:@"
+.bill:     db "Bill:<LNBRK>   #maniac@"
+.elm:      db "Prof.Elm:<LNBRK>   #mon Prof.@"
+.bikeshop: db "Miracle Cycle:@"
+.lyra:     db "Lyra:<LNBRK>   <PK><MN> Trainer@"
+.buena:    db "Buena:<LNBRK>   Disc Jockey@"
 
 INCLUDE "data/phone/phone_contacts.asm"
 

@@ -55,13 +55,6 @@ wTownMapCursorCoordinates:: dw
 ENDU
 
 NEXTU
-; phone call data
-wPhoneScriptBank:: db
-wPhoneCaller::
-wPhoneCallerLo:: db
-wPhoneCallerHi:: db
-
-NEXTU
 ; radio data
 wCurRadioLine:: db
 wNextRadioLine:: db
@@ -116,12 +109,25 @@ wEndFlypoint:: db
 	ds 55
 
 UNION
-; TODO: replace with meaningful values (see pokecrystal commit 2184b60)
-wEngineBuffer1:: db
-wEngineBuffer2:: db
-wEngineBuffer3:: db
-wEngineBuffer4:: db
-wEngineBuffer5:: db
+; trainer data
+wSeenTrainerBank:: db
+wSeenTrainerDistance:: db
+wSeenTrainerDirection:: db
+wTempTrainer::
+wTempTrainerEventFlag::
+wTempTrainerEventFlagLo:: db
+wTempTrainerEventFlagHi:: db
+wTempTrainerClass:: db
+wTempTrainerID:: db
+wSeenTextPointer:: dw
+wWinTextPointer:: dw
+wGenericTempTrainerHeaderEnd::
+wLossTextPointer:: dw
+wScriptAfterPointer:: dw
+wRunningTrainerBattleScript:: db
+wTempTrainerEnd::
+	ds 1
+wStashedTextPointer:: dw
 
 NEXTU
 ; menu items list
@@ -129,20 +135,20 @@ wMenuItemsList:: ds 16
 wMenuItemsListEnd::
 
 NEXTU
-; temporary script buffers
-wTempScriptBuffer:: db
-wJumpStdScriptBuffer:: ds 15
-
-NEXTU
-; item ball data
-wCurItemBallContents:: db
-wCurItemBallQuantity:: db
-
-NEXTU
 ; fruit tree data
 wCurFruitTree:: db
 	ds 1
 wCurFruit:: db
+
+NEXTU
+; item ball data
+wItemBallItemID:: db
+wItemBallQuantity:: db
+
+NEXTU
+; hidden item data
+wHiddenItemEvent:: dw
+wHiddenItemID:: db
 
 NEXTU
 ; elevator data
@@ -168,39 +174,22 @@ wCurBGEvent::
 wCurBGEventYCoord:: db
 wCurBGEventXCoord:: db
 wCurBGEventType:: db
-wCurBGEventScriptAddr:: db
-
-NEXTU
-; trainer data
-	ds 3
-wTempTrainer::
-wTempTrainerEventFlag::
-wTempTrainerEventFlagLo:: db
-wTempTrainerEventFlagHi:: db
-wTempTrainerClass:: db
-wTempTrainerID:: db
-wSeenTextPointer:: dw
-wWinTextPointer:: dw
-wGenericTempTrainerHeaderEnd::
-wLossTextPointer:: dw
-wScriptAfterPointer:: dw
-wRunningTrainerBattleScript:: db
-wTempTrainerEnd::
-	ds 1
-wStashedTextPointer:: dw
+wCurBGEventScriptAddr:: dw
 
 NEXTU
 ; mart data
-	ds 1
+wMartType:: db
 wMartPointerBank:: db
 wMartPointer:: dw
-	ds 1
+wMartJumptableIndex:: db
 wBargainShopFlags:: db
 
 NEXTU
 ; player movement data
-wCurInput:: db
-	ds 3
+wCurInput::
+wFacingTileID:: db
+	ds 2
+wWalkingIntoEdgeWarp:: db
 wMovementAnimation:: db
 wWalkingDirection:: db
 wFacingDirection:: db
@@ -211,16 +200,35 @@ wWalkingTile:: db
 wPlayerTurningDirection:: db
 
 NEXTU
+; temporary script buffers
+wTempScriptBuffer:: db
+wJumpStdScriptBuffer:: ds 15
+
+NEXTU
+; phone script data
+wCheckedTime:: db
+wPhoneListIndex:: db
+wNumAvailableCallers:: db
+wAvailableCallers:: ds CONTACT_LIST_SIZE - 4 ; bug: available callers list affects mem addresses outside union (up to 4 bytes)
+wAvailableCallersEnd::
+
+NEXTU
+; phone caller contact
+	ds 1
+wCallerContact:: ds PHONE_CONTACT_SIZE 
+
+NEXTU
 ; backup menu data
 	ds 7
 wMenuCursorBufferBackup:: db
 wMenuScrollPositionBackup:: db
 
 NEXTU
-; phone script pointer
-	ds 10
-wPhoneScriptPointer:: dw
-
+; poison step data
+wPoisonStepData::
+wPoisonStepFlagSum:: db
+wPoisonStepPartyFlags:: ds PARTY_LENGTH
+wPoisonStepDataEnd::
 ENDU
 
 ENDU
@@ -242,8 +250,16 @@ wTMHMMoveNameBackup:: ds MOVE_NAME_LENGTH
 wStringBuffer1:: ds 24
 wStringBuffer2:: ds 19
 wStringBuffer3:: ds 19
+
+UNION
+; mostly used for the phone, Buffer4 is also used in some overworld events
 wStringBuffer4:: ds 19
 wStringBuffer5:: ds 19
+NEXTU
+wAIMoves:: ds 4 ; enemy moves excluding unusable moves
+wAIMoveScore:: ds 4 ; score for each move
+wAIFlags:: ds 2 ; modified from trainer struct as player get more badges
+ENDU
 
 wBattleMenuCursorBuffer:: dw
 
@@ -353,7 +369,6 @@ wPokemonWithdrawDepositParameter::
 ; 3: Put into Day-Care
 	db
 
-wIsCurMonInParty::
 wItemQuantityChangeBuffer:: db
 wItemQuantityBuffer:: db
 
@@ -365,6 +380,7 @@ wSpriteFlags::
 	db
 
 wHandlePlayerStep:: db
+
 	ds 1
 
 wPartyMenuActionText:: db
@@ -436,6 +452,7 @@ wWestMapConnection:: map_connection_struct wWest
 wEastMapConnection:: map_connection_struct wEast
 
 wTileset::
+wTilesetBank::
 wTilesetGFX0Bank:: db
 wTilesetGFX0Address:: dw
 wTilesetGFX1Bank:: db
@@ -551,8 +568,6 @@ wOtherTrainerID::
 
 wTrainerClass:: db
 
-	ds 1 ; unused
-
 wMoveSelectionMenuType::
 ; 0: battle move selection
 ; 1: pp restore selection
@@ -591,6 +606,7 @@ wCurDamage:: dw
 wMornEncounterRate:: db
 wDayEncounterRate:: db
 wNiteEncounterRate:: db
+wEveEncounterRate:: db
 wWaterEncounterRate:: db
 
 wListMoves_MoveIndicesBuffer:: ds NUM_MOVES
@@ -722,7 +738,9 @@ wWildEncounterCooldown:: db
 
 wWildBattlePanic:: db
 
-wBattleScriptFlags:: dw
+wBattleScriptFlags:: db
+wWildMonForm:: db
+
 wPlayerSpriteSetupFlags::
 ; bit 7: if set, cancel wPlayerAction
 ; bit 6: RefreshMapSprites doesn't reload player sprite
@@ -831,7 +849,9 @@ wObject11Struct:: object_struct wObject11
 wObject12Struct:: object_struct wObject12
 wObjectStructsEnd::
 
-wCmdQueue:: ds CMDQUEUE_CAPACITY * CMDQUEUE_ENTRY_SIZE
+wStoneTableAddress:: dw
+
+	ds 22
 
 wMapObjects::
 wPlayerObject:: map_object wPlayer
@@ -877,25 +897,25 @@ wCurTimeOfDay:: db
 wSecretID:: dw
 
 wStatusFlags::
-	; 0 - pokedex
-	; 1 - unown dex
-	; 2 - flash
-	; 3 - pokerus
-	; 4 - rocket signal
-	; 5 - wild encounters on/off
-	; 6 - hall of fame
-	; 7 - bug contest on
+	; bit 0: pokedex
+	; bit 1: unown dex
+	; bit 2: flash
+	; bit 3: caught pokerus
+	; bit 4: rocket signal
+	; bit 5: wild encounters on/off
+	; bit 6: hall of fame
+	; bit 7: bug contest on (unused?)
 	db
 
 wStatusFlags2::
-	; 0 - rockets
-	; 1 - safari game
-	; 2 - bug contest timer
-	; 3 - seen shamouti island
-	; 4 - bike shop call
-	; 5 - pokerus
-	; 6 - exorcised lav radio tower
-	; 7 - rockets in mahogany
+	; bit 0: rockets
+	; bit 1: safari game
+	; bit 2: bug contest timer
+	; bit 3: seen shamouti island
+	; bit 4: bike shop call
+	; bit 5: can use sweet scent
+	; bit 6: exorcised lav radio tower
+	; bit 7: rockets in mahogany
 	db
 
 wMoney:: ds 3
@@ -1005,7 +1025,7 @@ wHallOfFameSceneID:: db
 wIlexForestSceneID:: db
 wKarensRoomSceneID:: db
 wKogasRoomSceneID:: db
-wKrissHouse1FSceneID:: db
+wPlayersHouse1FSceneID:: db
 wLancesRoomSceneID:: db
 wLavenderTownSceneID:: db
 wMahoganyMart1FSceneID:: db
@@ -1178,14 +1198,13 @@ wYanmaMapNumber:: db
 wVermilionGymTrashCan1:: db
 wVermilionGymTrashCan2:: db
 
-	ds 2 ; unused
-
-wBattlePoints:: db
+wBattlePoints:: dw
+wBattlePointsEnd::
 
 wStepCount:: db
 wPoisonStepCount:: db
 
-wPhoneList:: ds CONTACT_LIST_SIZE
+wPhoneList:: ds CONTACT_LIST_SIZE + 1
 
 wHappinessStepCount:: db
 
@@ -1267,7 +1286,7 @@ wUnlockedUnowns:: db
 wFirstUnownSeen:: db
 wFirstMagikarpSeen:: db
 
-wDaycareMan::
+wDayCareMan::
 ; bit 7: active
 ; bit 6: monsters are compatible
 ; bit 5: egg ready
@@ -1279,7 +1298,7 @@ wBreedMon1Nick::  ds MON_NAME_LENGTH
 wBreedMon1OT:: ds NAME_LENGTH
 wBreedMon1Stats:: box_struct wBreedMon1
 
-wDaycareLady::
+wDayCareLady::
 ; bit 7: active
 ; bit 0: monster 2 in daycare
 	db

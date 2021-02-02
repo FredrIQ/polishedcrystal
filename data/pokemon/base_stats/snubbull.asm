@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_75, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db INTIMIDATE ; ability 1
-	db RUN_AWAY ; ability 2
-	db RATTLED ; hidden ability
+	INCBIN "gfx/pokemon/snubbull/front.dimensions"
+	abilities_for SNUBBULL, INTIMIDATE, RUN_AWAY, RATTLED
 	db FAST ; growth rate
 	dn FIELD, FAERY ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

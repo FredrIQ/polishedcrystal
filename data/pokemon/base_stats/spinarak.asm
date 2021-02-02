@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 2 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SWARM ; ability 1
-	db INSOMNIA ; ability 2
-	db SNIPER ; hidden ability
+	INCBIN "gfx/pokemon/spinarak/front.dimensions"
+	abilities_for SPINARAK, SWARM, INSOMNIA, SNIPER
 	db FAST ; growth rate
 	dn INSECT, INSECT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

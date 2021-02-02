@@ -74,6 +74,7 @@ ResetWRAM_NotPlus:
 	ld [wSavedAtLeastOnce], a
 
 	ld [wBattlePoints], a
+	ld [wBattlePoints + 1], a
 
 	ld [wCurBox], a
 
@@ -118,8 +119,8 @@ ResetWRAM:
 	ld bc, wBattlePoints - wBoxNamesEnd
 	xor a
 	rst ByteFill
-	ld hl, wBattlePoints + 1
-	ld bc, wGameDataEnd - (wBattlePoints + 1)
+	ld hl, wBattlePointsEnd
+	ld bc, wGameDataEnd - wBattlePointsEnd
 	xor a
 	rst ByteFill
 
@@ -337,7 +338,7 @@ Continue:
 	farcall TryLoadSaveFile
 	ret c
 
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call DisplaySaveInfoOnContinue
 	ld a, $1
 	ldh [hBGMapMode], a
@@ -360,7 +361,7 @@ Continue:
 	ld c, 20
 	call DelayFrames
 	farcall JumpRoamMons
-	farcall Function140ae ; time-related
+	farcall ClockContinue ; time-related
 	ld a, [wSpawnAfterChampion]
 	cp SPAWN_LANCE
 	jr z, .SpawnAfterE4
@@ -734,7 +735,7 @@ InitGender:
 	call PrintText
 
 	ld hl, .MenuDataHeader
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	call ApplyAttrAndTilemapInVBlank
 	call VerticalMenu
 	call CloseWindow
@@ -819,43 +820,35 @@ NamePlayer:
 INCLUDE "data/default_player_names.asm"
 
 ShrinkPlayer:
-
-	ldh a, [hROMBank]
-	push af
-
 	ld a, 0 << 7 | 32 ; fade out
 	ld [wMusicFade], a
-	ld de, MUSIC_NONE
-	ld a, e
+	xor a ; MUSIC_NONE
 	ld [wMusicFadeIDLo], a
-	ld a, d
 	ld [wMusicFadeIDHi], a
 
 	ld de, SFX_ESCAPE_ROPE
 	call PlaySFX
-	pop af
-	rst Bankswitch
 
-	ld c, 8
+	ld c, 16
 	call DelayFrames
 
 	ld hl, Shrink1Pic
 	call ShrinkFrame
 
-	ld c, 8
+	ld c, 16
 	call DelayFrames
 
 	ld hl, Shrink2Pic
 	call ShrinkFrame
 
-	ld c, 8
+	ld c, 16
 	call DelayFrames
 
 	hlcoord 6, 4
 	lb bc, 7, 7
 	call ClearBox
 
-	ld c, 3
+	ld c, 6
 	call DelayFrames
 
 	call Intro_PlacePlayerSprite
@@ -961,7 +954,7 @@ Intro_PlacePlayerSprite:
 	db 10 * 8 + 4, 10 * 8, 3
 
 CrystalIntroSequence:
-	farcall Copyright_GFPresents
+	farcall SplashScreen
 	jr c, StartTitleScreen
 	farcall CrystalIntro
 
@@ -1128,16 +1121,15 @@ TitleScreenTimer:
 	jr z, .ok
 	ld de, 56 * 60
 .ok
-	ld hl, wcf65
+	ld hl, wTitleScreenTimer
 	ld [hl], e
 	inc hl
 	ld [hl], d
 	ret
 
 TitleScreenMain:
-
 ; Run the timer down.
-	ld hl, wcf65
+	ld hl, wTitleScreenTimer
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
@@ -1197,7 +1189,7 @@ TitleScreenMain:
 	ld hl, wMusicFade
 	ld [hl], 8 ; 1 second
 
-	ld hl, wcf65
+	ld hl, wTitleScreenTimer
 	inc [hl]
 	ret
 
@@ -1221,7 +1213,7 @@ TitleScreenEnd:
 
 ; Wait until the music is done fading.
 
-	ld hl, wcf65
+	ld hl, wTitleScreenTimer
 	inc [hl]
 
 	ld a, [wMusicFade]

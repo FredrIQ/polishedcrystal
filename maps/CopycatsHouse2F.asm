@@ -1,26 +1,26 @@
 CopycatsHouse2F_MapScriptHeader:
-	db 0 ; scene scripts
+	def_scene_scripts
 
-	db 1 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_OBJECTS, CopycatsHouse2FCallback
 
-	db 1 ; warp events
+	def_warp_events
 	warp_event  3,  0, COPYCATS_HOUSE_1F, 3
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 0 ; bg events
+	def_bg_events
 
-	db 7 ; object events
-	object_event  4,  3, SPRITE_COPYCAT, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, Copycat1Script, EVENT_COPYCAT_1
-	object_event  4,  3, SPRITE_COPYCAT, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, Copycat2Script, EVENT_COPYCAT_2
-	object_event  6,  4, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, DODRIO, -1, -1, PAL_NPC_BROWN, PERSONTYPE_SCRIPT, 0, CopycatsDodrioScript, -1
-	object_event  6,  1, SPRITE_MON_ICON, SPRITEMOVEDATA_DOLL, 0, CLEFAIRY, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptext, CopycatsHouse2FDollText, EVENT_COPYCATS_HOUSE_2F_DOLL
-	object_event  2,  1, SPRITE_MON_ICON, SPRITEMOVEDATA_DOLL, 0, GENGAR, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_COMMAND, jumptext, CopycatsHouse2FDollText, -1
-	object_event  7,  1, SPRITE_MON_ICON, SPRITEMOVEDATA_DOLL, 0, MURKROW, -1, -1, PAL_NPC_BLUE, PERSONTYPE_COMMAND, jumptext, CopycatsHouse2FDollText, -1
+	def_object_events
+	object_event  4,  3, SPRITE_COPYCAT, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_SCRIPT, 0, Copycat1Script, EVENT_COPYCAT_1
+	object_event  4,  3, SPRITE_COPYCAT, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_SCRIPT, 0, Copycat2Script, EVENT_COPYCAT_2
+	object_event  6,  4, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, DODRIO, -1, -1, PAL_NPC_BROWN, OBJECTTYPE_SCRIPT, 0, CopycatsDodrioScript, -1
+	object_event  6,  1, SPRITE_MON_ICON, SPRITEMOVEDATA_STILL, 0, CLEFAIRY, -1, -1, PAL_NPC_RED, OBJECTTYPE_COMMAND, jumptext, CopycatsHouse2FDollText, EVENT_COPYCATS_HOUSE_2F_DOLL
+	object_event  2,  1, SPRITE_MON_ICON, SPRITEMOVEDATA_STILL, 0, GENGAR, -1, -1, PAL_NPC_PURPLE, OBJECTTYPE_COMMAND, jumptext, CopycatsHouse2FDollText, -1
+	object_event  7,  1, SPRITE_MON_ICON, SPRITEMOVEDATA_STILL, 0, MURKROW, -1, -1, PAL_NPC_BLUE, OBJECTTYPE_COMMAND, jumptext, CopycatsHouse2FDollText, -1
 	pokemon_event  0,  4, DITTO, -1, -1, PAL_NPC_PURPLE, CopycatsHouse2FDittoText, -1
 
-	const_def 1 ; object constants
+	object_const_def
 	const COPYCATSHOUSE2F_COPYCAT1
 	const COPYCATSHOUSE2F_COPYCAT2
 
@@ -51,7 +51,7 @@ Copycat1Script:
 	special Special_SetCopycatPalette
 	variablesprite SPRITE_COPYCAT, SPRITE_CHRIS
 	special MapCallbackSprites_LoadUsedSpritesGFX
-	checkevent EVENT_RETURNED_MACHINE_PART
+	checkevent EVENT_RESTORED_POWER_TO_KANTO
 	iftrue .ReturnedMachinePart
 	showtext .Greeting1Text
 	applymovement COPYCATSHOUSE2F_COPYCAT1, CopycatSpinMovement
@@ -129,7 +129,7 @@ Copycat2Script:
 	special Special_SetCopycatPalette
 	variablesprite SPRITE_COPYCAT, SPRITE_KRIS
 	special MapCallbackSprites_LoadUsedSpritesGFX
-	checkevent EVENT_RETURNED_MACHINE_PART
+	checkevent EVENT_RESTORED_POWER_TO_KANTO
 	iftrue .ReturnedMachinePart
 	showtext .Greeting2Text
 	applymovement COPYCATSHOUSE2F_COPYCAT2, CopycatSpinMovement

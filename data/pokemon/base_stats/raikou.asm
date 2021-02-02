@@ -7,19 +7,15 @@
 	db ALWAYS_ITEM_2 ; item 1
 	db MAGNET ; item 2
 	dn GENDERLESS, 15 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db PRESSURE ; ability 1
+	INCBIN "gfx/pokemon/raikou/front.dimensions"
 if DEF(FAITHFUL)
-	db PRESSURE ; ability 2
-	db INNER_FOCUS ; hidden ability
+	abilities_for RAIKOU, PRESSURE, PRESSURE, INNER_FOCUS
 else
-	db INNER_FOCUS ; ability 2
-	db VOLT_ABSORB ; hidden ability
+	abilities_for RAIKOU, PRESSURE, INNER_FOCUS, VOLT_ABSORB
 endc
 	db SLOW ; growth rate
 	dn NO_EGGS, NO_EGGS ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   2,   1,   0
 	;         hp, atk, def, spd, sat, sdf
 

@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn ALL_MALE, 4 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db KEEN_EYE ; ability 1
-	db IRON_FIST ; ability 2
-	db INNER_FOCUS ; hidden ability
+	INCBIN "gfx/pokemon/hitmonchan/front.dimensions"
+	abilities_for HITMONCHAN, KEEN_EYE, IRON_FIST, INNER_FOCUS
 	db MEDIUM_FAST ; growth rate
 	dn HUMANSHAPE, HUMANSHAPE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   2
 	;         hp, atk, def, spd, sat, sdf
 

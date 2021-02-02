@@ -1,28 +1,28 @@
 PokemonFanClub_MapScriptHeader:
-	db 0 ; scene scripts
+	def_scene_scripts
 
-	db 0 ; callbacks
+	def_callbacks
 
-	db 2 ; warp events
+	def_warp_events
 	warp_event  2,  7, VERMILION_CITY, 3
 	warp_event  3,  7, VERMILION_CITY, 3
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 3 ; bg events
-	bg_event  7,  0, SIGNPOST_JUMPTEXT, UnknownText_0x191dfc
-	bg_event  9,  0, SIGNPOST_JUMPTEXT, UnknownText_0x191e29
-	bg_event  0,  1, SIGNPOST_READ, PokemonJournalGreenScript
+	def_bg_events
+	bg_event  7,  0, BGEVENT_JUMPTEXT, UnknownText_0x191dfc
+	bg_event  9,  0, BGEVENT_JUMPTEXT, UnknownText_0x191e29
+	bg_event  0,  1, BGEVENT_READ, PokemonJournalGreenScript
 
-	db 6 ; object events
-	object_event  3,  3, SPRITE_MON_ICON, SPRITEMOVEDATA_DOLL, 0, CLEFAIRY, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptext, ClefairyDollText, EVENT_VERMILION_FAN_CLUB_DOLL
-	object_event  5,  1, SPRITE_GENTLEMAN, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, GentlemanScript_0x1917e9, -1
-	object_event  6,  1, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x191b6d, -1
-	object_event  3,  4, SPRITE_FAT_GUY, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, FisherScript_0x191824, -1
-	object_event  7,  2, SPRITE_POKEFAN_F, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x191d73, -1
+	def_object_events
+	object_event  3,  3, SPRITE_MON_ICON, SPRITEMOVEDATA_STILL, 0, CLEFAIRY, -1, -1, PAL_NPC_RED, OBJECTTYPE_COMMAND, jumptext, ClefairyDollText, EVENT_VERMILION_FAN_CLUB_DOLL
+	object_event  5,  1, SPRITE_GENTLEMAN, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, GentlemanScript_0x1917e9, -1
+	object_event  6,  1, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x191b6d, -1
+	object_event  3,  4, SPRITE_FAT_GUY, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, FisherScript_0x191824, -1
+	object_event  7,  2, SPRITE_POKEFAN_F, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x191d73, -1
 	pokemon_event  7,  3, ODDISH, -1, -1, PAL_NPC_GREEN, FanClubOddishText, -1
 
-	const_def 1 ; object constants
+	object_const_def
 	const POKEMONFANCLUB_CLEFAIRY_DOLL
 
 GentlemanScript_0x1917e9:
@@ -48,7 +48,7 @@ UnknownScript_0x191802:
 FisherScript_0x191824:
 	checkevent EVENT_GOT_LOST_ITEM_FROM_FAN_CLUB
 	iftrue_jumptextfaceplayer UnknownText_0x191d1e
-	checkevent EVENT_RETURNED_MACHINE_PART
+	checkevent EVENT_RESTORED_POWER_TO_KANTO
 	iffalse_jumptextfaceplayer UnknownText_0x191ba0
 	faceplayer
 	opentext
@@ -61,13 +61,8 @@ UnknownScript_0x191844:
 	writetext UnknownText_0x191c5a
 	buttonsound
 	waitsfx
-	givekeyitem LOST_ITEM
-	iffalse_jumpopenedtext UnknownText_0x191d58
 	disappear POKEMONFANCLUB_CLEFAIRY_DOLL
-	writetext UnknownText_0x191d0a
-	playsound SFX_KEY_ITEM
-	waitsfx
-	keyitemnotify
+	verbosegivekeyitem LOST_ITEM
 	setevent EVENT_GOT_LOST_ITEM_FROM_FAN_CLUB
 	endtext
 
@@ -215,22 +210,12 @@ UnknownText_0x191c5a:
 	line "No worries!"
 	done
 
-UnknownText_0x191d0a:
-	text "<PLAYER> received"
-	line "# Doll."
-	done
-
 UnknownText_0x191d1e:
 	text "You watch. I'm"
 	line "going to get a"
 
 	para "real Clefairy as"
 	line "my friend."
-	done
-
-UnknownText_0x191d58:
-	text "Your Bag is"
-	line "jammed full."
 	done
 
 UnknownText_0x191d73:

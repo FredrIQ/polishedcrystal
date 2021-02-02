@@ -11,7 +11,7 @@ WonderTrade::
 	call PrintText
 
 	ld b, 6
-	farcall SelectTradeOrDaycareMon
+	farcall SelectTradeOrDayCareMon
 	ret c
 
 	ld a, MON_IS_EGG
@@ -261,8 +261,9 @@ DoWonderTrade:
 	; Random ability
 	ld a, 3
 	call RandomRange
+	inc a
 rept 5
-	sla a
+	add a
 endr
 	add b
 	ld b, a

@@ -1,28 +1,28 @@
 PokeCenter2F_MapScriptHeader:
-	db 3 ; scene scripts
+	def_scene_scripts
 	scene_script PokeCenter2FDummyTrigger
 	scene_script PokeCenter2FLeftTradeCenterTrigger
 	scene_script PokeCenter2FLeftColosseumTrigger
 
-	db 1 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_TILES, PokeCenter2FTileCallback
 
-	db 3 ; warp events
+	def_warp_events
 	warp_event  0,  7, POKECENTER_2F, -1
 	warp_event  5,  0, TRADE_CENTER, 1
 	warp_event  9,  0, COLOSSEUM, 1
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 1 ; bg events
-	bg_event  7,  3, SIGNPOST_READ, PokeCenter2FLinkRecordSign
+	def_bg_events
+	bg_event  7,  3, BGEVENT_READ, PokeCenter2FLinkRecordSign
 
-	db 3 ; object events
-	object_event  5,  2, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, LinkReceptionistScript_Trade, -1
-	object_event  9,  2, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, LinkReceptionistScript_Battle, -1
-	object_event 13,  3, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, LinkReceptionistScript_Mobile, -1
+	def_object_events
+	object_event  5,  2, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, LinkReceptionistScript_Trade, -1
+	object_event  9,  2, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, LinkReceptionistScript_Battle, -1
+	object_event 13,  3, SPRITE_LINK_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, LinkReceptionistScript_Mobile, -1
 
-	const_def 1 ; object constants
+	object_const_def
 	const POKECENTER2F_TRADE_RECEPTIONIST
 	const POKECENTER2F_BATTLE_RECEPTIONIST
 
@@ -99,7 +99,7 @@ Script_WalkOutOfLinkRoom:
 	writebyte (PAL_NPC_BLUE) << 4
 	special Special_SetPlayerPalette
 	applymovement PLAYER, PokeCenter2FMovementData_PlayerSpinsClockwiseEndsFacingLeft
-	special ReplaceKrisSprite
+	special UpdatePlayerSprite
 	applymovement PLAYER, PokeCenter2FMovementData_PlayerTakesTwoStepsDown
 	applymovement POKECENTER2F_TRADE_RECEPTIONIST, PokeCenter2FMovementData_ReceptionistStepsRightAndDown
 	end
@@ -333,7 +333,7 @@ PokeCenter2F_CheckGender:
 	special Special_SetPlayerPalette
 	applymovement PLAYER, PokeCenter2FMovementData_PlayerSpinsClockwiseEndsFacingLeft
 	setflag ENGINE_KRIS_IN_CABLE_CLUB
-	special ReplaceKrisSprite
+	special UpdatePlayerSprite
 	showtext Text_LikeTheLook
 	showemote EMOTE_SHOCK, PLAYER, 15
 	applyonemovement PLAYER, step_up

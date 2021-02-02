@@ -737,7 +737,7 @@ CheckMoveSpeed::
 	predef GetUserItemAfterUnnerve
 	call GetCurItemName
 	ld hl, BattleText_UserItemLetItMoveFirst
-	call StdBattleTextBox
+	call StdBattleTextbox
 	pop de
 	inc d
 	ldh a, [hBattleTurn]
@@ -903,27 +903,22 @@ GetBattleVarAddr::
 	dw wLastPlayerMove,               wLastEnemyMove
 
 BattleCommand_cleartext::
-EmptyBattleTextBox::
+EmptyBattleTextbox::
 	ld hl, EmptyString
-BattleTextBox::
+	jr BattleTextbox
+
+StdBattleTextbox::
+; Open a textbox and print battle text at 20:hl.
+	anonbankpush BattleText
+
+BattleTextbox::
 ; Open a textbox and print text at hl.
 	push hl
-	call SpeechTextBox
+	call SpeechTextbox
 	call UpdateSprites
 	call ApplyTilemap
 	pop hl
-	jp PrintTextBoxText
-
-StdBattleTextBox::
-; Open a textbox and print battle text at 20:hl.
-	ldh a, [hROMBank]
-	push af
-	ld a, BANK(BattleText)
-	rst Bankswitch
-	call BattleTextBox
-	pop af
-	rst Bankswitch
-	ret
+	jp PrintTextboxText
 
 GetBattleAnimPointer::
 	anonbankpush BattleAnimations

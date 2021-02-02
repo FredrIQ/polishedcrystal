@@ -1,11 +1,11 @@
 VermilionCity_MapScriptHeader:
-	db 1 ; scene scripts
+	def_scene_scripts
 	scene_script LawrenceIntroScript
 
-	db 1 ; callbacks
+	def_callbacks
 	callback MAPCALLBACK_OBJECTS, VermilionCitySetupLawrenceCallback
 
-	db 14 ; warp events
+	def_warp_events
 	warp_event  5,  5, VERMILION_HOUSE_FISHING_SPEECH_HOUSE, 1
 	warp_event  9,  5, VERMILION_POKECENTER_1F, 1
 	warp_event  7, 17, POKEMON_FAN_CLUB, 1
@@ -21,36 +21,36 @@ VermilionCity_MapScriptHeader:
 	warp_event 13,  5, VERMILION_POLLUTION_SPEECH_HOUSE, 1
 	warp_event 19,  5, VERMILION_S_S_ANNE_SPEECH_HOUSE, 1
 
-	db 0 ; coord events
+	def_coord_events
 
-	db 9 ; bg events
-	bg_event 25,  5, SIGNPOST_JUMPTEXT, VermilionCitySignText
-	bg_event  5, 23, SIGNPOST_JUMPTEXT, VermilionGymSignText
-	bg_event  5, 17, SIGNPOST_JUMPTEXT, PokemonFanClubSignText
-	bg_event 33, 17, SIGNPOST_JUMPTEXT, VermilionCityDiglettsCaveSignText
-	bg_event 27, 19, SIGNPOST_JUMPTEXT, VermilionCityPortSignText
-	bg_event 28, 13, SIGNPOST_JUMPTEXT, VermilionCityTruckText
-	bg_event 29, 13, SIGNPOST_JUMPTEXT, VermilionCityTruckText
-	bg_event 19,  9, SIGNPOST_JUMPTEXT, VermilionCityAdvancedTipsSignText
-	bg_event 12, 23, SIGNPOST_ITEM + FULL_HEAL, EVENT_VERMILION_CITY_HIDDEN_FULL_HEAL
+	def_bg_events
+	bg_event 25,  5, BGEVENT_JUMPTEXT, VermilionCitySignText
+	bg_event  5, 23, BGEVENT_JUMPTEXT, VermilionGymSignText
+	bg_event  5, 17, BGEVENT_JUMPTEXT, PokemonFanClubSignText
+	bg_event 33, 17, BGEVENT_JUMPTEXT, VermilionCityDiglettsCaveSignText
+	bg_event 27, 19, BGEVENT_JUMPTEXT, VermilionCityPortSignText
+	bg_event 28, 13, BGEVENT_JUMPTEXT, VermilionCityTruckText
+	bg_event 29, 13, BGEVENT_JUMPTEXT, VermilionCityTruckText
+	bg_event 19,  9, BGEVENT_JUMPTEXT, VermilionCityAdvancedTipsSignText
+	bg_event 12, 23, BGEVENT_ITEM + FULL_HEAL, EVENT_VERMILION_CITY_HIDDEN_FULL_HEAL
 
-	db 14 ; object events
-	object_event 35, 18, SPRITE_BIG_SNORLAX, SPRITEMOVEDATA_SNORLAX, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, VermilionSnorlax, EVENT_VERMILION_CITY_SNORLAX
-	object_event 18, 31, SPRITE_LAWRENCE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCE_VERMILION_CITY
-	object_event 18, 13, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aaa15, -1
-	object_event 23, 10, SPRITE_GRAMPS, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionMachokeOwnerText, -1
-	object_event 26, 11, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, MACHOKE, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, VermilionMachoke, -1
-	object_event 14, 20, SPRITE_ROCKER, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aab1a, -1
-	object_event 25, 16, SPRITE_POKEMANIAC, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionCitySuperNerdText, -1
-	object_event 10,  9, SPRITE_SAILOR, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 2, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionCitySailorText, -1
-	object_event 31, 16, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, VermilionGymBadgeGuy, -1
+	def_object_events
+	object_event 35, 18, SPRITE_BIG_SNORLAX, SPRITEMOVEDATA_SNORLAX, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, VermilionSnorlax, EVENT_VERMILION_CITY_SNORLAX
+	object_event 18, 31, SPRITE_LAWRENCE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCE_VERMILION_CITY
+	object_event 18, 13, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aaa15, -1
+	object_event 23, 10, SPRITE_GRAMPS, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, OBJECTTYPE_COMMAND, jumptextfaceplayer, VermilionMachokeOwnerText, -1
+	object_event 26, 11, SPRITE_MON_ICON, SPRITEMOVEDATA_POKEMON, 0, MACHOKE, -1, -1, PAL_NPC_BLUE, OBJECTTYPE_SCRIPT, 0, VermilionMachoke, -1
+	object_event 14, 20, SPRITE_ROCKER, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aab1a, -1
+	object_event 25, 16, SPRITE_POKEMANIAC, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, OBJECTTYPE_COMMAND, jumptextfaceplayer, VermilionCitySuperNerdText, -1
+	object_event 10,  9, SPRITE_SAILOR, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 2, -1, -1, 0, OBJECTTYPE_COMMAND, jumptextfaceplayer, VermilionCitySailorText, -1
+	object_event 31, 16, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_PURPLE, OBJECTTYPE_SCRIPT, 0, VermilionGymBadgeGuy, -1
 	cuttree_event 13, 23, EVENT_VERMILION_CITY_CUT_TREE
 	smashrock_event 26, 14
 	smashrock_event 23, 12
 	smashrock_event 28, 7
 	smashrock_event 29, 9
 
-	const_def 1 ; object constants
+	object_const_def
 	const VERMILIONCITY_BIG_SNORLAX
 	const VERMILIONCITY_LAWRENCE
 

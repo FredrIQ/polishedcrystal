@@ -104,10 +104,10 @@ Special_DisplayLinkRecord:
 	farcall DisplayLinkRecord
 	jp ExitAllMenus
 
-Special_KrissHousePC:
+Special_PlayersHousePC:
 	xor a
 	ldh [hScriptVar], a
-	farcall _KrissHousePC
+	farcall _PlayersHousePC
 	ld a, c
 	ldh [hScriptVar], a
 	ret
@@ -125,13 +125,8 @@ BugContestJudging:
 	ld a, SHED_SHELL
 	jr .finish
 .firstplace
-	ld a, SUN_STONE
-	ld hl, wStatusFlags
-	bit 6, [hl] ; hall of fame
-	jr z, .finish
-	ld a, SHINY_STONE - MOON_STONE + 1 ; TODO: include ICE_STONE once it's useful
-	call RandomRange
-	add MOON_STONE
+	ld hl, .FirstPlacePrizes
+	call GetHourIntervalValue
 	jr .finish
 .secondplace
 	ld a, EVERSTONE
@@ -141,6 +136,13 @@ BugContestJudging:
 .finish
 	ld [wBugContestOfficerPrize], a
 	ret
+
+.FirstPlacePrizes:
+	db MORN_HOUR, MOON_STONE
+	db DAY_HOUR,  DAWN_STONE
+	db EVE_HOUR,  SUN_STONE
+	db NITE_HOUR, DUSK_STONE
+	db -1,        MOON_STONE
 
 MapRadio:
 	ldh a, [hScriptVar]
@@ -168,11 +170,11 @@ Special_CardFlip:
 	ld hl, _CardFlip
 	; fallthrough
 
-;Special_DummyNonfunctionalGameCornerGame:
+;Special_UnusedMemoryGame:
 ;	call Special_CheckCoins
 ;	ret c
-;	ld a, BANK(_DummyGame)
-;	ld hl, _DummyGame
+;	ld a, BANK(_MemoryGame)
+;	ld hl, _MemoryGame
 ;	call Special_StartGameCornerGame
 ;	ret
 
@@ -507,7 +509,7 @@ BillBoxSwitchCheck:
 	pop af
 	dec a
 	ldh [hScriptVar], a
-	ld [wEngineBuffer1], a
+	ld [wTempScriptBuffer], a
 	ret
 
 BillBoxSwitch:
@@ -518,7 +520,7 @@ BillBoxSwitch:
 	ld a, BANK(wDecompressScratch)
 	call FarCopyWRAM
 	; change boxes (overwrites wMisc)
-	ld a, [wEngineBuffer1]
+	ld a, [wTempScriptBuffer]
 	ld e, a
 	farcall ChangeBoxSaveGame
 	; a = carry (didn't save) ? FALSE : TRUE

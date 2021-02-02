@@ -7,14 +7,11 @@
 	db ASPEAR_BERRY ; item 1
 	db MAGMARIZER ; item 2
 	dn FEMALE_25, 4 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db FLAME_BODY ; ability 1
-	db FLAME_BODY ; ability 2
-	db VITAL_SPIRIT ; hidden ability
+	INCBIN "gfx/pokemon/magmar/front.dimensions"
+	abilities_for MAGMAR, FLAME_BODY, FLAME_BODY, VITAL_SPIRIT
 	db MEDIUM_FAST ; growth rate
 	dn HUMANSHAPE, HUMANSHAPE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   2,   0
 	;         hp, atk, def, spd, sat, sdf
 

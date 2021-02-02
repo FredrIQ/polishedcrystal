@@ -16,14 +16,11 @@ endc
 	db NO_ITEM ; item 1
 	db POISON_BARB ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db POISON_POINT ; ability 1
-	db SWIFT_SWIM ; ability 2
-	db INTIMIDATE ; hidden ability
+	INCBIN "gfx/pokemon/qwilfish/front.dimensions"
+	abilities_for QWILFISH, POISON_POINT, SWIFT_SWIM, INTIMIDATE
 	db MEDIUM_FAST ; growth rate
 	dn FISH, FISH ; egg groups
 
-	; ev_yield
 	ev_yield   0,   1,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

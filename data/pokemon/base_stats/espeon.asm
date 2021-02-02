@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 6 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db SYNCHRONIZE ; ability 1
+	INCBIN "gfx/pokemon/espeon/front.dimensions"
 if DEF(FAITHFUL)
-	db SYNCHRONIZE ; ability 2
+	abilities_for ESPEON, SYNCHRONIZE, SYNCHRONIZE, MAGIC_BOUNCE
 else
-	db MAGIC_GUARD ; ability 2
+	abilities_for ESPEON, SYNCHRONIZE, MAGIC_GUARD, MAGIC_BOUNCE
 endc
-	db MAGIC_BOUNCE ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   2,   0
 	;         hp, atk, def, spd, sat, sdf
 

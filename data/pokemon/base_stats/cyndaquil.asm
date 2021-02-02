@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db BLAZE ; ability 1
+	INCBIN "gfx/pokemon/cyndaquil/front.dimensions"
 if DEF(FAITHFUL)
-	db BLAZE ; ability 2
+	abilities_for CYNDAQUIL, BLAZE, BLAZE, FLASH_FIRE
 else
-	db FLAME_BODY ; ability 2
+	abilities_for CYNDAQUIL, BLAZE, FLAME_BODY, FLASH_FIRE
 endc
-	db FLASH_FIRE ; hidden ability
 	db MEDIUM_SLOW ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

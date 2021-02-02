@@ -5,8 +5,8 @@ AI_Basic:
 ;  -Using status-only moves if the player can't be statused
 ;  -Using moves that fail if they've already been used
 
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld b, NUM_MOVES + 1
 .checkmove
 	dec b
@@ -85,8 +85,8 @@ AI_Setup:
 ; 50% chance to greatly encourage stat-down moves during the first turn of player's Pokemon.
 ; Almost 90% chance to greatly discourage stat-modifying moves otherwise.
 
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld b, NUM_MOVES + 1
 .checkmove
 	dec b
@@ -158,8 +158,9 @@ AI_Types:
 ; Encourage super effective moves.
 ; Discourage not very effective moves unless
 ; all damaging moves are of the same type.
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+; Overridden by the "Aggressive" AI layer
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld b, NUM_MOVES + 1
 .checkmove
 	dec b
@@ -211,7 +212,7 @@ AI_Types:
 	push bc
 	ld a, [wEnemyMoveStruct + MOVE_TYPE]
 	ld d, a
-	ld hl, wEnemyMonMoves
+	ld hl, wAIMoves
 	lb bc, (NUM_MOVES + 1), 0
 .checkmove2
 	dec b
@@ -265,8 +266,8 @@ AI_IsFixedDamageMove:
 AI_Offensive:
 ; Greatly discourage non-damaging moves.
 
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld b, NUM_MOVES + 1
 .checkmove
 	dec b
@@ -291,8 +292,8 @@ AI_Offensive:
 AI_Smart:
 ; Context-specific scoring.
 
-	ld hl, wStringBuffer5
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore
+	ld de, wAIMoves
 	ld b, NUM_MOVES + 1
 .checkmove
 	dec b
@@ -374,7 +375,6 @@ AI_Smart:
 	dbw EFFECT_PROTECT,           AI_Smart_Protect
 	dbw EFFECT_FORESIGHT,         AI_Smart_Foresight
 	dbw EFFECT_PERISH_SONG,       AI_Smart_PerishSong
-	dbw EFFECT_SANDSTORM,         AI_Smart_Sandstorm
 	dbw EFFECT_ENDURE,            AI_Smart_Endure
 	dbw EFFECT_ROLLOUT,           AI_Smart_Rollout
 	dbw EFFECT_SWAGGER,           AI_Smart_Swagger
@@ -387,6 +387,8 @@ AI_Smart:
 	dbw EFFECT_HEALING_LIGHT,     AI_Smart_HealingLight
 	dbw EFFECT_RAIN_DANCE,        AI_Smart_RainDance
 	dbw EFFECT_SUNNY_DAY,         AI_Smart_SunnyDay
+	dbw EFFECT_SANDSTORM,         AI_Smart_Sandstorm
+	dbw EFFECT_HAIL,              AI_Smart_Hail
 	dbw EFFECT_BELLY_DRUM,        AI_Smart_BellyDrum
 	dbw EFFECT_MIRROR_COAT,       AI_Smart_MirrorCoat
 	dbw EFFECT_EARTHQUAKE,        AI_Smart_Earthquake
@@ -847,37 +849,37 @@ AI_Smart_Reflect:
 AI_Smart_Bind:
 ; Wrap, Fire Spin, Whirlpool
 
-; 50% chance to discourage this move if the player is already trapped.
+	; 50% chance to discourage this move if already trapper or can't trap
 	ld a, [wPlayerWrapCount]
 	and a
-	jr nz, .asm_38a8b
+	jr nz, .coinflip_discourage
+	call CheckIfTargetIsGhostType
+	jr z, .coinflip_discourage
 
-; 50% chance to greatly encourage this move if player is either
-; badly poisoned, in love, identified, or stuck in Rollout.
+	; 50% chance to greatly encourage this move if player is either
+	; badly poisoned, in love, identified, or stuck in Rollout, or first turn.
+	; Don't encourage it if we're at low HP.
 	ld a, [wBattleMonStatus]
 	bit TOX, a
-	jr nz, .asm_38a91
+	jr nz, .coinflip_encourage
 
 	ld a, [wPlayerSubStatus1]
 	and 1<<SUBSTATUS_IN_LOVE | 1<<SUBSTATUS_IDENTIFIED
-	jr nz, .asm_38a91
+	jr nz, .coinflip_encourage
 	ld a, [wPlayerSubStatus3]
 	and 1<<SUBSTATUS_ROLLOUT
-	jr nz, .asm_38a91
-
-; Else, 50% chance to greatly encourage this move if it's the player's Pokemon first turn.
+	jr nz, .coinflip_encourage
 	ld a, [wPlayerTurnsTaken]
 	and a
-	jr z, .asm_38a91
+	jr z, .coinflip_encourage
 
-; 50% chance to discourage this move otherwise.
-.asm_38a8b
+.coinflip_discourage
 	call AI_50_50
 	ret c
 	inc [hl]
 	ret
 
-.asm_38a91
+.coinflip_encourage
 	call AICheckEnemyQuarterHP
 	ret nc
 	call AI_50_50
@@ -1381,6 +1383,9 @@ AI_Smart_MeanLook:
 	pop hl
 	jp z, AIDiscourageMove
 
+	call CheckIfTargetIsGhostType
+	jp z, AIDiscourageMove
+
 ; 80% chance to greatly encourage this move if the player is badly poisoned
 	ld a, [wBattleMonStatus]
 	bit TOX, a
@@ -1642,48 +1647,6 @@ AI_Smart_PerishSong:
 	ld [hl], a
 	ret
 
-AI_Smart_Sandstorm:
-
-; Greatly discourage this move if the player is immune to Sandstorm damage.
-	ld a, [wBattleMonType1]
-	push hl
-	ld hl, .SandstormImmuneTypes
-	ld de, 1
-	call IsInArray
-	pop hl
-	jr c, .asm_38fa5
-
-	ld a, [wBattleMonType2]
-	push hl
-	ld hl, .SandstormImmuneTypes
-	ld de, 1
-	call IsInArray
-	pop hl
-	jr c, .asm_38fa5
-
-; Discourage this move if player's HP is below 50%.
-	call AICheckPlayerHalfHP
-	jr nc, .asm_38fa6
-
-; 50% chance to encourage this move otherwise.
-	call AI_50_50
-	ret c
-
-	dec [hl]
-	ret
-
-.asm_38fa5
-	inc [hl]
-
-.asm_38fa6
-	inc [hl]
-	ret
-
-.SandstormImmuneTypes:
-	db ROCK
-	db GROUND
-	db STEEL
-	db $ff
 
 AI_Smart_Endure:
 	ld a, [wEnemyProtectCount]
@@ -1895,118 +1858,41 @@ AI_Smart_RapidSpin:
 	ret
 
 AI_Smart_RainDance:
-
-; Greatly discourage this move if it would favour the player type-wise.
-; Particularly, if the player is a Water-type.
-	ld a, [wBattleMonType1]
-	cp WATER
-	jr z, AIBadWeatherType
-	cp FIRE
-	jr z, AIGoodWeatherType
-
-	ld a, [wBattleMonType2]
-	cp WATER
-	jr z, AIBadWeatherType
-	cp FIRE
-	jr z, AIGoodWeatherType
-
-	push hl
-	ld hl, RainDanceMoves
-	jr AI_Smart_WeatherMove
-
-RainDanceMoves:
-	db AQUA_TAIL
-	db BUBBLE_BEAM
-	db CRABHAMMER
-	db HYDRO_PUMP
-	db OCTAZOOKA
-	db SCALD
-	db SURF
-	db THUNDER
-	db WATER_GUN
-	db WATER_PULSE
-	db WATERFALL
-	db WHIRLPOOL
-	db $ff
-
+	ld b, WEATHER_RAIN
+	jr AI_Smart_Weather
 AI_Smart_SunnyDay:
-
-; Greatly discourage this move if it would favour the player type-wise.
-; Particularly, if the player is a Fire-type.
-	ld a, [wBattleMonType1]
-	cp FIRE
-	jr z, AIBadWeatherType
-	cp WATER
-	jr z, AIGoodWeatherType
-
-	ld a, [wBattleMonType2]
-	cp FIRE
-	jr z, AIBadWeatherType
-	cp WATER
-	jr z, AIGoodWeatherType
-
-	push hl
-	ld hl, SunnyDayMoves
-
+	ld b, WEATHER_SUN
+	jr AI_Smart_Weather
+AI_Smart_Sandstorm:
+	ld b, WEATHER_SANDSTORM
+	jr AI_Smart_Weather
+AI_Smart_Hail:
+	ld b, WEATHER_HAIL
 	; fallthrough
+AI_Smart_Weather:
+; +10 if same weather is up (invalid move use)
+; +2 if enemy has <50%HP, stacks with below checks
+; -1 if no weather is up
+; -2 if other weather is up
+; Assumes AI only has a single weather setting move.
+	; Discourage if redundant
+	ld a, [wBattleWeather]
+	cp b
+	jp z, AIDiscourageMove
 
-AI_Smart_WeatherMove:
-; Rain Dance, Sunny Day
-
-; Greatly discourage this move if the enemy doesn't have
-; one of the useful Rain Dance or Sunny Day moves.
-	call AIHasMoveInArray
-	pop hl
-	jr nc, AIBadWeatherType
-
-; Greatly discourage this move if player's HP is below 50%.
-	call AICheckPlayerHalfHP
-	jr nc, AIBadWeatherType
-
-; Encourage the move otherwise
-
+	; Encourage on neutral weather
 	dec [hl]
-	ret
-
-AIBadWeatherType:
-	inc [hl]
-	inc [hl]
-	inc [hl]
-	ret
-
-AIGoodWeatherType:
-; Rain Dance, Sunny Day
-
-; Greatly encourage this move if it would disfavour the player type-wise and player's HP is above 50%...
-	call AICheckPlayerHalfHP
-	ret nc
-
-; ...as long as one of the following conditions meet:
-; It's the first turn of the player's Pokemon.
-	ld a, [wPlayerTurnsTaken]
 	and a
-	jr z, .good
+	jr z, .check_own_hp
 
-; Or it's the first turn of the enemy's Pokemon.
-	ld a, [wEnemyTurnsTaken]
-	and a
-	ret nz
-
-.good
+	; Encourage harder on opposing weather
 	dec [hl]
-	dec [hl]
+.check_own_hp
+	call AICheckEnemyHalfHP
+	ret c
+	inc [hl]
+	inc [hl]
 	ret
-
-SunnyDayMoves:
-	db FIRE_PUNCH
-	db EMBER
-	db FLAMETHROWER
-	db FIRE_SPIN
-	db FIRE_BLAST
-	db SACRED_FIRE
-	db FLARE_BLITZ
-	db HEALINGLIGHT
-	db $ff
 
 AI_Smart_BellyDrum:
 ; Dismiss this move if enemy's attack is higher than +2 or if enemy's HP is below 50%.
@@ -2152,30 +2038,17 @@ AI_Smart_Stomp:
 	ret
 
 AI_Smart_SolarBeam:
-; 80% chance to encourage this move when it's sunny.
-; 90% chance to discourage this move when it's raining.
-
+; Discourage if we have Sunny Day and weather isn't sunny.
 	ld a, [wBattleWeather]
 	cp WEATHER_SUN
-	jr z, .asm_3921e
+	ret z
 
-	cp WEATHER_RAIN
-	ret nz
-
-	call Random
-	cp 25 ; 1/10
-	ret c
+	ld b, EFFECT_SUNNY_DAY
+	call AIHasMoveEffect
+	ret nc
 
 	inc [hl]
 	inc [hl]
-	ret
-
-.asm_3921e
-	call AI_80_20
-	ret c
-
-	dec [hl]
-	dec [hl]
 	ret
 
 AI_Smart_Thunder:
@@ -2322,7 +2195,7 @@ AIHasMoveEffect:
 ; Return carry if the enemy has move b.
 
 	push hl
-	ld hl, wEnemyMonMoves
+	ld hl, wAIMoves
 	ld c, NUM_MOVES
 
 .checkmove
@@ -2363,7 +2236,7 @@ AIHasMoveInArray:
 
 	ld b, a
 	ld c, NUM_MOVES + 1
-	ld de, wEnemyMonMoves
+	ld de, wAIMoves
 
 .check
 	dec c
@@ -2422,8 +2295,8 @@ AI_Opportunist:
 	ret c
 
 .asm_39322
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld c, NUM_MOVES + 1
 .checkmove
 	inc hl
@@ -2487,8 +2360,11 @@ AI_Aggressive:
 ; If no damaging move deals damage to the player (immune),
 ; no move will be discouraged
 
-; Figure out which attack does the most damage and put it in c.
-	ld hl, wEnemyMonMoves
+; Also greatly discourages ineffective moves since this overrides the
+; regular type matchup layer
+
+	; Figure out which attack does the most damage and put it in c.
+	ld hl, wAIMoves
 	ld bc, 0
 	ld de, 0
 .checkmove
@@ -2508,7 +2384,23 @@ AI_Aggressive:
 	ld a, [wEnemyMoveStruct + MOVE_POWER]
 	and a
 	jr z, .nodamage
+	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
+	cp EFFECT_COUNTER
+	jr z, .nodamage
+	cp EFFECT_MIRROR_COAT
+	jr z, .nodamage
 	call AIDamageCalc
+
+	; Ignore unusable moves
+	pop bc
+	push bc
+	ld hl, wAIMoveScore - 1
+	ld c, b
+	ld b, 0
+	add hl, bc
+	ld a, [hl]
+	cp 60
+	jr nc, .nodamage
 	pop bc
 	pop de
 	pop hl
@@ -2540,8 +2432,8 @@ AI_Aggressive:
 	ret z
 
 ; Discourage moves that do less damage unless they're reckless too.
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld b, 0
 .checkmove2
 	inc b
@@ -2558,48 +2450,54 @@ AI_Aggressive:
 
 	call AIGetEnemyMove
 
-; Ignore this move if its power is 0 or 1.
-; Moves such as Seismic Toss, Hidden Power,
-; Counter and Fissure have a base power of 1.
+	; Ignore moves with no base power
 	ld a, [wEnemyMoveStruct + MOVE_POWER]
-	cp 2
-	jr c, .checkmove2
+	and a
+	jr z, .checkmove2
 
-; Ignore this move if it is reckless.
+	; Ignore Counter and Mirror Coat
+	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
+	cp EFFECT_COUNTER
+	jr z, .checkmove2
+	cp EFFECT_MIRROR_COAT
+	jr z, .checkmove2
+
+	; This routine overrides the type matchup AI layer, since it's typically
+	; superior to it. As a result, deal with ineffective moves here too which
+	; is discouraged far more than other less damaging moves.
 	push hl
 	push de
 	push bc
-	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
-	ld hl, .RecklessMoves
-	ld de, 1
-	call IsInArray
+	farcall BattleCheckTypeMatchup
 	pop bc
 	pop de
 	pop hl
-	jr c, .checkmove2
+	ld a, [wTypeMatchup]
+	and a
+	jp z, AIDiscourageMove
 
-; If we made it this far, discourage this move.
+	; If we made it this far, discourage this move.
 	inc [hl]
 	jr .checkmove2
-
-.RecklessMoves:
-	db EFFECT_EXPLOSION
-	db EFFECT_RAMPAGE
-	db EFFECT_MULTI_HIT
-	db EFFECT_DOUBLE_HIT
-	db EFFECT_FURY_STRIKES
-	db $ff
 
 AIDamageCalc:
 	ld a, 1
 	ldh [hBattleTurn], a
 	ld a, [wEnemyMoveStruct + MOVE_EFFECT]
+	cp EFFECT_FURY_STRIKES
+	jr z, .multihit
+	cp EFFECT_MULTI_HIT
+	jr z, .multihit
+	cp EFFECT_DOUBLE_HIT
+	jr z, .doublehit
 	cp EFFECT_GYRO_BALL
 	jr z, .gyro_ball
 	cp EFFECT_HIDDEN_POWER
 	jr z, .hidden_power
 	cp EFFECT_LOW_KICK
 	jr z, .low_kick
+	cp EFFECT_MAGNITUDE
+	jr z, .magnitude
 	cp EFFECT_RETURN
 	jr z, .return
 	cp EFFECT_REVERSAL
@@ -2607,9 +2505,30 @@ AIDamageCalc:
 	ld de, 1
 	ld hl, .ConstantDamageEffects
 	call IsInArray
-	jr nc, .no_special_damage
-	farjp BattleCommand_constantdamage
+	jr nc, .regular_damage
+	farcall BattleCommand_constantdamage
+	farjp BattleCommand_resettypematchup
 
+.multihit
+	; Multiply base power by 5 if Skill Link, 3 otherwise
+	call GetTrueUserAbility
+	cp SKILL_LINK
+	ld b, 5
+	jr z, .multihit_boost
+	ld b, 3
+	jr .multihit_boost
+.doublehit
+	; Multiply base power by 2
+	ld b, 2
+.multihit_boost
+	ld a, [wEnemyMoveStruct + MOVE_POWER]
+	ld c, a
+.multihit_loop
+	dec b
+	jr z, .regular_damage ; With proper BP, we can use regular calc now
+	add c
+	ld [wEnemyMoveStruct + MOVE_POWER], a
+	jr .multihit_loop
 .gyro_ball
 	farcall BattleCommand_damagestats
 	farcall BattleCommand_gyroball
@@ -2628,7 +2547,12 @@ AIDamageCalc:
 .reversal
 	farcall BattleCommand_constantdamage
 	jr .stab
-.no_special_damage
+.magnitude
+	; Pretend that the base power is 70
+	ld a, 70
+	ld [wEnemyMoveStruct + MOVE_POWER], a
+	; fallthrough
+.regular_damage
 	farcall BattleCommand_damagestats
 .damagecalc
 	farcall BattleCommand_damagecalc
@@ -2651,8 +2575,8 @@ AI_Cautious:
 	and a
 	ret z
 
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld c, NUM_MOVES + 1
 .asm_39425
 	inc hl
@@ -2700,8 +2624,8 @@ AI_Status:
 ; Dismiss status moves that don't affect the player.
 	ld a, 1
 	ldh [hBattleTurn], a
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld b, NUM_MOVES + 1
 .checkmove
 	dec b
@@ -2846,8 +2770,8 @@ AI_Risky:
 ; Use any move that will KO the target.
 ; Risky moves will often be an exception (see below).
 
-	ld hl, wStringBuffer5 - 1
-	ld de, wEnemyMonMoves
+	ld hl, wAIMoveScore - 1
+	ld de, wAIMoves
 	ld c, NUM_MOVES + 1
 .checkmove
 	inc hl

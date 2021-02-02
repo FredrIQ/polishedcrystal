@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db TORRENT ; ability 1
-	db RAIN_DISH ; ability 2
-	db SHELL_ARMOR ; hidden ability
+	INCBIN "gfx/pokemon/wartortle/front.dimensions"
+	abilities_for WARTORTLE, TORRENT, RAIN_DISH, SHELL_ARMOR
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, AMPHIBIAN ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   1,   0,   0,   1
 	;         hp, atk, def, spd, sat, sdf
 

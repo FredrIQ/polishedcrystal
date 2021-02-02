@@ -7,7 +7,7 @@ StatsScreenInit:
 	push af
 	ld a, [wJumptableIndex]
 	ld b, a
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	ld c, a
 
 	push bc
@@ -28,7 +28,7 @@ StatsScreenInit:
 	ld a, b
 	ld [wJumptableIndex], a
 	ld a, c
-	ld [wcf64], a
+	ld [wStatsScreenFlags], a
 	pop af
 	ld [wBoxAlignment], a
 	pop af
@@ -38,7 +38,7 @@ StatsScreenInit:
 StatsScreenMain:
 	xor a
 	ld [wJumptableIndex], a
-	ld [wcf64], a
+	ld [wStatsScreenFlags], a
 .loop
 	ld a, [wJumptableIndex]
 	and $7f
@@ -61,7 +61,7 @@ StatsScreenPointerTable:
 	dw StatsScreen_Exit
 
 StatsScreen_WaitAnim:
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	bit 6, [hl]
 	jr nz, .try_anim
 	bit 5, [hl]
@@ -71,10 +71,10 @@ StatsScreen_WaitAnim:
 .try_anim
 	farcall SetUpPokeAnim
 	jr nc, .finish
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	res 6, [hl]
 .finish
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	res 5, [hl]
 	farjp HDMATransferTileMapToWRAMBank3
 
@@ -91,7 +91,7 @@ StatsScreen_Exit:
 	ret
 
 MonStatsInit:
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	res 6, [hl]
 	call ClearBGPalettes
 	call ClearTileMap
@@ -101,7 +101,7 @@ MonStatsInit:
 	bit MON_IS_EGG_F, a
 	jr nz, .egg
 	call StatsScreen_InitUpperHalf
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	set 4, [hl]
 	ld h, 4
 	jp StatsScreen_SetJumptableIndex
@@ -141,7 +141,7 @@ EggStatsJoypad:
 
 StatsScreen_LoadPage:
 	call StatsScreen_LoadGFX
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	res 4, [hl]
 	ld a, [wJumptableIndex]
 	inc a
@@ -227,7 +227,7 @@ StatsScreen_GetJoypad:
 
 StatsScreen_JoypadAction:
 	push af
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	and $3
 	ld c, a
 	pop af
@@ -305,10 +305,10 @@ StatsScreen_JoypadAction:
 	; fallthrough
 
 .set_page
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	and %11111100
 	or c
-	ld [wcf64], a
+	ld [wStatsScreenFlags], a
 	ld h, 4
 	jp StatsScreen_SetJumptableIndex
 
@@ -376,9 +376,9 @@ StatsScreen_InitUpperHalf:
 	farcall GetGender
 	pop hl
 	ret c
-	ld a, "♂"
+	ld a, "<MALE>"
 	jr nz, .got_gender
-	ld a, "♀"
+	inc a ; "<FEMALE>"
 .got_gender
 	ld [hl], a
 	ret
@@ -399,7 +399,7 @@ StatsScreen_PlaceHorizontalDivider:
 	jr nz, .loop
 
 	; Place T divider
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	and $3
 	ld c, a
 	rrca
@@ -457,14 +457,14 @@ StatsScreen_LoadGFX:
 	call .LoadPokeBall
 	call .PageTilemap
 	call .LoadPals
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	bit 4, [hl]
 	call nz, StatsScreen_PlaceFrontpic
 	ld b, 2
 	jp SafeCopyTilemapAtOnce
 
 .ClearBox:
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	and $3
 	ld c, a
 	call StatsScreen_LoadPageIndicators
@@ -493,17 +493,17 @@ StatsScreen_LoadGFX:
 	ret
 
 .LoadPals:
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	and $3
 	ld c, a
 	farcall LoadStatsScreenPals
 	call DelayFrame
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	set 5, [hl]
 	ret
 
 .PageTilemap:
-	ld a, [wcf64]
+	ld a, [wStatsScreenFlags]
 	and $3
 	call StackJumpTable
 
@@ -781,11 +781,11 @@ StatsScreen_LoadGFX:
 	farjp OrangePage_
 
 ; Fourth stats page code by TPP Anniversary Crystal 251
-; Ported by FredrIQ
+; Ported by FIQ
 OrangePage_:
 	call TN_PrintToD
-	call TN_PrintLocation
 	call TN_PrintLV
+	call TN_PrintLocation
 	hlcoord 0, 11
 	ld bc, SCREEN_WIDTH
 	ld a, $3e
@@ -795,18 +795,13 @@ OrangePage_:
 	rst PlaceString
 	ld a, [wTempMonAbility]
 	and ABILITY_MASK
-	cp ABILITY_1
-	jr z, .ability_1
-	cp ABILITY_2
-	jr z, .ability_2
-	ld a, $3f ; bold H
-	jr .got_ability
-.ability_1
-	ld a, "1"
-	jr .got_ability
-.ability_2
-	ld a, "2"
-.got_ability
+	swap a
+	rrca
+	ld e, a
+	ld d, 0
+	ld hl, .ability_tiles
+	add hl, de
+	ld a, [hl]
 	hlcoord 9, 12
 	ld [hl], a
 	ld hl, wTempMonPersonality
@@ -822,6 +817,10 @@ OrangePage_:
 .ability
 	db "Ability/@"
 
+.ability_tiles
+	; $3f = bold H
+	db $3f, "1", "2", $3f
+
 StatsScreen_OTNamePointers:
 	dw wPartyMonOT
 	dw wOTPartyMonOT
@@ -832,38 +831,12 @@ TN_PrintToD:
 	ld de, .caughtat
 	hlcoord 1, 8
 	rst PlaceString
-	ld a, [wTempMonCaughtTime]
-	and CAUGHTTIME_MASK
-	ld de, .unknown
-	jr z, .print
-	rlca
-	rlca
-	rlca
-	cp 2
-	ld de, .morn
-	jr c, .print
-	ld de, .day
-	jr z, .print
-	ld de, .nite
-.print
 	hlcoord 3, 9
-	rst PlaceString
-	ret
+	ld a, [wTempMonCaughtTime]
+	farjp PlaceCaughtTimeOfDayString
 
 .caughtat
 	db "Met/@"
-
-.morn
-	db "Morn@"
-
-.day
-	db "Day@"
-
-.nite
-	db "Nite@"
-
-.unknown
-	db "???@"
 
 TN_PrintLocation:
 	ld a, [wTempMonCaughtLocation]
@@ -885,34 +858,40 @@ TN_PrintLocation:
 
 TN_PrintLV:
 	ld a, [wTempMonCaughtLevel]
-	hlcoord 8, 9
+; inherit coordinate from TN_PrintToD
+	ld h, b
+	ld l, c
+	inc hl
+;	hlcoord 11, 9
 	and a
-	jr z, .unknown
+	jr z, .traded
 	cp 1
 	jr z, .hatched
 	ld [wBuffer2], a
-	ld de, .str_atlv
+	ld de, .str_level
 	rst PlaceString
+	ld h, b
+	ld l, c
+;	hlcoord 15, 9
 	ld de, wBuffer2
 	lb bc, PRINTNUM_LEFTALIGN | 1, 3
-	hlcoord 12, 9
 	jp PrintNum
 .hatched
 	ld de, .str_hatched
 	rst PlaceString
 	ret
-.unknown
-	ld de, .str_unknown
+.traded
+	ld de, .str_traded
 	rst PlaceString
 	ret
 
-.str_atlv
+.str_level
 	db "at <LV>@"
 
 .str_hatched
 	db "from Egg@"
 
-.str_unknown
+.str_traded
 	db "by trade@"
 
 TN_PrintCharacteristics:
@@ -1030,7 +1009,7 @@ StatsScreen_PlaceFrontpic:
 	jp PlayCry2
 
 .AnimateMon:
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	set 5, [hl]
 	hlcoord 0, 0
 	ld a, [wCurPartySpecies]
@@ -1055,13 +1034,13 @@ StatsScreen_PlaceFrontpic:
 	ld a, [wCurPartySpecies]
 	call IsAPokemon
 	ret c
-	call StatsScreen_LoadTextBoxSpaceGFX
+	call StatsScreen_LoadTextboxSpaceGFX
 	ld de, vTiles2 tile $00
 	predef FrontpicPredef
 	hlcoord 0, 0
 	lb de, $0, $2
 	predef LoadMonAnimation
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	set 6, [hl]
 	ret
 
@@ -1126,7 +1105,7 @@ StatsScreen_GetAnimationParam:
 	xor a
 	ret
 
-StatsScreen_LoadTextBoxSpaceGFX:
+StatsScreen_LoadTextboxSpaceGFX:
 	push hl
 	push de
 	push bc
@@ -1136,8 +1115,8 @@ StatsScreen_LoadTextBoxSpaceGFX:
 	push af
 	ld a, $1
 	ldh [rVBK], a
-	ld de, TextBoxSpaceGFX
-	lb bc, BANK(TextBoxSpaceGFX), 1
+	ld de, TextboxSpaceGFX
+	lb bc, BANK(TextboxSpaceGFX), 1
 	ld hl, vTiles2 tile $7f
 	call Get1bpp
 	pop af
@@ -1169,7 +1148,7 @@ EggStatsScreen:
 .picked
 	hlcoord 1, 9
 	rst PlaceString
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	set 5, [hl]
 	call SetPalettes ; pals
 	call DelayFrame
@@ -1226,14 +1205,14 @@ StatsScreen_AnimateEgg:
 	push de
 	ld a, $1
 	ld [wBoxAlignment], a
-	call StatsScreen_LoadTextBoxSpaceGFX
+	call StatsScreen_LoadTextboxSpaceGFX
 	ld de, vTiles2 tile $00
 	predef FrontpicPredef
 	pop de
 	hlcoord 0, 0
 	ld d, $0
 	predef LoadMonAnimation
-	ld hl, wcf64
+	ld hl, wStatsScreenFlags
 	set 6, [hl]
 	ret
 

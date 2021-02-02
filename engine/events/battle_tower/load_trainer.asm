@@ -1,3 +1,5 @@
+BTMON_SIZE EQU 11 ; species + item + 4 moves + 3 DVs + 2 personality
+
 Function_LoadOpponentTrainer:
 	ldh a, [rSVBK]
 	push af
@@ -112,7 +114,7 @@ PopulateBattleTowerTeam:
 	push de
 	ld a, d
 	call RandomRange
-	ld bc, BattleTowerPokemon2 - BattleTowerPokemon1
+	ld bc, BTMON_SIZE
 	rst AddNTimes
 
 	; Verify that the species hasn't been chosen already
@@ -259,7 +261,7 @@ BT_GetTargetSet:
 .ok
 	inc a
 	ld hl, BattleTowerMons
-	ld bc, BattleTowerPokemon2 - BattleTowerPokemon1
+	ld bc, BTMON_SIZE
 	ld d, a
 .loop
 	dec d
@@ -276,7 +278,7 @@ BT_GetTargetSet:
 
 BT_GetSetSize:
 ; Return size of battle tower set in hl
-	ld bc, BattleTowerPokemon2 - BattleTowerPokemon1
+	ld bc, BTMON_SIZE
 	push hl
 	ld d, 0
 .loop
@@ -349,7 +351,6 @@ BT_SetLevel:
 	bit 7, d
 	ld a, 0
 	jr nz, .hyper_training_done
-	ld a, b
 	push hl
 	ld a, e
 	ld [wCurPartyMon], a
@@ -362,8 +363,8 @@ BT_SetLevel:
 	ld bc, wPartyMon1MaxHP - wPartyMon1Exp
 	add hl, bc
 	push hl
-	ld bc, wPartyMon1EVs - wPartyMon1MaxHP
-	add hl, bc
+	ld bc, wPartyMon1EVs - wPartyMon1MaxHP - 1
+	add hl, bc ; 'hl' now points to EVs - 1, needed by CalcPkmnStats
 	pop de
 	pop af
 

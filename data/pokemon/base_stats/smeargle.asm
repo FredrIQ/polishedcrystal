@@ -12,14 +12,11 @@ endc
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db OWN_TEMPO ; ability 1
-	db TECHNICIAN ; ability 2
-	db MOODY ; hidden ability
+	INCBIN "gfx/pokemon/smeargle/front.dimensions"
+	abilities_for SMEARGLE, OWN_TEMPO, TECHNICIAN, MOODY
 	db FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db HUSTLE ; ability 1
-	db SNIPER ; ability 2
-	db MOODY ; hidden ability
+	INCBIN "gfx/pokemon/remoraid/front.dimensions"
+	abilities_for REMORAID, HUSTLE, SNIPER, MOODY
 	db MEDIUM_FAST ; growth rate
 	dn AMPHIBIAN, FISH ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   1,   0
 	;         hp, atk, def, spd, sat, sdf
 

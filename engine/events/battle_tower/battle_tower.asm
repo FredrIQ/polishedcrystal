@@ -272,8 +272,6 @@ Special_BattleTower_BeginChallenge:
 	xor a
 	ld [wBattleTowerBattleEnded], a
 	ld [wNrOfBeatenBattleTowerTrainers], a
-	ld [wcf65], a
-	ld [wcf66], a
 	ret
 
 Special_BattleTower_LoadOpponentTrainerAndPokemonsWithOTSprite:
@@ -319,7 +317,7 @@ Special_BattleTower_MainMenu:
 	ld a, $4
 	ldh [hScriptVar], a
 	ld hl, MenuDataHeader_ChallengeExplanationCancel
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	call ChallengeExplanationCancelMenu
 	jp CloseWindow
 

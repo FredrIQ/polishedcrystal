@@ -7,18 +7,15 @@
 	db ALWAYS_ITEM_2 ; item 1
 	db LUM_BERRY ; item 2
 	dn GENDERLESS, 15 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SYNCHRONIZE ; ability 1
-	db SYNCHRONIZE ; ability 2
+	INCBIN "gfx/pokemon/mew/front.dimensions"
 if DEF(FAITHFUL)
-	db SYNCHRONIZE ; hidden ability
+	abilities_for MEW, SYNCHRONIZE, SYNCHRONIZE, SYNCHRONIZE
 else
-	db MAGIC_GUARD ; hidden ability
+	abilities_for MEW, SYNCHRONIZE, SYNCHRONIZE, MAGIC_GUARD
 endc
 	db MEDIUM_SLOW ; growth rate
 	dn NO_EGGS, NO_EGGS ; egg groups
 
-	; ev_yield
 	ev_yield   3,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

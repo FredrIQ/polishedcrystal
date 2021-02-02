@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn ALL_MALE, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db POISON_POINT ; ability 1
-	db RIVALRY ; ability 2
-	db HUSTLE ; hidden ability
+	INCBIN "gfx/pokemon/nidorino/front.dimensions"
+	abilities_for NIDORINO, POISON_POINT, RIVALRY, HUSTLE
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   2,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

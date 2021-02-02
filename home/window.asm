@@ -3,7 +3,7 @@ RefreshScreen::
 	call ClearWindowData
 	ldh a, [hROMBank]
 	push af
-	ld a, BANK(ReanchorBGMap_NoOAMUpdate) ; BANK(LoadFonts_NoOAMUpdate)
+	ld a, BANK(ReanchorBGMap_NoOAMUpdate) ; aka BANK(LoadFonts_NoOAMUpdate)
 	rst Bankswitch
 
 	call ReanchorBGMap_NoOAMUpdate
@@ -42,25 +42,25 @@ CloseText::
 	xor a
 	ldh [hBGMapMode], a
 	call SafeUpdateSprites
-	farcall ReloadVisibleSprites
+	farcall RefreshSprites
 	ld a, $90
 	ldh [hWY], a
-	call ReplaceKrisSprite
+	call UpdatePlayerSprite
 	xor a
 	ldh [hBGMapMode], a
 
-	farjp ReturnFromMapSetupScript
+	farjp InitMapNameSign
 
 Script_opentext::
 OpenText::
 	call ClearWindowData
 	ldh a, [hROMBank]
 	push af
-	ld a, BANK(ReanchorBGMap_NoOAMUpdate) ; and BANK(LoadFonts_NoOAMUpdate)
+	ld a, BANK(ReanchorBGMap_NoOAMUpdate) ; aka BANK(LoadFonts_NoOAMUpdate)
 	rst Bankswitch
 
 	call ReanchorBGMap_NoOAMUpdate
-	call SpeechTextBox
+	call SpeechTextbox
 	call BGMapAnchorTopLeft
 	call LoadFonts_NoOAMUpdate
 	pop af

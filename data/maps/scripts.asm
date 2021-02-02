@@ -67,13 +67,13 @@ SECTION "New Bark Scripts", ROMX
 INCLUDE "maps/NewBarkTown.asm"
 INCLUDE "maps/ElmsHouse.asm"
 INCLUDE "maps/ElmsLab.asm"
-INCLUDE "maps/KrissNeighborsHouse.asm"
+INCLUDE "maps/PlayersNeighborsHouse.asm"
 
 
 SECTION "New Bark Scripts 2", ROMX
 
-INCLUDE "maps/KrissHouse1F.asm"
-INCLUDE "maps/KrissHouse2F.asm"
+INCLUDE "maps/PlayersHouse1F.asm"
+INCLUDE "maps/PlayersHouse2F.asm"
 INCLUDE "maps/LyrasHouse1F.asm"
 INCLUDE "maps/LyrasHouse2F.asm"
 
@@ -174,6 +174,7 @@ INCLUDE "maps/KurtsHouse.asm"
 
 SECTION "Slowpoke Well Scripts", ROMX
 
+INCLUDE "maps/SlowpokeWellEntrance.asm"
 INCLUDE "maps/SlowpokeWellB1F.asm"
 INCLUDE "maps/SlowpokeWellB2F.asm"
 
@@ -197,7 +198,7 @@ SECTION "Goldenrod Scripts", ROMX
 INCLUDE "maps/GoldenrodCity.asm"
 INCLUDE "maps/GoldenrodGym.asm"
 INCLUDE "maps/GoldenrodGameCorner.asm"
-INCLUDE "maps/Daycare.asm"
+INCLUDE "maps/DayCare.asm"
 
 
 SECTION "Goldenrod Scripts 2", ROMX

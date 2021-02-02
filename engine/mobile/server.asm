@@ -59,7 +59,7 @@ PO_Connect::
 	push af
 	set NO_TEXT_SCROLL, [hl]
 .start
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearSprites
 	call ClearScreen
 	xor a
@@ -198,7 +198,7 @@ PO_Connect::
 	ld [wLinkMode], a
 	farcall LoadPokemonData
 	call LoadMapPart
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	jp .start
 
 .handle_signal

@@ -1,6 +1,6 @@
 SoftReset::
 	di
-	call MapSetup_Sound_Off
+	call InitSound
 	xor a
 	ldh [hMapAnims], a
 	call ClearPalettes
@@ -117,7 +117,7 @@ Init::
 	ld [hli], a
 	ld [hl], "!"
 
-	ld a, BANK(WriteOAMDMACodeToHRAM)
+	ld a, BANK(GameInit) ; aka BANK(WriteOAMDMACodeToHRAM)
 	rst Bankswitch
 
 	call WriteOAMDMACodeToHRAM
@@ -188,7 +188,7 @@ Init::
 
 	call DelayFrame
 
-	call MapSetup_Sound_Off
+	call InitSound
 	xor a
 	ld [wMapMusic], a
 	jp GameInit

@@ -10,7 +10,7 @@ _BillsPC:
 	and a
 	ret nz
 	ld hl, .Text_GottaHavePokemon
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	scf
 	ret
 
@@ -22,7 +22,7 @@ _BillsPC:
 .LogIn:
 	xor a
 	ldh [hBGMapMode], a
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearPCItemScreen
 	ld hl, wOptions1
 	ld a, [hl]
@@ -44,7 +44,7 @@ _BillsPC:
 
 .UseBillsPC:
 	ld hl, .MenuDataHeader
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	ld a, $1
 .loop
 	ld [wMenuCursorBuffer], a
@@ -107,7 +107,7 @@ BillsPC_SeeYa:
 	ret
 
 BillsPC_MovePKMNMenu:
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	farcall IsAnyMonHoldingMail
 	jr nc, .no_mail
 	ld hl, .Text_MonHoldingMail
@@ -132,7 +132,7 @@ BillsPC_MovePKMNMenu:
 	text_end
 
 BillsPC_DepositMenu:
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	farcall _DepositPKMN
 	call ReturnToMapFromSubmenu
 	call ClearPCItemScreen
@@ -170,7 +170,7 @@ CheckCurPartyMonFainted:
 	ret
 
 BillsPC_WithdrawMenu:
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	farcall _WithdrawPKMN
 	call ReturnToMapFromSubmenu
 	call ClearPCItemScreen
@@ -195,10 +195,10 @@ ClearPCItemScreen:
 	rst ByteFill
 	hlcoord 0, 0
 	lb bc, 10, 18
-	call TextBox
+	call Textbox
 	hlcoord 0, 12
 	lb bc, 4, 18
-	call TextBox
+	call Textbox
 	call ApplyAttrAndTilemapInVBlank
 	jp SetPalettes ; load regular palettes?
 

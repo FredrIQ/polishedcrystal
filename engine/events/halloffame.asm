@@ -78,9 +78,9 @@ AnimateHallOfFame:
 	ld de, MUSIC_HALL_OF_FAME
 	call HallOfFame_PlayMusicDE
 	xor a
-	ld [wcf64], a
+	ld [wHallOfFameMonCounter], a
 .loop
-	ld a, [wcf64]
+	ld a, [wHallOfFameMonCounter]
 	cp PARTY_LENGTH
 	jr nc, .done
 	ld hl, wHallOfFameTempMon1
@@ -94,7 +94,7 @@ AnimateHallOfFame:
 	pop hl
 	call .DisplayNewHallOfFamer
 	jr c, .done
-	ld hl, wcf64
+	ld hl, wHallOfFameMonCounter
 	inc [hl]
 	jr .loop
 
@@ -300,7 +300,7 @@ _HallOfFamePC:
 
 .DisplayTeam:
 	xor a
-	ld [wcf64], a
+	ld [wHallOfFameMonCounter], a
 .next
 	call .DisplayMonAndStrings
 	jr c, .start_button
@@ -320,7 +320,7 @@ _HallOfFamePC:
 	jr .loop
 
 .a_button
-	ld hl, wcf64
+	ld hl, wHallOfFameMonCounter
 	inc [hl]
 	jr .next
 
@@ -335,7 +335,7 @@ _HallOfFamePC:
 .DisplayMonAndStrings:
 ; Print the number of times the player has entered the Hall of Fame.
 ; If that number is at least HOF_MASTER_COUNT, print "HOF Master!" instead.
-	ld a, [wcf64]
+	ld a, [wHallOfFameMonCounter]
 	cp PARTY_LENGTH
 	jr nc, .fail
 	ld hl, wHallOfFameTempMon1
@@ -444,10 +444,10 @@ DisplayHOFMon:
 	rst ByteFill
 	hlcoord 0, 0
 	lb bc, 3, SCREEN_WIDTH - 2
-	call TextBox
+	call Textbox
 	hlcoord 0, 12
 	lb bc, 4, SCREEN_WIDTH - 2
-	call TextBox
+	call Textbox
 	ld a, [wTempMonSpecies]
 	ld [wCurPartySpecies], a
 	ld [wd265], a
@@ -548,10 +548,10 @@ HOF_AnimatePlayerPic:
 	ldh [hBGMapMode], a
 	hlcoord 0, 2
 	lb bc, 8, 9
-	call TextBox
+	call Textbox
 	hlcoord 0, 12
 	lb bc, 4, 18
-	call TextBox
+	call Textbox
 	hlcoord 2, 4
 	ld de, wPlayerName
 	rst PlaceString

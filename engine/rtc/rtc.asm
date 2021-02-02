@@ -24,27 +24,18 @@ endc
 
 ; get time of day based on the current hour
 GetTimeOfDay::
-	ldh a, [hHours]
 	ld hl, TimesOfDay
-.check
-	cp [hl]
-	jr c, .match
-	inc hl
-	inc hl
-	jr .check
-.match
-	inc hl
-	ld a, [hl]
+	call GetHourIntervalValue
 	ld [wTimeOfDay], a
 	ret
 
 ; hours for the time of day
 TimesOfDay:
 	db MORN_HOUR, NITE
-	db DAY_HOUR, MORN
-	db NITE_HOUR, DAY
-	db 24, NITE
-	db -1, MORN
+	db DAY_HOUR,  MORN
+	db EVE_HOUR,  DAY
+	db NITE_HOUR, EVE
+	db -1,        NITE
 
 StageRTCTimeForSave:
 	call UpdateTime
@@ -89,7 +80,7 @@ endc
 StartClock::
 	; read the current clock time into the cache in HRAM
 	call GetClock
-	call Function1409b
+	call _FixDays
 	call FixDays
 if DEF(NO_RTC)
 	ret nc
@@ -104,7 +95,7 @@ else
 	jp StartRTC
 endc
 
-Function1409b:
+_FixDays:
 	ld hl, hRTCDayHi
 	bit 7, [hl]
 	jr nz, .set_bit_7
@@ -118,7 +109,7 @@ Function1409b:
 	ld a, %10000000
 	jp RecordRTCStatus ; set bit 7 on sRTCStatusFlags
 
-Function140ae:
+ClockContinue:
 	call CheckRTCStatus
 	ld c, a
 	and %11000000 ; Day count exceeded 255 or 16383

@@ -14,7 +14,7 @@ StartMenu::
 	ld hl, .ContestMenuDataHeader
 .GotMenuData:
 
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	call .SetUpMenuItems
 	ld a, [wBattleMenuCursorBuffer]
 	ld [wMenuCursorBuffer], a
@@ -368,7 +368,7 @@ StartMenu_Pack:
 
 	call FadeToMenu
 	farcall Pack
-	ld a, [wcf66]
+	ld a, [wPackUsedItem]
 	and a
 	jr nz, .used_item
 	call CloseSubmenu

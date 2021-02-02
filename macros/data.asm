@@ -110,7 +110,6 @@ rept _NARG
 endr
 ENDM
 
-
 genders: MACRO
 ; eight arguments, all MALE or FEMALE
 x = 0

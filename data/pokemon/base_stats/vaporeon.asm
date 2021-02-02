@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 6 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db WATER_ABSORB ; ability 1
+	INCBIN "gfx/pokemon/vaporeon/front.dimensions"
 if DEF(FAITHFUL)
-	db WATER_ABSORB ; ability 2
+	abilities_for VAPOREON, WATER_ABSORB, WATER_ABSORB, HYDRATION
 else
-	db DRIZZLE ; ability 2
+	abilities_for VAPOREON, WATER_ABSORB, DRIZZLE, HYDRATION
 endc
-	db HYDRATION ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   2,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

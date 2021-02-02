@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 5 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SWIFT_SWIM ; ability 1
-	db SHELL_ARMOR ; ability 2
-	db WEAK_ARMOR ; hidden ability
+	INCBIN "gfx/pokemon/omanyte/front.dimensions"
+	abilities_for OMANYTE, SWIFT_SWIM, SHELL_ARMOR, WEAK_ARMOR
 	db MEDIUM_FAST ; growth rate
 	dn AMPHIBIAN, INVERTEBRATE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   1,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

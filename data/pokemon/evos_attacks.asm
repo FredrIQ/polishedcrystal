@@ -1739,6 +1739,7 @@ SlowpokePlainEvosAttacks:
 	db 0 ; no more level-up moves
 
 SlowpokeGalarianEvosAttacks:
+	db EVOLVE_HOLDING, KINGS_ROCK, SLOWKING
 	db EVOLVE_LEVEL, 37, SLOWBRO
 	db 0 ; no more evolutions
 	db 1, CURSE
@@ -2933,7 +2934,7 @@ EeveeEvosAttacks:
 	db EVOLVE_LOCATION, ILEX_FOREST, LEAFEON
 	db EVOLVE_LOCATION, ICE_PATH, GLACEON
 	db EVOLVE_HAPPINESS, TR_MORNDAY, ESPEON
-	db EVOLVE_HAPPINESS, TR_NITE, UMBREON
+	db EVOLVE_HAPPINESS, TR_EVENITE, UMBREON
 	db 0 ; no more evolutions
 	db 1, GROWL
 	db 1, TACKLE
@@ -3020,10 +3021,10 @@ PorygonEvosAttacks:
 	db 12, AGILITY
 	db 18, RECOVER
 	db 23, GROWTH ; Magnet Rise → new move
-	db 29, ICE_BEAM ; Signal Beam → TM move
-	db 34, BARRIER ; Recycle → event move
-	db 40, THUNDERBOLT ; Discharge → TM move
-	db 45, MIRROR_COAT ; Lock-On → new move
+	db 29, AURORA_BEAM ; Signal Beam → new move
+	db 34, THUNDER_WAVE ; Recycle → TM move
+	db 40, BARRIER ; Discharge → event move
+	db 45, THUNDERBOLT ; Lock-On → TM move
 	db 50, TRI_ATTACK
 	db 56, MIRROR_COAT ; Magic Coat → new move
 	db 62, ZAP_CANNON
@@ -3148,7 +3149,7 @@ SnorlaxEvosAttacks:
 	db 57, GIGA_IMPACT
 	db 0 ; no more level-up moves
 
-ArticunoEvosAttacks:
+ArticunoPlainEvosAttacks:
 	db 0 ; no more evolutions
 	db 1, GUST
 	db 1, ICY_WIND ; Powder Snow → similar move
@@ -3169,14 +3170,35 @@ ArticunoEvosAttacks:
 	db 99, AEROBLAST ; new move
 	db 0 ; no more level-up moves
 
-ZapdosEvosAttacks:
+ArticunoGalarianEvosAttacks:
+	db 0 ; no more evolutions
+	db 1, GUST
+	db 1, CONFUSION
+	db 1, LEER ; Let's Go move
+	db 8, SAFEGUARD ; Psycho Shift → new move
+	db 15, HYPNOSIS
+	db 22, EXTRASENSORY ; Mind Reader → event move
+	db 29, ANCIENTPOWER
+	db 36, AGILITY
+	db 43, PSYCHIC_M ; Freezing Glare → TM move
+	db 50, AIR_SLASH ; Reflect → new move
+	db 57, DREAM_EATER
+	db 64, REFLECT ; Tailwind → Reflect
+	db 71, FUTURE_SIGHT
+	db 78, BRAVE_BIRD ; Sheer Cold → TR move
+	db 85, RECOVER
+	db 92, HURRICANE
+	db 99, AEROBLAST ; new move
+	db 0 ; no more level-up moves
+
+ZapdosPlainEvosAttacks:
 	db 0 ; no more evolutions
 	db 1, PECK
 	db 1, THUNDERSHOCK
 	db 1, LEER ; Let's Go move
 	db 8, THUNDER_WAVE
 	db 15, PROTECT ; Detect → similar move
-	db 22, EXTRASENSORY ; Pluck → event
+	db 22, EXTRASENSORY ; Pluck → event move
 	db 29, ANCIENTPOWER
 	db 36, AGILITY ; Charge → Agility
 	db 43, THUNDERBOLT ; Agility → TM move
@@ -3190,7 +3212,28 @@ ZapdosEvosAttacks:
 	db 99, ZAP_CANNON
 	db 0 ; no more level-up moves
 
-MoltresEvosAttacks:
+ZapdosGalarianEvosAttacks:
+	db 0 ; no more evolutions
+	db 1, PECK
+	db 1, LOW_KICK ; Rock Smash → TR move
+	db 1, LEER ; Let's Go move
+	db 8, FOCUS_ENERGY
+	db 15, PROTECT ; Detect → similar move
+	db 22, COUNTER ; Pluck → Counter
+	db 29, ANCIENTPOWER
+	db 36, AGILITY ; Charge → Agility
+	db 43, ROCK_SMASH ; Agility → Rock Smash/Brick Break
+	db 50, DRILL_PECK ; Discharge → Drill Peck
+	db 57, BULK_UP
+	db 64, LIGHT_SCREEN
+	db 71, CLOSE_COMBAT
+	db 78, BRAVE_BIRD ; Counter → TR move
+	db 85, HI_JUMP_KICK ; Quick Guard → new move
+	db 92, HURRICANE
+	db 99, REVERSAL
+	db 0 ; no more level-up moves
+
+MoltresPlainEvosAttacks:
 	db 0 ; no more evolutions
 	db 1, WING_ATTACK
 	db 1, EMBER
@@ -3209,6 +3252,27 @@ MoltresEvosAttacks:
 	db 85, ROOST
 	db 92, HURRICANE
 	db 99, SOLAR_BEAM
+	db 0 ; no more level-up moves
+
+MoltresGalarianEvosAttacks:
+	db 0 ; no more evolutions
+	db 1, GUST
+	db 1, PURSUIT ; Payback → new move
+	db 1, LEER
+	db 8, FEINT_ATTACK ; new move
+	db 15, SAFEGUARD
+	db 22, WING_ATTACK
+	db 29, ANCIENTPOWER
+	db 36, AGILITY ; Flamethrower → Agility
+	db 43, SUCKER_PUNCH
+	db 50, AIR_SLASH
+	db 57, NASTY_PLOT ; After You → Nasty Plot
+	db 64, DARK_PULSE ; Fiery Wrath → similar move
+	db 71, HEX ; Nasty Plot → TR move
+	db 78, BRAVE_BIRD ; Sky Attack → new move
+	db 85, PAIN_SPLIT ; Memento → new move
+	db 92, HURRICANE
+	db 99, NIGHT_SLASH ; new move
 	db 0 ; no more level-up moves
 
 DratiniEvosAttacks:
@@ -4211,7 +4275,7 @@ HonchkrowEvosAttacks:
 	db 75, DARK_PULSE
 	db 0 ; no more level-up moves
 
-SlowkingEvosAttacks:
+SlowkingPlainEvosAttacks:
 	db 0 ; no more evolutions
 	db 1, POWER_GEM
 	db 1, HIDDEN_POWER
@@ -4219,6 +4283,28 @@ SlowkingEvosAttacks:
 	db 1, TACKLE
 	db 5, GROWL
 	db 9, WATER_GUN
+	db 14, CONFUSION
+	db 19, DISABLE
+	db 23, HEADBUTT
+	db 28, WATER_PULSE
+	db 32, ZEN_HEADBUTT
+	db 36, NASTY_PLOT
+	db 41, SWAGGER
+	db 45, PSYCHIC_M
+	db 49, RAIN_DANCE ; Trump Card → TM move
+	db 54, BELLY_DRUM ; Psych Up → egg move
+	db 58, RECOVER ; Heal Pulse → similar move
+	db 0 ; no more level-up moves
+
+SlowkingGalarianEvosAttacks:
+	db 0 ; no more evolutions
+	db 1, HEX ; Eerie Spell → Sw/Sh TR move ; evolution move
+	db 1, POWER_GEM
+	db 1, HIDDEN_POWER
+	db 1, CURSE
+	db 1, TACKLE
+	db 5, GROWL
+	db 9, ACID
 	db 14, CONFUSION
 	db 19, DISABLE
 	db 23, HEADBUTT
@@ -4543,16 +4629,12 @@ HeracrossEvosAttacks:
 	db 1, HORN_ATTACK
 	db 1, ENDURE
 	db 7, BUG_BITE ; Feint → HGSS tutor move
-	db 10, AERIAL_ACE
+	db 10, FURY_STRIKES ; Aerial Ace → Fury Strikes
 	db 16, LOW_KICK ; Chip Away → HGSS tutor move
 	db 19, COUNTER
-	db 25, FURY_STRIKES ; Fury Attack → similar move
+	db 25, AERIAL_ACE ; Fury Attack → Aerial Ace
 	db 28, SEISMIC_TOSS ; Brick Break → tutor move
-if DEF(FAITHFUL)
 	db 31, PIN_MISSILE
-else
-	db 31, ROCK_SMASH ; Pin Missile → "Brick Break"
-endc
 	db 34, TAKE_DOWN
 	db 37, MEGAHORN
 	db 43, CLOSE_COMBAT
@@ -4748,16 +4830,16 @@ CorsolaEvosAttacks:
 	db 1, TACKLE
 	db 1, DEFENSE_CURL ; Harden → similar move
 	db 4, WATER_GUN ; Bubble → similar move
-	db 8, RECOVER
+	db 8, ROLLOUT ; Recover → TM move
 	db 10, BUBBLE_BEAM
 	db 13, SAFEGUARD ; Refresh → egg move
 	db 17, ANCIENTPOWER
-	db 20, ICICLE_SPEAR ; Spike Cannon → new move
+	db 20, ICICLE_SPEAR ; Spike Cannon → egg move
 	db 23, CONFUSE_RAY ; Lucky Chant → egg move
 	db 27, ENDURE ; Brine → Endure
 	db 29, BARRIER ; Iron Defense → similar move
 	db 31, ROCK_BLAST
-	db 35, RECOVER ; Endure → new move
+	db 35, RECOVER ; Endure → Recover
 	db 38, HYDRO_PUMP ; Aqua Ring → Sw/Sh move
 	db 41, POWER_GEM
 	db 45, MIRROR_COAT
@@ -4955,10 +5037,10 @@ Porygon2EvosAttacks:
 	db 12, AGILITY
 	db 18, RECOVER
 	db 23, GROWTH ; Magnet Rise → new move
-	db 29, ICE_BEAM ; Signal Beam → TM move
-	db 34, BARRIER ; Recycle → event move
-	db 40, THUNDERBOLT ; Discharge → TM move
-	db 45, MIRROR_COAT ; Lock-On → new move
+	db 29, AURORA_BEAM ; Signal Beam → new move
+	db 34, THUNDER_WAVE ; Recycle → TM move
+	db 40, BARRIER ; Discharge → event move
+	db 45, THUNDERBOLT ; Lock-On → TM move
 	db 50, TRI_ATTACK
 	db 56, MIRROR_COAT ; Magic Coat → new move
 	db 62, ZAP_CANNON
@@ -4975,10 +5057,10 @@ PorygonZEvosAttacks:
 	db 12, AGILITY
 	db 18, RECOVER
 	db 23, GROWTH ; Magnet Rise → new move
-	db 29, ICE_BEAM ; Signal Beam → TM move
+	db 29, AURORA_BEAM ; Signal Beam → new move
 	db 34, PAIN_SPLIT ; Embargo → HGSS tutor move
-	db 40, THUNDERBOLT ; Discharge → TM move
-	db 45, MIRROR_COAT ; Lock-On → new move
+	db 40, BARRIER ; Discharge → event move
+	db 45, THUNDERBOLT ; Lock-On → TM move
 	db 50, TRI_ATTACK
 	db 56, MIRROR_COAT ; Magic Coat → new move
 	db 62, ZAP_CANNON

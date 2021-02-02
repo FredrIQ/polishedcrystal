@@ -11,18 +11,15 @@ endc
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db OVERGROW ; ability 1
+	INCBIN "gfx/pokemon/meganium/front.dimensions"
 if DEF(FAITHFUL)
-	db OVERGROW ; ability 2
+	abilities_for MEGANIUM, OVERGROW, OVERGROW, LEAF_GUARD
 else
-	db NATURAL_CURE ; ability 2
+	abilities_for MEGANIUM, OVERGROW, NATURAL_CURE, LEAF_GUARD
 endc
-	db LEAF_GUARD ; hidden ability
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, PLANT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   1,   0,   0,   2
 	;         hp, atk, def, spd, sat, sdf
 

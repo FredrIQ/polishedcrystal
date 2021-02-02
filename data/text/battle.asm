@@ -697,6 +697,12 @@ InfatuationText:
 	cont "it from attacking!"
 	prompt
 
+NoLongerInfatuatedText:
+	text "<USER>'s"
+	line "no longer"
+	cont "infatuated!"
+	prompt
+
 ObliviousPreventedDestinyKnot:
 	text "<USER>'s"
 	line ""

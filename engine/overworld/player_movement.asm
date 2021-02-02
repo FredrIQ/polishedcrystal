@@ -4,7 +4,7 @@ DoPlayerMovement::
 	ld a, movement_step_sleep_1
 	ld [wMovementAnimation], a
 	xor a
-	ld [wEngineBuffer4], a
+	ld [wWalkingIntoEdgeWarp], a
 	call .TranslateIntoMovement
 	ld c, a
 	ld a, [wMovementAnimation]
@@ -39,7 +39,7 @@ DoPlayerMovement::
 	jr z, .Surf
 	cp PLAYER_SURF_PIKA
 	jr z, .Surf
-	cp PLAYER_SLIP
+	cp PLAYER_SKATE
 	jr z, .Ice
 
 .Normal:
@@ -100,7 +100,7 @@ DoPlayerMovement::
 	jr z, .Standing
 
 ; Walking into an edge warp won't bump.
-	ld a, [wEngineBuffer4]
+	ld a, [wWalkingIntoEdgeWarp]
 	and a
 	jr nz, .CantMove
 	call .BumpSound
@@ -351,7 +351,7 @@ DoPlayerMovement::
 	and 7
 	ld e, a
 	ld d, 0
-	ld hl, .data_8021e
+	ld hl, .ledge_table
 	add hl, de
 	ld a, [wFacingDirection]
 	and [hl]
@@ -369,7 +369,7 @@ DoPlayerMovement::
 	xor a
 	ret
 
-.data_8021e
+.ledge_table:
 	db FACE_RIGHT
 	db FACE_LEFT
 	db FACE_UP
@@ -398,10 +398,9 @@ DoPlayerMovement::
 
 	ld a, [wPlayerStandingTile]
 	cp COLL_STAIRS_RIGHT_UP
-	ld a, FALSE
-	jr c, .goingdown
+	; a = carry ? FALSE : TRUE
+	sbc a
 	inc a
-.goingdown
 	ld [wPlayerGoingUpStairs], a
 
 	ld a, STEP_STAIRS
@@ -434,7 +433,7 @@ DoPlayerMovement::
 	jr nz, .not_warp
 
 	ld a, TRUE
-	ld [wEngineBuffer4], a
+	ld [wWalkingIntoEdgeWarp], a
 	ld a, [wPlayerDirection]
 	rrca
 	rrca
@@ -795,7 +794,7 @@ endc
 	ld a, [wPlayerState]
 	cp PLAYER_BIKE
 	ret z
-	cp PLAYER_SLIP
+	cp PLAYER_SKATE
 	ret
 
 ; Routine by Victoria Lacroix
@@ -867,7 +866,7 @@ endc
 	push bc
 	ld a, PLAYER_NORMAL
 	ld [wPlayerState], a
-	call ReplaceKrisSprite ; UpdateSprites
+	call UpdatePlayerSprite ; UpdateSprites
 	pop bc
 	ret
 
@@ -881,7 +880,7 @@ CheckStandingOnIce::
 	cp COLL_ICE
 	jr z, .ice
 	ld a, [wPlayerState]
-	cp PLAYER_SLIP
+	cp PLAYER_SKATE
 	jr nz, .not_ice
 
 .ice

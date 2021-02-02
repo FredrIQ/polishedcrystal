@@ -36,7 +36,7 @@ RestartClock:
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearTileMap
 	ld hl, .Text_SetWithControlPad
 	call PrintText
@@ -189,7 +189,7 @@ RestartClock:
 .PrintTime:
 	hlcoord 0, 5
 	lb bc, 5, 18
-	call TextBox
+	call Textbox
 	bccoord 1, 8
 	ld a, [wBuffer4]
 	call PrintDayOfWeek

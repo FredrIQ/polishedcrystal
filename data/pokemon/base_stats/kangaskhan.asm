@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn ALL_FEMALE, 3 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db EARLY_BIRD ; ability 1
-	db SCRAPPY ; ability 2
+	INCBIN "gfx/pokemon/kangaskhan/front.dimensions"
 if DEF(FAITHFUL)
-	db INNER_FOCUS ; hidden ability
+	abilities_for KANGASKHAN, EARLY_BIRD, SCRAPPY, INNER_FOCUS
 else
-	db PARENTAL_BOND ; hidden ability
+	abilities_for KANGASKHAN, EARLY_BIRD, SCRAPPY, PARENTAL_BOND
 endc
 	db MEDIUM_FAST ; growth rate
 	dn MONSTER, MONSTER ; egg groups
 
-	; ev_yield
 	ev_yield   2,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

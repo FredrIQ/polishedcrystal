@@ -7,18 +7,15 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 6 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db VOLT_ABSORB ; ability 1
+	INCBIN "gfx/pokemon/jolteon/front.dimensions"
 if DEF(FAITHFUL)
-	db VOLT_ABSORB ; ability 2
+	abilities_for JOLTEON, VOLT_ABSORB, VOLT_ABSORB, QUICK_FEET
 else
-	db STATIC ; ability 2
+	abilities_for JOLTEON, VOLT_ABSORB, STATIC, QUICK_FEET
 endc
-	db QUICK_FEET ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   2,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

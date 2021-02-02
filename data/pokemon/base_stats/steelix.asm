@@ -12,14 +12,11 @@ endc
 	db NO_ITEM ; item 1
 	db METAL_COAT ; item 2
 	dn FEMALE_50, 4 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db SHEER_FORCE ; ability 1
-	db STURDY ; ability 2
-	db SAND_FORCE ; hidden ability
+	INCBIN "gfx/pokemon/steelix/front.dimensions"
+	abilities_for STEELIX, SHEER_FORCE, STURDY, SAND_FORCE
 	db MEDIUM_FAST ; growth rate
 	dn INANIMATE, INANIMATE ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   2,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

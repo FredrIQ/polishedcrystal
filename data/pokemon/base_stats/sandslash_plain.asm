@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db QUICK_CLAW ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db SAND_VEIL ; ability 1
-	db SAND_VEIL ; ability 2
-	db SAND_RUSH ; hidden ability
+	INCBIN "gfx/pokemon/sandslash_plain/front.dimensions"
+	abilities_for SANDSLASH, SAND_VEIL, SAND_VEIL, SAND_RUSH
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   2,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

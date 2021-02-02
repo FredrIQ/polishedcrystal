@@ -8,17 +8,14 @@
 	db SACRED_ASH ; item 2
 	dn GENDERLESS, 15 ; gender, step cycles to hatch
 	dn 7 , 7 ; frontpic dimensions
-	db PRESSURE ; ability 1
 if DEF(FAITHFUL)
-	db PRESSURE ; ability 2
+	abilities_for HO_OH, PRESSURE, PRESSURE, REGENERATOR
 else
-	db CLOUD_NINE ; ability 2
+	abilities_for HO_OH, PRESSURE, CLOUD_NINE, REGENERATOR
 endc
-	db REGENERATOR ; hidden ability
 	db SLOW ; growth rate
 	dn NO_EGGS, NO_EGGS ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   0,   3
 	;         hp, atk, def, spd, sat, sdf
 

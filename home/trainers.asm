@@ -1,21 +1,21 @@
-CheckTrainerBattle2::
+CheckTrainerBattle::
 	ldh a, [hROMBank]
 	push af
 
-	call SwitchToMapScriptHeaderBank
-	call CheckTrainerBattle
+	call SwitchToMapScriptsBank
+	call _CheckTrainerBattle
 
 	pop bc
 	ld a, b
 	rst Bankswitch
 	ret
 
-CheckTrainerBattle::
+_CheckTrainerBattle::
 ; Check if any trainer on the map sees the player and wants to battle.
 
 ; Skip the player object.
 	ld a, 1
-	ld de, wMapObjects + OBJECT_LENGTH
+	ld de, wMapObjects + MAPOBJECT_LENGTH
 
 .loop
 
@@ -36,9 +36,9 @@ CheckTrainerBattle::
 	add hl, de
 	ld a, [hl]
 	and $f
-	cp PERSONTYPE_TRAINER
+	cp OBJECTTYPE_TRAINER
 	jr z, .is_trainer
-	cp PERSONTYPE_GENERICTRAINER
+	cp OBJECTTYPE_GENERICTRAINER
 	jr nz, .next
 .is_trainer
 
@@ -82,7 +82,7 @@ CheckTrainerBattle::
 
 .next
 	pop de
-	ld hl, OBJECT_LENGTH
+	ld hl, MAPOBJECT_LENGTH
 	add hl, de
 	ld d, h
 	ld e, l
@@ -99,20 +99,20 @@ CheckTrainerBattle::
 	pop af
 	ldh [hLastTalked], a
 	ld a, b
-	ld [wEngineBuffer2], a
+	ld [wSeenTrainerDistance], a
 	ld a, c
-	ld [wEngineBuffer3], a
+	ld [wSeenTrainerDirection], a
 	jr LoadTrainer_continue
 
 TalkToTrainer::
 	ld a, 1
-	ld [wEngineBuffer2], a
+	ld [wSeenTrainerDistance], a
 	ld a, -1
-	ld [wEngineBuffer3], a
+	ld [wSeenTrainerDirection], a
 
 LoadTrainer_continue::
 	ld a, [wMapScriptsBank]
-	ld [wEngineBuffer1], a
+	ld [wSeenTrainerBank], a
 
 	ldh a, [hLastTalked]
 	call GetMapObject
@@ -121,11 +121,11 @@ LoadTrainer_continue::
 	add hl, bc
 	ld a, [hl]
 	and $f
-	cp PERSONTYPE_GENERICTRAINER
+	cp OBJECTTYPE_GENERICTRAINER
 	push af
 	ld hl, MAPOBJECT_SCRIPT_POINTER
 	add hl, bc
-	ld a, [wEngineBuffer1]
+	ld a, [wSeenTrainerBank]
 	call GetFarHalfword
 	ld de, wTempTrainer
 	pop af
@@ -134,7 +134,7 @@ LoadTrainer_continue::
 	jr z, .skipCopyingLossPtrAndScriptPtr
 	ld bc, wTempTrainerEnd - wTempTrainer
 .skipCopyingLossPtrAndScriptPtr
-	ld a, [wEngineBuffer1]
+	ld a, [wSeenTrainerBank]
 	call FarCopyBytes
 	pop af
 	jr nz, .notGenericTrainer

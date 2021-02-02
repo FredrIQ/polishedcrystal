@@ -7,18 +7,15 @@
 	db ALWAYS_ITEM_2 ; item 1
 	db ASPEAR_BERRY ; item 2
 	dn FEMALE_75, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db FLASH_FIRE ; ability 1
+	INCBIN "gfx/pokemon/vulpix_plain/front.dimensions"
 if DEF(FAITHFUL)
-	db FLASH_FIRE ; ability 2
+	abilities_for VULPIX, FLASH_FIRE, FLASH_FIRE, DROUGHT
 else
-	db FOREWARN ; ability 2
+	abilities_for VULPIX, FLASH_FIRE, FOREWARN, DROUGHT
 endc
-	db DROUGHT ; hidden ability
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

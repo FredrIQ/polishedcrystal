@@ -18,7 +18,7 @@ TossItemFromPC:
 	push de
 	call PartyMonItemName
 	ld hl, .TossHowMany
-	call MenuTextBox
+	call MenuTextbox
 	farcall SelectQuantityToToss
 	push af
 	call CloseWindow
@@ -26,7 +26,7 @@ TossItemFromPC:
 	pop af
 	jr c, .quit
 	ld hl, .ConfirmToss
-	call MenuTextBox
+	call MenuTextbox
 	call YesNoBox
 	push af
 	call ExitMenu
@@ -37,7 +37,7 @@ TossItemFromPC:
 	call TossItem
 	call PartyMonItemName
 	ld hl, .TossedThisMany
-	call MenuTextBox
+	call MenuTextbox
 	call ExitMenu
 	and a
 	ret
@@ -64,7 +64,7 @@ TossItemFromPC:
 
 CantUseItem:
 	ld hl, CantUseItemText
-	jp MenuTextBoxWaitButton
+	jp MenuTextboxWaitButton
 
 CantUseItemText:
 	text_jump UnknownText_0x1c1b03
@@ -191,7 +191,7 @@ GiveTakePartyMonItem:
 	hlcoord 1, 16
 	rst PlaceString
 	ld hl, GiveTakeItemMenuData
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	call VerticalMenu
 	call ExitMenu
 	jr c, .cancel
@@ -202,10 +202,13 @@ GiveTakePartyMonItem:
 	ld bc, MON_NAME_LENGTH
 	rst CopyBytes
 	ld a, [wMenuCursorY]
-	cp 1
-	jr nz, .take
+	cp 2 ; 2 = take
+	jr z, .take
+	cp 3 ; 3 = swap
+	jr z, .swap
+	; 1 = give
 
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearPalettes
 	call .GiveItem
 	call ClearPalettes
@@ -216,6 +219,11 @@ GiveTakePartyMonItem:
 
 .take
 	call TakePartyItem
+	ld a, 3
+	ret
+
+.swap
+	call SwapPartyItem
 	ld a, 3
 	ret
 
@@ -233,7 +241,7 @@ GiveTakePartyMonItem:
 .loop
 	farcall DepositSellPack
 
-	ld a, [wcf66]
+	ld a, [wPackUsedItem]
 	and a
 	ret z
 
@@ -241,12 +249,12 @@ GiveTakePartyMonItem:
 	jr nz, TryGiveItemToPartymon
 
 	ld hl, CantBeHeldText
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	jr .loop
 
 TryGiveItemToPartymon:
 
-	call SpeechTextBox
+	call SpeechTextbox
 	call PartyMonItemName
 	call GetPartyItemLocation
 	ld a, [hl]
@@ -262,12 +270,12 @@ TryGiveItemToPartymon:
 .give_item_to_mon
 	call GiveItemToPokemon
 	ld hl, MadeHoldText
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	jp GivePartyItem
 
 .please_remove_mail
 	ld hl, PleaseRemoveMailText
-	jp MenuTextBoxBackup
+	jp MenuTextboxBackup
 
 .already_holding_item
 	ld [wd265], a
@@ -290,11 +298,11 @@ TryGiveItemToPartymon:
 	ld [wCurItem], a
 	call ReceiveItemFromPokemon
 	ld hl, ItemStorageIsFullText
-	jp MenuTextBoxBackup
+	jp MenuTextboxBackup
 
 .bag_not_full
 	ld hl, TookAndMadeHoldText
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	ld a, [wd265]
 	ld [wCurItem], a
 	; fallthrough
@@ -310,8 +318,63 @@ GivePartyItem:
 	ret nc
 	jp ComposeMailMessage
 
+; swap items between two party pokemon
+SwapPartyItem:
+	ld a, [wPartyCount]
+	cp 2
+	jr c, .DontSwap
+	ld a, [wCurPartyMon]
+	inc a
+	ld [wSwitchMon], a
+	farcall HoldSwitchmonIcon
+	farcall InitPartyMenuNoCancel
+	ld a, 4
+	ld [wPartyMenuActionText], a
+	farcall WritePartyMenuTilemap
+	farcall PrintPartyMenuText
+	hlcoord 0, 1
+	ld bc, 20 * 2
+	ld a, [wSwitchMon]
+	dec a
+	rst AddNTimes
+	ld [hl], "▷"
+	call ApplyTilemapInVBlank
+	call SetPalettes
+	call DelayFrame
+	farcall PartyMenuSelect
+	bit 1, b
+	jr c, .DontSwap
+	; wSwitchMon contains first selected pkmn
+	; wCurPartyMon contains second selected pkmn
+	; getting pkmn2 item and putting into stack item addr + item id
+	call GetPartyItemLocation
+	ld a, [hl] ; a pkmn2 contains item 
+	push hl
+	push af
+	; getting pkmn 1 item and putting item id into b
+	ld a, [wSwitchMon]
+	dec a
+	ld [wCurPartyMon], a
+	call GetPartyItemLocation
+	ld a, [hl] ; a pkmn1 contains item 
+	ld b, a
+	; actual swap
+	pop af 
+	ld [hl], a ; pkmn1 get pkm2 item
+	pop hl 
+	ld a, b
+	ld [hl], a ; pkmn1 get pkm2 item
+	xor a
+	ld [wPartyMenuActionText], a
+	jp CancelPokemonAction
+
+.DontSwap
+	xor a
+	ld [wPartyMenuActionText], a
+	jp CancelPokemonAction
+
 TakePartyItem:
-	call SpeechTextBox
+	call SpeechTextbox
 	call GetPartyItemLocation
 	ld a, [hl]
 	and a
@@ -329,15 +392,15 @@ TakePartyItem:
 	call UpdateMewtwoForm
 	call GetItemName
 	ld hl, TookFromText
-	jp MenuTextBoxBackup
+	jp MenuTextboxBackup
 
 .asm_12c8c
 	ld hl, IsntHoldingAnythingText
-	jp MenuTextBoxBackup
+	jp MenuTextboxBackup
 
 .asm_12c94
 	ld hl, ItemStorageIsFullText
-	jp MenuTextBoxBackup
+	jp MenuTextboxBackup
 
 UpdateMewtwoForm:
 	ld a, [wCurPartySpecies]
@@ -360,16 +423,17 @@ UpdateMewtwoForm:
 
 GiveTakeItemMenuData:
 	db %01010000
-	db 12, 13 ; start coords
+	db 10, 13 ; start coords
 	db 17, 19 ; end coords
 	dw .Items
 	db 1 ; default option
 
 .Items:
 	db %10000000 ; x padding
-	db 2 ; # items
+	db 3 ; # items
 	db "Give@"
 	db "Take@"
+	db "Swap@"
 
 TookAndMadeHoldText:
 	text_jump UnknownText_0x1c1b2c
@@ -423,7 +487,7 @@ GiveItemToPokemon:
 	jp TossItem
 
 StartMenuYesNo:
-	call MenuTextBox
+	call MenuTextbox
 	call YesNoBox
 	jp ExitMenu
 
@@ -463,7 +527,7 @@ MonMailAction:
 
 ; Show the READ/TAKE/QUIT menu.
 	ld hl, .MenuDataHeader
-	call LoadMenuDataHeader
+	call LoadMenuHeader
 	call VerticalMenu
 	call ExitMenu
 
@@ -490,12 +554,12 @@ MonMailAction:
 	farcall SendMailToPC
 	jr c, .MailboxFull
 	ld hl, .sentmailtopctext
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	jr .done
 
 .MailboxFull:
 	ld hl, .mailboxfulltext
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	jr .done
 
 .RemoveMailToBag:
@@ -511,12 +575,12 @@ MonMailAction:
 	ld [hl], $0
 	call GetCurNick
 	ld hl, .tookmailfrommontext
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	jr .done
 
 .BagIsFull:
 	ld hl, .bagfulltext
-	call MenuTextBoxBackup
+	call MenuTextboxBackup
 	; fallthrough
 
 .done
@@ -568,7 +632,7 @@ MonMailAction:
 	text_end
 
 OpenPartyStats:
-	call LoadStandardMenuDataHeader
+	call LoadStandardMenuHeader
 	call ClearSprites
 ; PartyMon
 	xor a
@@ -744,7 +808,7 @@ ChooseMoveToForget:
 	farcall InitPartyMenuLayout
 	pop af
 	ld [wCurPartyMon], a
-	call SpeechTextBox
+	call SpeechTextbox
 .done
 	call ApplyTilemapInVBlank
 	call SetPalettes
@@ -774,7 +838,7 @@ ChooseMoveToRelearn:
 	ld [wCurPartyMon], a
 	pop af
 	push af
-	call nz, SpeechTextBox
+	call nz, SpeechTextbox
 	call ApplyTilemapInVBlank
 	call SetPalettes
 	call DelayFrame
@@ -1254,10 +1318,10 @@ SetUpMoveScreenBG:
 	farcall LoadMoveMenuMonIcon
 	hlcoord 0, 1
 	lb bc, 9, 18
-	call TextBox
+	call Textbox
 	hlcoord 0, 11
 	lb bc, 5, 18
-	call TextBox
+	call Textbox
 	hlcoord 2, 0
 	lb bc, 2, 3
 	call ClearBox
@@ -1358,7 +1422,7 @@ MoveScreen_ListMoves:
 MoveScreen_ListMovesFast:
 	hlcoord 0, 11
 	lb bc, 5, 18
-	call TextBox
+	call Textbox
 	ld hl, wTempMonMoves
 	ld a, [wMoveScreenCursor]
 	ld c, a

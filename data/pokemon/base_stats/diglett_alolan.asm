@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db SOFT_SAND ; item 2
 	dn FEMALE_50, 3 ; gender, step cycles to hatch
-	dn 5, 5 ; frontpic dimensions
-	db SAND_VEIL ; ability 1
-	db TANGLING_HAIR ; ability 2
-	db SAND_FORCE ; hidden ability
+	INCBIN "gfx/pokemon/diglett_alolan/front.dimensions"
+	abilities_for DIGLETT_ALOLAN, SAND_VEIL, TANGLING_HAIR, SAND_FORCE
 	db MEDIUM_FAST ; growth rate
 	dn FIELD, FIELD ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   1,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

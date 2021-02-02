@@ -16,14 +16,11 @@ endc
 	db SHED_SHELL ; item 1
 	db POISON_BARB ; item 2
 	dn FEMALE_50, 2 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db SWARM ; ability 1
-	db SNIPER ; ability 2
-	db ADAPTABILITY ; hidden ability
+	INCBIN "gfx/pokemon/beedrill/front.dimensions"
+	abilities_for BEEDRILL, SWARM, SNIPER, ADAPTABILITY
 	db MEDIUM_FAST ; growth rate
 	dn INSECT, INSECT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   2,   0,   0,   0,   1
 	;         hp, atk, def, spd, sat, sdf
 

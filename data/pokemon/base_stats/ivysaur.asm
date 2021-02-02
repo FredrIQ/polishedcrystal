@@ -7,14 +7,11 @@
 	db NO_ITEM ; item 1
 	db NO_ITEM ; item 2
 	dn FEMALE_12_5, 3 ; gender, step cycles to hatch
-	dn 6, 6 ; frontpic dimensions
-	db OVERGROW ; ability 1
-	db CHLOROPHYLL ; ability 2
-	db EFFECT_SPORE ; hidden ability
+	INCBIN "gfx/pokemon/ivysaur/front.dimensions"
+	abilities_for IVYSAUR, OVERGROW, CHLOROPHYLL, EFFECT_SPORE
 	db MEDIUM_SLOW ; growth rate
 	dn MONSTER, PLANT ; egg groups
 
-	; ev_yield
 	ev_yield   0,   0,   0,   0,   1,   1
 	;         hp, atk, def, spd, sat, sdf
 

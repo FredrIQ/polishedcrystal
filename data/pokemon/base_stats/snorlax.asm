@@ -7,14 +7,11 @@
 	db ALWAYS_ITEM_2 ; item 1
 	db LEFTOVERS ; item 2
 	dn FEMALE_12_5, 7 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db IMMUNITY ; ability 1
-	db THICK_FAT ; ability 2
-	db GLUTTONY ; hidden ability
+	INCBIN "gfx/pokemon/snorlax/front.dimensions"
+	abilities_for SNORLAX, IMMUNITY, THICK_FAT, GLUTTONY
 	db SLOW ; growth rate
 	dn MONSTER, MONSTER ; egg groups
 
-	; ev_yield
 	ev_yield   2,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 

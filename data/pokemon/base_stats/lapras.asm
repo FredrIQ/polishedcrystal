@@ -7,14 +7,11 @@
 	db ALWAYS_ITEM_2 ; item 1
 	db MYSTIC_WATER ; item 2
 	dn FEMALE_50, 7 ; gender, step cycles to hatch
-	dn 7, 7 ; frontpic dimensions
-	db WATER_ABSORB ; ability 1
-	db SHELL_ARMOR ; ability 2
-	db HYDRATION ; hidden ability
+	INCBIN "gfx/pokemon/lapras/front.dimensions"
+	abilities_for LAPRAS, WATER_ABSORB, SHELL_ARMOR, HYDRATION
 	db SLOW ; growth rate
 	dn MONSTER, AMPHIBIAN ; egg groups
 
-	; ev_yield
 	ev_yield   2,   0,   0,   0,   0,   0
 	;         hp, atk, def, spd, sat, sdf
 
