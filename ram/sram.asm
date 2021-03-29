@@ -6,50 +6,32 @@ sScratch:: ds $600
 SECTION "SRAM Bank 0", SRAM
 
 sPartyMail::
-sPartyMon1Mail:: mailmsg sPartyMon1Mail
-sPartyMon2Mail:: mailmsg sPartyMon2Mail
-sPartyMon3Mail:: mailmsg sPartyMon3Mail
-sPartyMon4Mail:: mailmsg sPartyMon4Mail
-sPartyMon5Mail:: mailmsg sPartyMon5Mail
-sPartyMon6Mail:: mailmsg sPartyMon6Mail
+for n, 1, PARTY_LENGTH + 1
+sPartyMon{d:n}Mail:: mailmsg sPartyMon{d:n}Mail
+endr
 
 sPartyMailBackup::
-sPartyMon1MailBackup:: mailmsg sPartyMon1MailBackup
-sPartyMon2MailBackup:: mailmsg sPartyMon2MailBackup
-sPartyMon3MailBackup:: mailmsg sPartyMon3MailBackup
-sPartyMon4MailBackup:: mailmsg sPartyMon4MailBackup
-sPartyMon5MailBackup:: mailmsg sPartyMon5MailBackup
-sPartyMon6MailBackup:: mailmsg sPartyMon6MailBackup
+for n, 1, PARTY_LENGTH + 1
+sPartyMon{d:n}MailBackup:: mailmsg sPartyMon{d:n}MailBackup
+endr
 
 sMailboxCount:: db
 sMailbox::
-sMailbox1::  mailmsg sMailbox1
-sMailbox2::  mailmsg sMailbox2
-sMailbox3::  mailmsg sMailbox3
-sMailbox4::  mailmsg sMailbox4
-sMailbox5::  mailmsg sMailbox5
-sMailbox6::  mailmsg sMailbox6
-sMailbox7::  mailmsg sMailbox7
-sMailbox8::  mailmsg sMailbox8
-sMailbox9::  mailmsg sMailbox9
-sMailbox10:: mailmsg sMailbox10
+for n, 1, MAILBOX_CAPACITY + 1
+sMailbox{d:n}:: mailmsg sMailbox{d:n}
+endr
 
 sMailboxCountBackup:: db
 sMailboxBackup::
-sMailbox1Backup::  mailmsg sMailbox1Backup
-sMailbox2Backup::  mailmsg sMailbox2Backup
-sMailbox3Backup::  mailmsg sMailbox3Backup
-sMailbox4Backup::  mailmsg sMailbox4Backup
-sMailbox5Backup::  mailmsg sMailbox5Backup
-sMailbox6Backup::  mailmsg sMailbox6Backup
-sMailbox7Backup::  mailmsg sMailbox7Backup
-sMailbox8Backup::  mailmsg sMailbox8Backup
-sMailbox9Backup::  mailmsg sMailbox9Backup
-sMailbox10Backup:: mailmsg sMailbox10Backup
+for n, 1, MAILBOX_CAPACITY + 1
+sMailbox{d:n}Backup:: mailmsg sMailbox{d:n}Backup
+endr
 
 sSaveVersion:: dw
+sUpgradeStep:: db
+sWritingBackup:: db ; 1 if we're saving, anything else if not.
 
-	ds 162
+	ds 160
 
 sRTCStatusFlags:: ds 8
 sLuckyNumberDay:: db
@@ -58,7 +40,7 @@ sLuckyIDNumber:: dw
 
 SECTION "Backup Save", SRAM
 
-sBackupOptions:: ds wOptionsEnd - wOptions1
+sBackupOptions:: ds wOptionsEnd - wOptions
 
 sBackupCheckValue1:: db ; loaded with 99, used to check save corruption
 
@@ -68,7 +50,9 @@ sBackupMapData::     ds wCurMapDataEnd - wCurMapData
 sBackupPokemonData:: ds wPokemonDataEnd - wPokemonData
 sBackupGameDataEnd::
 
-	ds 394
+sBackupOptions3:: db
+
+	ds 393
 
 sBackupChecksum:: dw
 
@@ -77,7 +61,7 @@ sBackupCheckValue2:: db ; loaded with 127, used to check save corruption
 
 SECTION "Save", SRAM
 
-sOptions:: ds wOptionsEnd - wOptions1
+sOptions:: ds wOptionsEnd - wOptions
 
 sCheckValue1:: db ; loaded with 99, used to check save corruption
 
@@ -87,7 +71,9 @@ sMapData::     ds wCurMapDataEnd - wCurMapData
 sPokemonData:: ds wPokemonDataEnd - wPokemonData
 sGameDataEnd::
 
-	ds $18a
+sOptions3:: db
+
+	ds 393
 
 sChecksum:: dw
 
@@ -96,10 +82,14 @@ sCheckValue2:: db ; loaded with 127, used to check save corruption
 
 SECTION "Active Box", SRAM
 
-sBox:: box sBox
+for n, 1, NUM_BOXES + 1
+sNewBox{d:n}:: newbox sNewBox{d:n}
+endr
+sNewBoxEnd::
 
-	ds $f4
-
+for n, 1, NUM_BOXES + 1
+sBackupNewBox{d:n}:: newbox sBackupNewBox{d:n}
+endr
 
 SECTION "Link Battle Data", SRAM
 
@@ -111,104 +101,54 @@ sLinkBattleLosses:: dw
 sLinkBattleDraws::  dw
 
 sLinkBattleRecord::
-sLinkBattleRecord1:: link_battle_record sLinkBattleRecord1
-sLinkBattleRecord2:: link_battle_record sLinkBattleRecord2
-sLinkBattleRecord3:: link_battle_record sLinkBattleRecord3
-sLinkBattleRecord4:: link_battle_record sLinkBattleRecord4
-sLinkBattleRecord5:: link_battle_record sLinkBattleRecord5
+for n, 1, NUM_LINK_BATTLE_RECORDS + 1
+sLinkBattleRecord{d:n}:: link_battle_record sLinkBattleRecord{d:n}
+endr
 sLinkBattleStatsEnd::
 
 
 SECTION "SRAM Hall of Fame", SRAM
 
 sHallOfFame::
-sHallOfFame01:: hall_of_fame sHallOfFame01
-sHallOfFame02:: hall_of_fame sHallOfFame02
-sHallOfFame03:: hall_of_fame sHallOfFame03
-sHallOfFame04:: hall_of_fame sHallOfFame04
-sHallOfFame05:: hall_of_fame sHallOfFame05
-sHallOfFame06:: hall_of_fame sHallOfFame06
-sHallOfFame07:: hall_of_fame sHallOfFame07
-sHallOfFame08:: hall_of_fame sHallOfFame08
-sHallOfFame09:: hall_of_fame sHallOfFame09
-sHallOfFame10:: hall_of_fame sHallOfFame10
-sHallOfFame11:: hall_of_fame sHallOfFame11
-sHallOfFame12:: hall_of_fame sHallOfFame12
-sHallOfFame13:: hall_of_fame sHallOfFame13
-sHallOfFame14:: hall_of_fame sHallOfFame14
-sHallOfFame15:: hall_of_fame sHallOfFame15
-sHallOfFame16:: hall_of_fame sHallOfFame16
-sHallOfFame17:: hall_of_fame sHallOfFame17
-sHallOfFame18:: hall_of_fame sHallOfFame18
-sHallOfFame19:: hall_of_fame sHallOfFame19
-sHallOfFame20:: hall_of_fame sHallOfFame20
-sHallOfFame21:: hall_of_fame sHallOfFame21
-sHallOfFame22:: hall_of_fame sHallOfFame22
-sHallOfFame23:: hall_of_fame sHallOfFame23
-sHallOfFame24:: hall_of_fame sHallOfFame24
-sHallOfFame25:: hall_of_fame sHallOfFame25
-sHallOfFame26:: hall_of_fame sHallOfFame26
-sHallOfFame27:: hall_of_fame sHallOfFame27
-sHallOfFame28:: hall_of_fame sHallOfFame28
-sHallOfFame29:: hall_of_fame sHallOfFame29
-sHallOfFame30:: hall_of_fame sHallOfFame30
+for n, 1, NUM_HOF_TEAMS + 1
+sHallOfFame{02d:n}:: hall_of_fame sHallOfFame{02d:n}
+endr
 sHallOfFameEnd::
-
-; x = 1
-; rept NUM_HOF_TEAMS
-; ; PRINTT("{x}\n")
-; if STRLEN({x}) == 2
-	; PRINTT(STRSUB({x},2,1))
-	; hall_of_fame STRCAT("sHallOfFame0", STRSUB({x},2,1))
-; else
-	; PRINTT(STRSUB({x},2,2))
-	; hall_of_fame STRCAT("sHallOfFame", STRSUB({x},2,2))
-; endc
-; x = x + 1
-; endr
 
 
 SECTION "SRAM Battle Tower", SRAM
 
-; Battle Tower data must be in SRAM because you can save and leave between battles
-sBattleTowerChallengeState::
-; 0: normal
-; 2: battle tower
-	db
+; Battle Tower data must be in SRAM because you can reset between battles
+sBattleTowerChallengeState:: db ; current challenge progress status
 
 sBattleTower::
-sNrOfBeatenBattleTowerTrainers:: db
-sBTChoiceOfLevelGroup:: db
-; Battle Tower trainers are saved here, so nobody appears more than once
-sBTTrainers:: ds BATTLETOWER_NROFTRAINERS
-sBattleTowerSaveFileFlags:: db
+sBT_CurTrainerAndSwap:: db
 
-sBTMonOfTrainers::
-sBTMonPrevTrainer1:: db
-sBTMonPrevTrainer2:: db
-sBTMonPrevTrainer3:: db
-sBTMonPrevPrevTrainer1:: db
-sBTMonPrevPrevTrainer2:: db
-sBTMonPrevPrevTrainer3:: db
+	ds 1 ; unused, may be 0-4 in old saves
+
+; Battle Tower trainers are saved here, so nobody appears more than once
+sBTTrainers:: ds BATTLETOWER_STREAK_LENGTH
+
+	ds 1 ; unused, may be 0 or 2 in old saves
+
+UNION
+sBT_PartySelections:: ds PARTY_LENGTH
+NEXTU
+sBT_MonParty:: ds BATTLETOWER_PARTYDATA_SIZE
+ENDU
+
+; Repeat prevention
+sBT_OTMonParties::
+sBT_OTMonParty1:: ds BATTLETOWER_PARTYDATA_SIZE ; oldest
+sBT_OTMonParty2:: ds BATTLETOWER_PARTYDATA_SIZE ; trainer before prev
+sBT_OTMonParty3:: ds BATTLETOWER_PARTYDATA_SIZE ; previous trainer
 
 
 SECTION "Boxes 1-7",  SRAM
 
-sBox1::  box sBox1
-sBox2::  box sBox2
-sBox3::  box sBox3
-sBox4::  box sBox4
-sBox5::  box sBox5
-sBox6::  box sBox6
-sBox7::  box sBox7
+sBoxMons1:: pokedb sBoxMons1
 
 
 SECTION "Boxes 8-14", SRAM
 
-sBox8::  box sBox8
-sBox9::  box sBox9
-sBox10:: box sBox10
-sBox11:: box sBox11
-sBox12:: box sBox12
-sBox13:: box sBox13
-sBox14:: box sBox14
+sBoxMons2:: pokedb sBoxMons2

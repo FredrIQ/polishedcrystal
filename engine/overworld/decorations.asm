@@ -23,7 +23,7 @@ _PlayerDecorationMenu:
 	ld [wBuffer6], a
 	jr c, .exit_menu
 	ld a, [wMenuSelection]
-	ld hl, .pointers
+	ld hl, .category_pointers
 	call MenuJumptable
 	jr nc, .top_loop
 
@@ -44,28 +44,30 @@ _PlayerDecorationMenu:
 .MenuData
 	db STATICMENU_CURSOR | STATICMENU_WRAP ; flags
 	db 0 ; items
-	dw wd002
+	dw wNumOwnedDecoCategories
 	dw PlaceNthMenuStrings
-	dw .pointers
+	dw .category_pointers
 
-.pointers
-	dw DecoBedMenu, .bed
-	dw DecoCarpetMenu, .carpet
-	dw DecoPlantMenu, .plant
-	dw DecoPosterMenu, .poster
-	dw DecoConsoleMenu, .game
+.category_pointers:
+	table_width 2 + 2, _PlayerDecorationMenu.category_pointers
+	dw DecoBedMenu,      .bed
+	dw DecoCarpetMenu,   .carpet
+	dw DecoPlantMenu,    .plant
+	dw DecoPosterMenu,   .poster
+	dw DecoConsoleMenu,  .game
 	dw DecoOrnamentMenu, .ornament
-	dw DecoBigDollMenu, .big_doll
-	dw DecoExitMenu, .exit
+	dw DecoBigDollMenu,  .big_doll
+	dw DecoExitMenu,     .exit
+	assert_table_length NUM_DECO_CATEGORIES + 1
 
-.bed      db "Bed@"
-.carpet   db "Carpet@"
-.plant    db "Plant@"
-.poster   db "Poster@"
-.game     db "Game Console@"
-.ornament db "Ornament@"
-.big_doll db "Big Doll@"
-.exit     db "Exit@"
+.bed:      db "Bed@"
+.carpet:   db "Carpet@"
+.plant:    db "Plant@"
+.poster:   db "Poster@"
+.game:     db "Game Console@"
+.ornament: db "Ornament@"
+.big_doll: db "Big Doll@"
+.exit:     db "Exit@"
 
 .FindCategoriesWithOwnedDecos:
 	xor a
@@ -75,7 +77,7 @@ _PlayerDecorationMenu:
 	ld a, 7
 	call .AppendToStringBuffer2
 	ld hl, wStringBuffer2
-	ld de, wd002
+	ld de, wDecoNameBuffer
 	ld bc, ITEM_NAME_LENGTH
 	rst CopyBytes
 	ret
@@ -99,7 +101,7 @@ _PlayerDecorationMenu:
 	ret
 
 .FindOwndDecos:
-	ld hl, .dw
+	ld hl, .owned_pointers
 .loop
 	ld a, [hli]
 	ld e, a
@@ -120,19 +122,21 @@ _PlayerDecorationMenu:
 	inc hl
 	jr .loop
 
-.dw
-	dwb FindOwnedBeds, 0 ; bed
-	dwb FindOwnedCarpets, 1 ; carpet
-	dwb FindOwnedPlants, 2 ; plant
-	dwb FindOwnedPosters, 3 ; poster
-	dwb FindOwnedConsoles, 4 ; game console
+.owned_pointers:
+	table_width 3, _PlayerDecorationMenu.owned_pointers
+	dwb FindOwnedBeds,      0 ; bed
+	dwb FindOwnedCarpets,   1 ; carpet
+	dwb FindOwnedPlants,    2 ; plant
+	dwb FindOwnedPosters,   3 ; poster
+	dwb FindOwnedConsoles,  4 ; game console
 	dwb FindOwnedOrnaments, 5 ; ornament
-	dwb FindOwnedBigDolls, 6 ; big doll
+	dwb FindOwnedBigDolls,  6 ; big doll
+	assert_table_length NUM_DECO_CATEGORIES
 	dw 0 ; end
 
 Deco_FillTempWithMinusOne:
 	xor a
-	ld hl, wd002
+	ld hl, wNumOwnedDecoCategories
 	ld [hli], a
 	ld a, -1
 	ld bc, $10
@@ -158,7 +162,7 @@ CheckAllDecorationFlags:
 	jr .loop
 
 AppendDecoIndex:
-	ld hl, wd002
+	ld hl, wNumOwnedDecoCategories
 	inc [hl]
 	ld e, [hl]
 	ld d, $0
@@ -173,7 +177,7 @@ FindOwnedDecosInCategory:
 	pop hl
 	call CheckAllDecorationFlags
 	pop bc
-	ld a, [wd002]
+	ld a, [wNumOwnedDecoCategories]
 	and a
 	ret z
 
@@ -195,7 +199,7 @@ FindOwnedBeds:
 	ld c, BEDS
 	jp FindOwnedDecosInCategory
 
-.beds
+.beds:
 	db DECO_FEATHERY_BED ; 2
 	db DECO_PINK_BED ; 3
 	db DECO_POLKADOT_BED ; 4
@@ -213,7 +217,7 @@ FindOwnedCarpets:
 	ld c, CARPETS
 	jp FindOwnedDecosInCategory
 
-.carpets
+.carpets:
 	db DECO_RED_CARPET ; 7
 	db DECO_BLUE_CARPET ; 8
 	db DECO_YELLOW_CARPET ; 9
@@ -231,7 +235,7 @@ FindOwnedPlants:
 	ld c, PLANTS
 	jp FindOwnedDecosInCategory
 
-.plants
+.plants:
 	db DECO_MAGNAPLANT ; c
 	db DECO_TROPICPLANT ; d
 	db DECO_JUMBOPLANT ; e
@@ -248,7 +252,7 @@ FindOwnedPosters:
 	ld c, POSTERS
 	jp FindOwnedDecosInCategory
 
-.posters
+.posters:
 	db DECO_TOWN_MAP ; 10
 	db DECO_PIKACHU_POSTER ; 11
 	db DECO_CLEFAIRY_POSTER ; 12
@@ -266,7 +270,7 @@ FindOwnedConsoles:
 	ld c, CONSOLES
 	jp FindOwnedDecosInCategory
 
-.consoles
+.consoles:
 	db DECO_SNES ; 15
 	db DECO_N64 ; 16
 	db DECO_GAMECUBE ; 17
@@ -284,7 +288,7 @@ FindOwnedOrnaments:
 	ld c, DOLLS
 	jp FindOwnedDecosInCategory
 
-.ornaments
+.ornaments:
 	db DECO_PIKACHU_DOLL ; 1e
 	db DECO_RAICHU_DOLL ; 1f
 	db DECO_SURF_PIKACHU_DOLL ; 20
@@ -330,7 +334,7 @@ FindOwnedBigDolls:
 	ld c, BIG_DOLLS
 	jp FindOwnedDecosInCategory
 
-.big_dolls
+.big_dolls:
 	db DECO_BIG_SNORLAX_DOLL ; 1a
 	db DECO_BIG_ONIX_DOLL ; 1b
 	db DECO_BIG_LAPRAS_DOLL ; 1c
@@ -341,7 +345,7 @@ DecoExitMenu:
 	ret
 
 PopulateDecoCategoryMenu:
-	ld a, [wd002]
+	ld a, [wNumOwnedDecoCategories]
 	and a
 	jr z, .empty
 	cp 8
@@ -351,14 +355,11 @@ PopulateDecoCategoryMenu:
 	ld hl, .NonscrollingMenuHeader
 	call LoadMenuHeader
 	call DoNthMenu
-	jr c, .no_action_1
-	call DoDecorationAction2
-
-.no_action_1
+	call nc, DoDecorationAction2
 	jp ExitMenu
 
 .beyond_eight
-	ld hl, wd002
+	ld hl, wNumOwnedDecoCategories
 	ld e, [hl]
 	dec [hl]
 	ld d, 0
@@ -375,10 +376,7 @@ PopulateDecoCategoryMenu:
 	call ScrollingMenu
 	ld a, [wMenuJoypad]
 	cp 2
-	jr z, .no_action_2
-	call DoDecorationAction2
-
-.no_action_2
+	call nz, DoDecorationAction2
 	jp ExitMenu
 
 .empty
@@ -387,7 +385,7 @@ PopulateDecoCategoryMenu:
 
 .NothingToChooseText:
 	; There's nothing to choose.
-	text_jump UnknownText_0x1bc471
+	text_far _NothingToChooseText
 	text_end
 
 .NonscrollingMenuHeader:
@@ -399,7 +397,7 @@ PopulateDecoCategoryMenu:
 .NonscrollingMenuData:
 	db STATICMENU_CURSOR | STATICMENU_WRAP
 	db 0 ; items
-	dw wd002
+	dw wDecoNameBuffer
 	dw DecorationMenuFunction
 	dw DecorationAttributes
 
@@ -413,7 +411,7 @@ PopulateDecoCategoryMenu:
 	db SCROLLINGMENU_DISPLAY_ARROWS ; flags
 	db 8, 0 ; rows, columns
 	db SCROLLINGMENU_ITEMS_NORMAL ; horizontal spacing
-	dbw 0, wd002 ; text pointer
+	dbw 0, wDecoNameBuffer ; text pointer
 	dba DecorationMenuFunction
 	dbw 0, 0
 	dbw 0, 0
@@ -449,6 +447,7 @@ DoDecorationAction2:
 	call StackJumpTable
 
 .DecoActions:
+	table_width 2, DoDecorationAction2.DecoActions
 	dw DecoAction_nothing
 	dw DecoAction_setupbed
 	dw DecoAction_putawaybed
@@ -464,6 +463,7 @@ DoDecorationAction2:
 	dw DecoAction_putawaybigdoll
 	dw DecoAction_setupornament
 	dw DecoAction_putawayornament
+	assert_table_length NUM_DECO_ACTIONS + 1
 
 GetDecorationFlag:
 	call GetDecorationData
@@ -520,6 +520,7 @@ GetDecoName:
 	ret
 
 .NameFunctions:
+	table_width 2, GetDecoName.NameFunctions
 	dw DoNothing
 	dw .plant
 	dw .bed
@@ -527,52 +528,53 @@ GetDecoName:
 	dw .poster
 	dw .doll
 	dw .bigdoll
+	assert_table_length NUM_DECO_TYPES + 1
 
-.plant
+.plant:
 	ld a, e
 	jr .getdeconame
 
-.bed
+.bed:
 	call .plant
 	ld a, _BED
 	jr .getdeconame
 
-.carpet
+.carpet:
 	call .plant
 	ld a, _CARPET
 	jr .getdeconame
 
-.poster
+.poster:
 	ld a, e
 	call .getpokename
 	ld a, _POSTER
 	jr .getdeconame
 
-.doll
+.doll:
 	ld a, e
 	call .getpokename
 	ld a, _DOLL
 	jr .getdeconame
 
-.bigdoll
+.bigdoll:
 	push de
 	ld a, BIG_
 	call .getdeconame
 	pop de
 	ld a, e
 	; fallthrough
-.getpokename
+.getpokename:
 	push bc
 	ld [wd265], a
 	call GetPokemonName
 	pop bc
 	jr .copy
 
-.getdeconame
+.getdeconame:
 	call ._getdeconame
 	jr .copy
 
-._getdeconame
+._getdeconame:
 	push bc
 	ld hl, DecorationNames
 	call GetNthString
@@ -581,7 +583,7 @@ GetDecoName:
 	pop bc
 	ret
 
-.copy
+.copy:
 	ld h, b
 	ld l, c
 	call CopyName2
@@ -810,7 +812,7 @@ DecoAction_SetItUp_Ornament:
 	ret
 
 WhichSidePutOnText:
-	text_jump UnknownText_0x1bc48c
+	text_far _WhichSidePutOnText
 	text_end
 
 DecoAction_PutItAway_Ornament:
@@ -835,7 +837,7 @@ DecoAction_PutItAway_Ornament:
 	ret
 
 WhichSidePutAwayText:
-	text_jump UnknownText_0x1bc4b2
+	text_far _WhichSidePutAwayText
 	text_end
 
 DecoAction_AskWhichSide:
@@ -884,23 +886,23 @@ WhichSideMenuData:
 
 DecoText_PutAwayTheDeco:
 	; Put away the @ .
-	text_jump UnknownText_0x1bc4d7
+	text_far _PutAwayTheDecoText
 	text_end
 
 DecoText_NothingToPutAway:
-	text_jump UnknownText_0x1bc4ec
+	text_far _NothingToPutAwayText
 	text_end
 
 DecoText_SetUpTheDeco:
-	text_jump UnknownText_0x1bc509
+	text_far _SetUpTheDecoText
 	text_end
 
 DecoText_PutAwayAndSetUp:
-	text_jump UnknownText_0x1bc51c
+	text_far _PutAwayAndSetUpText
 	text_end
 
 DecoText_AlreadySetUp:
-	text_jump UnknownText_0x1bc546
+	text_far _AlreadySetUpText
 	text_end
 
 GetDecorationName_c_de:
@@ -940,12 +942,15 @@ DescribeDecoration::
 	ld a, b
 	call StackJumpTable
 
-JumpTable_DecorationDesc:
+.JumpTable:
+; entries correspond to DECODESC_* constants
+	table_width 2, DescribeDecoration.JumpTable
 	dw DecorationDesc_Poster
 	dw DecorationDesc_LeftOrnament
 	dw DecorationDesc_RightOrnament
 	dw DecorationDesc_GiantOrnament
 	dw DecorationDesc_Console
+	assert_table_length NUM_DECODESCS
 
 DecorationDesc_Poster:
 	ld a, [wDecoPoster]
@@ -974,20 +979,20 @@ DecorationDesc_PosterPointers:
 
 DecorationDesc_TownMapPoster:
 	opentext
-	farwritetext UnknownText_0x1bc55d
+	farwritetext _LookTownMapText
 	waitbutton
 	special Special_TownMap
 	closetext
 	end
 
 DecorationDesc_PikachuPoster:
-	farjumptext UnknownText_0x1bc570
+	farjumptext _LookPikachuPosterText
 
 DecorationDesc_ClefairyPoster:
-	farjumptext UnknownText_0x1bc591
+	farjumptext _LookClefairyPosterText
 
 DecorationDesc_MarillPoster:
-	farjumptext UnknownText_0x1bc5b3
+	farjumptext _LookJigglypuffPosterText
 
 DecorationDesc_NullPoster:
 	end
@@ -1011,7 +1016,7 @@ DecorationDesc_Ornament:
 	ret
 
 .OrnamentScript:
-	farjumptext UnknownText_0x1bc5d7
+	farjumptext _LookAdorableDecoText
 
 DecorationDesc_Console:
 	ld a, [wDecoConsole]
@@ -1032,7 +1037,7 @@ DecorationDesc_GiantOrnament:
 	ret
 
 .BigDollScript:
-	farjumptext UnknownText_0x1bc5ef
+	farjumptext _LookGiantDecoText
 
 ToggleMaptileDecorations:
 	lb de, 0, 4 ; bed coordinates

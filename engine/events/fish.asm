@@ -11,7 +11,7 @@ Fish:
 	call GetFishGroupIndex
 
 	ld hl, FishGroups
-rept 8 ; size of dbbwww
+rept FISHGROUP_DATA_LENGTH
 	add hl, de
 endr
 	call .Fish
@@ -111,7 +111,7 @@ GetFishGroupIndex:
 
 	push hl
 	ld hl, wDailyFlags
-	bit 2, [hl] ; ENGINE_SPECIAL_WILDDATA
+	bit 2, [hl] ; ENGINE_FISH_SWARM
 	pop hl
 	jr z, .done
 

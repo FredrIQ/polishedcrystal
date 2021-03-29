@@ -33,8 +33,9 @@ AIChooseMove:
 	ret z
 
 	; Move is unusable. Fix the move selection to a valid move, but prefer
-	; to switch if we can.
-	call _AIChooseMove
+	; to switch if we can, assuming we have usable moves at all.
+	farcall CheckUsableMoves
+	call z, _AIChooseMove
 
 	; Strongly encourage switch-out by pretending we have Perish 1.
 	ld a, [wEnemyPerishCount]
@@ -100,18 +101,35 @@ _AIChooseMove:
 .ApplyLayers:
 	ld hl, TrainerClassAttributes + TRNATTR_AI_MOVE_WEIGHTS
 
-	; If we have a battle in BattleTower just load the Attributes of the first wTrainerClass (Falkner)
-	; so we have always the same AI, regardless of the loaded class of trainer
+	; Battle Tower sets the AI flags differently.
 	ld a, [wInBattleTowerBattle]
 	bit 0, a
-	jr nz, .battle_tower_skip
+	jr z, .not_battle_tower
 
+	; Battle Tower always use max AI strength.
+	farcall BT_InRentalMode
+	ld a, 16
+	jr nz, .got_bt_level
+
+	; Early Battle Factory runs are easier.
+	farcall BT_GetCurStreakAddr
+	ld a, [hli]
+	and a
+	ld a, 16
+	jr nz, .got_bt_level
+	ld a, [hl]
+	add 7
+	rra
+.got_bt_level
+	call .AddBattleTowerFlags
+	jr .battle_tower_done
+
+.not_battle_tower
 	ld a, [wTrainerClass]
 	dec a
-	ld bc, 7 ; Trainer2AI - Trainer1AI
+	ld bc, NUM_TRAINER_ATTRIBUTES
 	rst AddNTimes
 
-.battle_tower_skip
 	ld de, wAIFlags
 	ld bc, 2
 	ld a, BANK(TrainerClassAttributes)
@@ -120,6 +138,7 @@ _AIChooseMove:
 	; Add badge flags
 	call .AddBadgeFlags
 
+.battle_tower_done
 	; Aggressive overrides type matchups
 	ld hl, wAIFlags
 	lb bc, CHECK_FLAG, AI_AGGRESSIVE_F
@@ -180,6 +199,7 @@ endc
 	ld hl, wBadges
 	ld b, wBadgesEnd - wBadges
 	call CountSetBits
+.AddBattleTowerFlags:
 	ld hl, .BadgeAILayers
 .badge_loop
 	ld c, [hl]
@@ -301,23 +321,23 @@ endc
 	ld [wCurEnemyMoveNum], a
 	ret
 
-AIScoringPointers:
-	dw AI_Basic
-	dw AI_Setup
-	dw AI_Types
-	dw AI_Offensive
-	dw AI_Smart
-	dw AI_Opportunist
-	dw AI_Aggressive
-	dw AI_Cautious
-	dw AI_Status
-	dw AI_Risky
-	dw DoNothing
-	dw DoNothing
-	dw DoNothing
-	dw DoNothing
-	dw DoNothing
-	dw DoNothing
+AIScoringPointers: ; these are all farcalled in BANK(AIScoring)
+	dw AI_Basic ; far-ok
+	dw AI_Setup ; far-ok
+	dw AI_Types ; far-ok
+	dw AI_Offensive ; far-ok
+	dw AI_Smart ; far-ok
+	dw AI_Opportunist ; far-ok
+	dw AI_Aggressive ; far-ok
+	dw AI_Cautious ; far-ok
+	dw AI_Status ; far-ok
+	dw AI_Risky ; far-ok
+	dw DoNothing ; far-ok
+	dw DoNothing ; far-ok
+	dw DoNothing ; far-ok
+	dw DoNothing ; far-ok
+	dw DoNothing ; far-ok
+	dw DoNothing ; far-ok
 
 if DEF(DEBUG)
 AIDebug:

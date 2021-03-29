@@ -97,12 +97,12 @@ _SlotMachine:
 ;	call PlayMusic
 
 	xor a
-	ld [wd002], a
+	ld [wKeepSevenBiasChance], a
 	call Random
 	and %00101010
 	ret nz
 	ld a, $1
-	ld [wd002], a
+	ld [wKeepSevenBiasChance], a
 	ret
 
 Slots_GetPals:
@@ -575,9 +575,7 @@ Slots_SpinReels:
 	add hl, bc
 	ld a, [hl]
 	and $f
-	jr nz, .skip
-	call ReelActionJumptable
-.skip
+	call z, ReelActionJumptable
 	ld hl, wReel1SpinRate - wReel1
 	add hl, bc
 	ld a, [hl]
@@ -873,11 +871,11 @@ ReelAction_WaitReel2SkipTo7:
 	add hl, bc
 	ld a, [hl]
 	and a
-	jr z, .asm_92d02
+	jr z, .ready
 	dec [hl]
 	ret
 
-.asm_92d02
+.ready
 	ld a, SFX_THROW_BALL
 	call Slots_PlaySFX
 	ld hl, wReel1ReelAction - wReel1
@@ -914,7 +912,7 @@ ReelAction_InitGolem:
 	depixel 12, 13
 	ld a, SPRITE_ANIM_INDEX_SLOTS_GOLEM
 	call _InitSpriteAnimStruct
-	ld hl, SPRITEANIMSTRUCT_0E
+	ld hl, SPRITEANIMSTRUCT_VAR3
 	add hl, bc
 	pop af
 	ld [hl], a
@@ -1490,17 +1488,17 @@ Slots_AskBet:
 
 .Text_BetHowManyCoins:
 	; Bet how many coins?
-	text_jump UnknownText_0x1c5049
+	text_far _SlotsBetHowManyCoinsText
 	text_end
 
 .Text_Start:
 	; Start!
-	text_jump UnknownText_0x1c505e
+	text_far _SlotsStartText
 	text_end
 
 .Text_NotEnoughCoins:
 	; Not enough coins.
-	text_jump UnknownText_0x1c5066
+	text_far _SlotsNotEnoughCoinsText
 	text_end
 
 .MenuDataHeader:
@@ -1547,11 +1545,11 @@ Slots_AskPlayAgain:
 	ret
 
 .Text_OutOfCoins:
-	text_jump UnknownText_0x1c5079
+	text_far _SlotsRanOutOfCoinsText
 	text_end
 
 .Text_PlayAgain:
-	text_jump UnknownText_0x1c5092
+	text_far _SlotsPlayAgainText
 	text_end
 
 SlotGetPayout:
@@ -1620,7 +1618,7 @@ SlotPayoutText:
 	dbw "15@@", .LinedUpMonOrCherry
 
 .Text_PrintPayout:
-	start_asm
+	text_asm
 	ld a, [wSlotMatched]
 	add $25
 	ldcoord_a 2, 13
@@ -1640,21 +1638,25 @@ endr
 
 .Text_LinedUpWonCoins:
 	; lined up! Won @  coins!
-	text_jump UnknownText_0x1c509f
+	text_far _SlotsLinedUpText
 	text_end
 
 .Text_Darn:
 	; Darn!
-	text_jump UnknownText_0x1c50bb
+	text_far _SlotsDarnText
 	text_end
 
+; Oddly, the rarest mode (wKeepSevenBiasChance = 1) is the one with
+; the worse odds to favor seven symbol streaks (12.5% vs 25%).
+; it's possible that either the wKeepSevenBiasChance initialization
+; or this code was intended to lead to flipped percentages.
 .LinedUpSevens:
 	ld a, SFX_2ND_PLACE
 	call Slots_PlaySFX
 	call WaitSFX
-	ld a, [wd002]
+	ld a, [wKeepSevenBiasChance]
 	and a
-	jr nz, .asm_931ff
+	jr nz, .lower_seven_streak_odds
 	call Random
 	and $14
 	ret z
@@ -1662,7 +1664,7 @@ endr
 	ld [wSlotBias], a
 	ret
 
-.asm_931ff
+.lower_seven_streak_odds
 	call Random
 	and $1c
 	ret z
@@ -1692,7 +1694,7 @@ SlotMachine_AnimateGolem:
 	dw .roll
 
 .init
-	ld hl, SPRITEANIMSTRUCT_0E
+	ld hl, SPRITEANIMSTRUCT_VAR3
 	add hl, bc
 	ld a, [hl]
 	and a
@@ -1709,7 +1711,7 @@ SlotMachine_AnimateGolem:
 	ld hl, SPRITEANIMSTRUCT_JUMPTABLE_INDEX
 	add hl, bc
 	inc [hl]
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld [hl], $30
 	ld hl, SPRITEANIMSTRUCT_XOFFSET
@@ -1717,7 +1719,7 @@ SlotMachine_AnimateGolem:
 	ld [hl], $0
 
 .fall
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld a, [hl]
 	cp $20
@@ -1734,7 +1736,7 @@ SlotMachine_AnimateGolem:
 	ld hl, SPRITEANIMSTRUCT_JUMPTABLE_INDEX
 	add hl, bc
 	inc [hl]
-	ld hl, SPRITEANIMSTRUCT_0D
+	ld hl, SPRITEANIMSTRUCT_VAR2
 	add hl, bc
 	ld [hl], $2
 	ld a, $1
@@ -1752,7 +1754,7 @@ SlotMachine_AnimateGolem:
 	jr nc, .restart
 	and $3
 	ret nz
-	ld hl, SPRITEANIMSTRUCT_0D
+	ld hl, SPRITEANIMSTRUCT_VAR2
 	add hl, bc
 	ld a, [hl]
 	cpl
@@ -1814,11 +1816,11 @@ Slots_AnimateChansey:
 	ld hl, SPRITEANIMSTRUCT_JUMPTABLE_INDEX
 	add hl, bc
 	inc [hl]
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld [hl], $8
 .two
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld a, [hl]
 	and a

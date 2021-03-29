@@ -7,65 +7,36 @@ ENDM
 abilities_for: MACRO
 ; mon, ability1, ability2, hiddenability
 	db \2, \3, \4
-ABIL_\1_\4 = HIDDEN_ABILITY
-ABIL_\1_\3 = ABILITY_2
-ABIL_\1_\2 = ABILITY_1
+	def ABIL_\1_\4 = HIDDEN_ABILITY
+	def ABIL_\1_\3 = ABILITY_2
+	def ABIL_\1_\2 = ABILITY_1
 ENDM
 
 tmhm: MACRO
-tms1_24 = 0
-tms25_48 = 0
-tms49_72 = 0
-tms73_96 = 0
-tms97_112 = 0
-rept _NARG
-if DEF(\1_TMNUM)
-	if \1_TMNUM < 25
-tms1_24 = tms1_24 | (1 << ((\1_TMNUM) - 1))
-	elif \1_TMNUM < 49
-tms25_48 = tms25_48 | (1 << ((\1_TMNUM) - 1 - 24))
-	elif \1_TMNUM < 73
-tms49_72 = tms49_72 | (1 << ((\1_TMNUM) - 1 - 48))
-	elif \1_TMNUM < 97
-tms73_96 = tms73_96 | (1 << ((\1_TMNUM) - 1 - 72))
-	elif \1_TMNUM < 113
-tms97_112 = tms97_112 | (1 << ((\1_TMNUM) - 1 - 96))
-	else
-		fail "\1 overflows base data"
-	endc
-else
-	fail "\1 is not a TM, HM, or move tutor move"
-endc
-	shift
-endr
-
-rept 3
-	db LOW(tms1_24)
-tms1_24 = tms1_24 >> 8
-endr
-rept 3
-	db LOW(tms25_48)
-tms25_48 = tms25_48 >> 8
-endr
-rept 3
-	db LOW(tms49_72)
-tms49_72 = tms49_72 >> 8
-endr
-rept 3
-	db LOW(tms73_96)
-tms73_96 = tms73_96 >> 8
-endr
-rept 2
-	db LOW(tms97_112)
-tms97_112 = tms97_112 >> 8
-endr
+	; initialize bytes to 0
+	for n, (NUM_TM_HM_TUTOR + 7) / 8
+		def _tm{d:n} = 0
+	endr
+	; set bits of bytes
+	rept _NARG
+		if DEF(\1_TMNUM)
+			def n = (\1_TMNUM - 1) / 8
+			def i = (\1_TMNUM - 1) % 8
+			def _tm{d:n} = _tm{d:n} | (1 << i)
+		else
+			fail "\1 is not a TM, HM, or tutor move"
+		endc
+		shift
+	endr
+	; output bytes
+	for n, (NUM_TM_HM_TUTOR + 7) / 8
+		db _tm{d:n}
+	endr
 ENDM
 
 BaseData::
-
-BaseData0::
+	table_width BASE_DATA_SIZE, BaseData
 INCLUDE "data/pokemon/base_stats/bulbasaur.asm"
-BaseData1::
 INCLUDE "data/pokemon/base_stats/ivysaur.asm"
 INCLUDE "data/pokemon/base_stats/venusaur.asm"
 INCLUDE "data/pokemon/base_stats/charmander.asm"
@@ -319,6 +290,8 @@ INCLUDE "data/pokemon/base_stats/celebi.asm"
 INCLUDE "data/pokemon/base_stats/leafeon.asm"
 INCLUDE "data/pokemon/base_stats/glaceon.asm"
 INCLUDE "data/pokemon/base_stats/sylveon.asm"
+	assert_table_length NUM_POKEMON
+
 INCLUDE "data/pokemon/base_stats/egg.asm"
 
 INCLUDE "data/pokemon/base_stats/gyarados.asm" ; red

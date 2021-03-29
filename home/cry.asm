@@ -49,10 +49,10 @@ LoadCryHeader::
 	call GetCryIndex
 	ret c
 
-	anonbankpush CryHeaders
+	anonbankpush PokemonCries
 
 .Function:
-	ld hl, CryHeaders
+	ld hl, PokemonCries
 rept 6
 	add hl, bc
 endr
@@ -80,9 +80,12 @@ GetCryIndex::
 	cp NUM_POKEMON + 1
 	jr nc, .no
 
-	dec a
 	ld c, a
-	ld b, 0
+	ld a, [wCurForm]
+	ld b, a
+	call GetExtendedSpeciesIndex
+	dec bc
+	ld a, c
 	and a
 	ret
 

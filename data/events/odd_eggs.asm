@@ -1,9 +1,12 @@
+NUM_ODD_EGGS EQU 10
+
 prob: MACRO
 prob_total = prob_total + (\1)
 	dw prob_total * $ffff / 100
 ENDM
 
 OddEggProbabilities:
+	table_width 2, OddEggProbabilities
 prob_total = 0
 ; Pichu
 	prob 6
@@ -20,10 +23,11 @@ prob_total = 0
 ; Munchlax
 	prob 10
 	prob 10
+	assert_table_length NUM_ODD_EGGS
 
 OddEggs:
+	table_width PARTYMON_STRUCT_LENGTH + MON_NAME_LENGTH, OddEggs
 
-OddEgg1:
 	db PICHU
 	db NO_ITEM
 	db THUNDERSHOCK, CHARM, DIZZY_PUNCH, 0
@@ -45,9 +49,8 @@ OddEgg1:
 	bigdw 6 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
-OddEgg2:
 	db PICHU
 	db NO_ITEM
 	db THUNDERSHOCK, CHARM, DIZZY_PUNCH, 0
@@ -69,7 +72,7 @@ OddEgg2:
 	bigdw 6 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db MAGBY
 	db NO_ITEM
@@ -92,7 +95,7 @@ OddEgg2:
 	bigdw 6 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db MAGBY
 	db NO_ITEM
@@ -115,7 +118,7 @@ OddEgg2:
 	bigdw 6 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db ELEKID
 	db NO_ITEM
@@ -138,7 +141,7 @@ OddEgg2:
 	bigdw 7 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db ELEKID
 	db NO_ITEM
@@ -161,7 +164,7 @@ OddEgg2:
 	bigdw 7 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db TYROGUE
 	db NO_ITEM
@@ -184,7 +187,7 @@ OddEgg2:
 	bigdw 5 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db TYROGUE
 	db NO_ITEM
@@ -207,7 +210,7 @@ OddEgg2:
 	bigdw 5 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db MUNCHLAX
 	db NO_ITEM
@@ -230,7 +233,7 @@ OddEgg2:
 	bigdw 5 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 7 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
 
 	db MUNCHLAX
 	db NO_ITEM
@@ -253,7 +256,9 @@ OddEgg2:
 	bigdw 5 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 7 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"
+
+	assert_table_length NUM_ODD_EGGS
 
 MystriEgg:
 	db TOGEPI
@@ -277,4 +282,4 @@ MystriEgg:
 	bigdw 5 ; Spd
 	bigdw 6 ; SAtk
 	bigdw 6 ; SDef
-	db "Egg@@@@@@@@"
+	rawchar "Egg@@@@@@@@"

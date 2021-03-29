@@ -34,7 +34,7 @@ GiveOddEgg:
 .done
 
 	ld hl, OddEggs
-	ld a, OddEgg2 - OddEgg1
+	ld a, PARTYMON_STRUCT_LENGTH + MON_NAME_LENGTH
 	rst AddNTimes
 	jr GiveEggMon
 
@@ -68,7 +68,7 @@ AddEggMonToParty:
 	ld hl, wPartyMon1Species
 	ld bc, PARTYMON_STRUCT_LENGTH
 	ld a, e
-	ld [wd002], a
+	ld [wTempPartyCount], a
 .loop2
 	add hl, bc
 	dec a
@@ -80,9 +80,9 @@ AddEggMonToParty:
 	ld bc, PARTYMON_STRUCT_LENGTH
 	rst CopyBytes
 
-	ld hl, wPartyMonOT
+	ld hl, wPartyMonOTs
 	ld bc, NAME_LENGTH
-	ld a, [wd002]
+	ld a, [wTempPartyCount]
 .loop3
 	add hl, bc
 	dec a
@@ -91,14 +91,20 @@ AddEggMonToParty:
 	ld e, l
 	ld d, h
 	ld hl, wOddEggName
-	ld bc, MON_NAME_LENGTH - 1
+	ld bc, PLAYER_NAME_LENGTH - 1
 	rst CopyBytes
+	ld h, d
+	ld l, e
 	ld a, "@"
-	ld [de], a
+	ld [hli], a
+	xor a
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
 
 	ld hl, wPartyMonNicknames
 	ld bc, MON_NAME_LENGTH
-	ld a, [wd002]
+	ld a, [wTempPartyCount]
 .loop4
 	add hl, bc
 	dec a

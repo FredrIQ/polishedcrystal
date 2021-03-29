@@ -10,7 +10,7 @@ WonderTrade::
 	ld hl, .Text_WonderTradePrompt
 	call PrintText
 
-	ld b, 6
+	ld b, PARTYMENUACTION_GIVE_MON
 	farcall SelectTradeOrDayCareMon
 	ret c
 
@@ -45,27 +45,27 @@ WonderTrade::
 	jp ReturnToMapWithSpeechTextbox
 
 .Text_WonderTradeQuestion:
-	text_jump WonderTradeQuestionText
+	text_far WonderTradeQuestionText
 	text_end
 
 .Text_WonderTradePrompt:
-	text_jump WonderTradePromptText
+	text_far WonderTradePromptText
 	text_end
 
 ;.Text_WonderTradeCantTradeEgg:
-;	text_jump WonderTradeCantTradeEggText
+;	text_far WonderTradeCantTradeEggText
 ;	text_end
 
 .Text_WonderTradeConfirm:
-	text_jump WonderTradeConfirmText
+	text_far WonderTradeConfirmText
 	text_end
 
 .Text_WonderTradeSetup:
-	text_jump WonderTradeSetupText
+	text_far WonderTradeSetupText
 	text_end
 
 .Text_WonderTradeReady:
-	text_jump WonderTradeReadyText
+	text_far WonderTradeReadyText
 	text_end
 
 DoWonderTrade:
@@ -109,7 +109,7 @@ DoWonderTrade:
 	call GetTradeMonName
 	call CopyTradeName
 
-	ld hl, wPartyMonOT
+	ld hl, wPartyMonOTs
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonOTName
@@ -142,7 +142,7 @@ DoWonderTrade:
 	call Trade_GetAttributeOfCurrentPartymon
 	ld b, h
 	ld c, l
-	farcall GetCaughtGender
+	call GetCaughtGender
 	ld [wPlayerTrademonCaughtData], a
 
 	xor a
@@ -158,7 +158,7 @@ DoWonderTrade:
 	xor a
 	ld [wMonType], a
 	ld [wPokemonWithdrawDepositParameter], a
-	predef RemoveMonFromPartyOrBox
+	predef RemoveMonFromParty
 
 	call GetWonderTradeOTForm
 	ld [wCurForm], a
@@ -207,7 +207,7 @@ DoWonderTrade:
 	ld de, wOTTrademonSenderName
 	call CopyTradeOT
 
-	ld hl, wPartyMonOT
+	ld hl, wPartyMonOTs
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonOTName
@@ -284,6 +284,23 @@ endr
 	call Random
 	and GENDER_MASK
 	ld b, a
+	; Egg for Egg
+	ld a, [wPlayerTrademonSpecies]
+	inc a ; cp EGG
+	jr nz, .not_egg
+	dec a ; ld a, EGG
+	ld [wOTTrademonSpecies], a
+	push bc
+	ld hl, wPartyMonNicknames
+	ld bc, MON_NAME_LENGTH
+	call Trade_GetAttributeOfLastPartymon
+	ld hl, .EggString
+	call CopyTradeName
+	pop bc
+	ld a, b
+	or IS_EGG_MASK
+	ld b, a
+.not_egg
 	; Form
 	ld a, [wCurForm]
 	add b
@@ -320,6 +337,9 @@ endr
 	ld [wCurPartyMon], a
 	jp PopAFBCDEHL
 
+.EggString:
+	rawchar "Egg@@@@@@@@"
+
 GetGSBallPichu:
 	ld a, 2
 	ldh [hScriptVar], a
@@ -337,7 +357,7 @@ GetGSBallPichu:
 	call GetTradeMonName
 	call CopyTradeName
 
-	ld hl, wPartyMonOT
+	ld hl, wPartyMonOTs
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonOTName
@@ -370,7 +390,7 @@ GetGSBallPichu:
 	call Trade_GetAttributeOfCurrentPartymon
 	ld b, h
 	ld c, l
-	farcall GetCaughtGender
+	call GetCaughtGender
 	ld [wPlayerTrademonCaughtData], a
 	ld [wOTTrademonCaughtData], a
 
@@ -384,7 +404,7 @@ GetGSBallPichu:
 	xor a
 	ld [wMonType], a
 	ld [wPokemonWithdrawDepositParameter], a
-	predef RemoveMonFromPartyOrBox
+	predef RemoveMonFromParty
 	predef TryAddMonToParty
 
 	ld b, MALE
@@ -425,7 +445,7 @@ GetGSBallPichu:
 	ld de, wOTTrademonSenderName
 	call CopyTradeOT
 
-	ld hl, wPartyMonOT
+	ld hl, wPartyMonOTs
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonOTName
@@ -520,6 +540,9 @@ INCLUDE "data/pokemon/valid_variants.asm"
 
 GetWonderTradeHeldItem:
 ; Returns a level-scaled item reward
+	ld a, [wOTTrademonSpecies]
+	inc a ; cp EGG
+	ret z
 	push de
 	ld hl, wPartyMon1Level
 	ld bc, PARTYMON_STRUCT_LENGTH

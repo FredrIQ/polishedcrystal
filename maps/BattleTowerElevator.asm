@@ -1,6 +1,6 @@
 BattleTowerElevator_MapScriptHeader:
 	def_scene_scripts
-	scene_script BattleTowerElevatorTrigger0
+	scene_script BattleTowerElevatorFollowReceptionist
 
 	def_callbacks
 
@@ -18,9 +18,8 @@ BattleTowerElevator_MapScriptHeader:
 	object_const_def
 	const BATTLETOWERELEVATOR_RECEPTIONIST
 
-BattleTowerElevatorTrigger0:
-	priorityjump .RideElevator
-	setscene $1
+BattleTowerElevatorFollowReceptionist:
+	prioritysjump .RideElevator
 	end
 
 .RideElevator:

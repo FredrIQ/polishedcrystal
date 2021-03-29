@@ -26,7 +26,7 @@ MomTriesToBuySomething::
 
 .Script:
 	callasm .ASMFunction
-	farjump Script_ReceivePhoneCall
+	farsjump Script_ReceivePhoneCall
 
 .ASMFunction:
 	call MomBuysItem_DeductFunds
@@ -42,8 +42,8 @@ MomTriesToBuySomething::
 	ld bc, wCallerContact
 	ld hl, PHONE_CONTACT_TRAINER_CLASS
 	add hl, bc
-	ld [hl], TRAINER_NONE
-	inc hl
+	xor a ; TRAINER_NONE
+	ld [hli], a
 	ld [hl], PHONE_MOM
 	ld hl, PHONE_CONTACT_SCRIPT2_BANK
 	add hl, bc
@@ -75,11 +75,12 @@ CheckBalance_MomItem2:
 
 .check_have_2300
 	ld hl, hMoneyTemp
-	ld [hl], HIGH(2300 >> 8)
-	inc hl
-	ld [hl], HIGH(2300) ; mid
-	inc hl
-	ld [hl], LOW(2300)
+	xor a
+	assert MOM_MONEY < $10000
+	ld [hli], a
+	ld a, HIGH(MOM_MONEY)
+	ld [hli], a
+	ld [hl], LOW(MOM_MONEY)
 .loop
 	ld de, wMomItemTriggerBalance
 	ld bc, wMomsMoney
@@ -155,17 +156,17 @@ Mom_GetScriptPointer:
 	ret
 
 .ItemScript:
-	farwritetext UnknownText_0x1bc615
-	farwritetext UnknownText_0x1bc62a
-	farwritetext UnknownText_0x1bc64e
-	farwritetext UnknownText_0x1bc673
+	farwritetext _MomHiHowAreYouText
+	farwritetext _MomFoundAnItemText
+	farwritetext _MomBoughtWithYourMoneyText
+	farwritetext _MomItsInPCText
 	end
 
 .DollScript:
-	farwritetext UnknownText_0x1bc615
-	farwritetext UnknownText_0x1bc693
-	farwritetext UnknownText_0x1bc64e
-	farwritetext UnknownText_0x1bc6c7
+	farwritetext _MomHiHowAreYouText
+	farwritetext _MomFoundADollText
+	farwritetext _MomBoughtWithYourMoneyText
+	farwritetext _MomItsInYourRoomText
 	end
 
 GetItemFromMom:

@@ -1,5 +1,4 @@
-; move effects
-; TODO: remove unused effects
+; MoveEffectsPointers indexes (see data/moves/effects_pointers.asm)
 	const_def
 	const EFFECT_NORMAL_HIT
 	const EFFECT_PRIORITY_HIT
@@ -55,6 +54,9 @@
 	const EFFECT_GROWTH
 	const EFFECT_DRAGON_DANCE
 	const EFFECT_HONE_CLAWS
+	const EFFECT_DEFENSE_CURL
+	const EFFECT_MINIMIZE
+	const EFFECT_SHELL_SMASH
 	const EFFECT_ATTACK_DOWN
 	const EFFECT_DEFENSE_DOWN
 	const EFFECT_SPEED_DOWN
@@ -134,8 +136,6 @@
 	const EFFECT_THUNDER
 	const EFFECT_TELEPORT
 	const EFFECT_FLY
-	const EFFECT_DEFENSE_CURL
-	const EFFECT_MINIMIZE
 	const EFFECT_FLARE_BLITZ
 	const EFFECT_PSYSTRIKE
 	const EFFECT_JUMP_KICK
@@ -154,4 +154,4 @@
 	const EFFECT_LOW_KICK
 	const EFFECT_BRICK_BREAK
 	const EFFECT_TRICK_ROOM
-	const EFFECT_SHELL_SMASH
+NUM_MOVE_EFECTS EQU const_value

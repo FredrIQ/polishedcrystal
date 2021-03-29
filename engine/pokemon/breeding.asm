@@ -69,21 +69,21 @@ CheckBreedmonCompatibility:
 	ld a, [wBreedMon2Species]
 	ld [wCurSpecies], a
 	ld a, [wBreedMon2Form]
-	and FORM_MASK
+	and SPECIESFORM_MASK
 	ld [wCurForm], a
 	call GetBaseData
 	ld a, [wBaseEggGroups]
-	cp NO_EGGS * $11
+	cp EGG_NONE * $11
 	jr z, .Incompatible
 
 	ld a, [wBreedMon1Species]
 	ld [wCurSpecies], a
 	ld a, [wBreedMon1Form]
-	and FORM_MASK
+	and SPECIESFORM_MASK
 	ld [wCurForm], a
 	call GetBaseData
 	ld a, [wBaseEggGroups]
-	cp NO_EGGS * $11
+	cp EGG_NONE * $11
 	jr z, .Incompatible
 
 ; Ditto is automatically compatible with everything.
@@ -93,7 +93,7 @@ CheckBreedmonCompatibility:
 	jr z, .Compatible
 	ld [wCurSpecies], a
 	ld a, [wBreedMon2Form]
-	and FORM_MASK
+	and SPECIESFORM_MASK
 	ld [wCurForm], a
 	call GetBaseData
 	ld a, [wBaseEggGroups]
@@ -110,7 +110,7 @@ CheckBreedmonCompatibility:
 	jr z, .Compatible
 	ld [wCurSpecies], a
 	ld a, [wBreedMon1Form]
-	and FORM_MASK
+	and SPECIESFORM_MASK
 	ld [wCurForm], a
 	push bc
 	call GetBaseData
@@ -308,7 +308,7 @@ HatchEggs:
 	ld a, MON_FORM
 	call GetPartyParamLocation
 	ld a, [hl]
-	and FORM_MASK
+	and SPECIESFORM_MASK
 	ld [wCurForm], a
 
 	ld a, [wCurPartyMon]
@@ -367,7 +367,7 @@ HatchEggs:
 	ld a, [wPlayerID + 1]
 	ld [hl], a
 	ld a, [wCurPartyMon]
-	ld hl, wPartyMonOT
+	ld hl, wPartyMonOTs
 	ld bc, NAME_LENGTH
 	rst AddNTimes
 	ld d, h
@@ -426,8 +426,8 @@ HatchEggs:
 
 .Text_HatchEgg:
 	; Huh? @ @
-	text_jump UnknownText_0x1c0db0
-	start_asm
+	text_far Text_BreedHuh
+	text_asm
 	ld hl, wVramState
 	res 0, [hl]
 	push hl
@@ -448,17 +448,17 @@ HatchEggs:
 
 .ClearTextbox:
 	;
-	text_jump ClearText
+	text_far ClearText
 	text_end
 
 .CameOutOfItsEgg:
 	; came out of its EGG!@ @
-	text_jump UnknownText_0x1c0dba
+	text_far _BreedEggHatchText
 	text_end
 
 .Text_NicknameHatchling:
 	; Give a nickname to @ ?
-	text_jump UnknownText_0x1c0dd8
+	text_far _BreedAskNicknameText
 	text_end
 
 GetMotherAddr:
@@ -488,15 +488,15 @@ InitEggMoves:
 ; reversed inheritance priority
 
 	; Default level 1 moves
-	ld de, wEggMonMoves
+	ld de, wTempMonMoves
 	xor a
 	ld [wBuffer1], a
 	; c = species
-	ld a, [wEggMonSpecies]
+	ld a, [wTempMonSpecies]
 	ld c, a
 	; b = form
-	ld a, [wEggMonForm]
-	and FORM_MASK
+	ld a, [wTempMonForm]
+	and SPECIESFORM_MASK
 	ld b, a
 	predef FillMoves
 
@@ -533,7 +533,6 @@ InitEggMoves:
 	call InheritLevelMove
 	pop bc
 	pop hl
-	pop de
 	jr .level_up_done_inner
 
 .level_up_done
@@ -548,8 +547,8 @@ InitEggMoves:
 	call .GetEggMoves
 
 	; Done, fill PP
-	ld hl, wEggMonMoves
-	ld de, wEggMonPP
+	ld hl, wTempMonMoves
+	ld de, wTempMonPP
 	predef_jump FillPP
 
 .GetEggMoves:
@@ -571,11 +570,11 @@ InitEggMoves:
 InheritLevelMove:
 ; If move d is part of the level up moveset, inherit that move
 	; c = species
-	ld a, [wEggMonSpecies]
+	ld a, [wTempMonSpecies]
 	ld c, a
 	; b = form
-	ld a, [wEggMonForm]
-	and FORM_MASK
+	ld a, [wTempMonForm]
+	and SPECIESFORM_MASK
 	ld b, a
 	; bc = index
 	call GetSpeciesAndFormIndex
@@ -584,7 +583,7 @@ InheritLevelMove:
 	add hl, bc
 	add hl, bc
 	ld a, BANK(EvosAttacksPointers)
-	call GetFarHalfword
+	call GetFarWord
 .loop
 	ld a, BANK(EvosAttacks)
 	call GetFarByte
@@ -607,11 +606,11 @@ InheritLevelMove:
 InheritEggMove:
 ; If move d is an egg move, inherit that move
 	; c = species
-	ld a, [wEggMonSpecies]
+	ld a, [wTempMonSpecies]
 	ld c, a
 	; b = form
-	ld a, [wEggMonForm]
-	and FORM_MASK
+	ld a, [wTempMonForm]
+	and SPECIESFORM_MASK
 	ld b, a
 	; bc = index
 	call GetSpeciesAndFormIndex
@@ -620,7 +619,7 @@ InheritEggMove:
 	add hl, bc
 	add hl, bc
 	ld a, BANK(EggMovePointers)
-	call GetFarHalfword
+	call GetFarWord
 .loop
 	ld a, BANK(EggMoves)
 	call GetFarByte
@@ -633,7 +632,7 @@ InheritEggMove:
 	jr .loop
 
 InheritMove:
-	ld hl, wEggMonMoves
+	ld hl, wTempMonMoves
 	ld b, NUM_MOVES
 .loop
 	ld a, [hli]
@@ -647,8 +646,8 @@ InheritMove:
 	; shift moves
 	push de
 	ld bc, 3
-	ld hl, wEggMonMoves + 1
-	ld de, wEggMonMoves
+	ld hl, wTempMonMoves + 1
+	ld de, wTempMonMoves
 	rst CopyBytes
 	pop de
 .got_move_byte
@@ -906,7 +905,7 @@ Special_DayCareMon1:
 	bit 0, a
 	jr z, DayCareMonCursor
 	call ButtonSound
-	ld hl, wBreedMon2Nick
+	ld hl, wBreedMon2Nickname
 	call DayCareMonCompatibilityText
 	jp PrintText
 
@@ -919,7 +918,7 @@ Special_DayCareMon2:
 	bit 0, a
 	jr z, DayCareMonCursor
 	call ButtonSound
-	ld hl, wBreedMon1Nick
+	ld hl, wBreedMon1Nickname
 	call DayCareMonCompatibilityText
 	jp PrintText
 
@@ -928,12 +927,12 @@ DayCareMonCursor:
 
 DayCareMon2Text:
 	; It's @ that was left with the DAY-CARE LADY.
-	text_jump UnknownText_0x1c0df3
+	text_far _LeftWithDayCareLadyText
 	text_end
 
 DayCareMon1Text:
 	; It's @ that was left with the DAY-CARE MAN.
-	text_jump UnknownText_0x1c0e24
+	text_far _LeftWithDayCareManText
 	text_end
 
 DayCareMonCompatibilityText:
@@ -962,20 +961,20 @@ DayCareMonCompatibilityText:
 
 .Incompatible:
 	; It has no interest in @ .
-	text_jump UnknownText_0x1c0e6f
+	text_far _BreedNoInterestText
 	text_end
 
 .HighCompatibility:
 	; It appears to care for @ .
-	text_jump UnknownText_0x1c0e8d
+	text_far _BreedAppearsToCareForText
 	text_end
 
 .ModerateCompatibility:
 	; It's friendly with @ .
-	text_jump UnknownText_0x1c0eac
+	text_far _BreedFriendlyText
 	text_end
 
 .SlightCompatibility:
 	; It shows interest in @ .
-	text_jump UnknownText_0x1c0ec6
+	text_far _BreedShowsInterestText
 	text_end

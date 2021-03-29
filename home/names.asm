@@ -3,8 +3,8 @@ NamesPointers::
 	dba MoveNames
 	dba ApricornNames
 	dba ItemNames
-	dbw 0, wPartyMonOT
-	dbw 0, wOTPartyMonOT
+	dbw 0, wPartyMonOTs
+	dbw 0, wOTPartyMonOTs
 	dba TrainerClassNames
 	dba KeyItemNames
 
@@ -17,7 +17,7 @@ GetName::
 	push af
 
 	ld a, [wNamedObjectTypeBuffer]
-	cp PKMN_NAME
+	cp MON_NAME
 	jr nz, .NotPokeName
 
 	ld a, [wCurSpecies]
@@ -100,12 +100,17 @@ GetPokemonName::
 	push hl
 
 ; Each name is ten characters
-	xor a
-	ld d, a
-	ld h, a
+	push bc
 	ld a, [wNamedObjectIndexBuffer]
-	ld e, a
-	ld l, a
+	ld c, a
+	ld a, [wCurForm]
+	ld b, a
+	call GetExtendedSpeciesIndex
+	ld d, b
+	ld e, c
+	pop bc
+	ld h, d
+	ld l, e
 	add hl, hl ; hl = hl * 4
 	add hl, hl ; hl = hl * 4
 	add hl, de ; hl = (hl*4) + de

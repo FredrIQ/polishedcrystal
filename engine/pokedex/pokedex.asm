@@ -1875,7 +1875,7 @@ Pokedex_PlaceTypeString:
 	ld e, a
 	ld d, 0
 	ld hl, PokedexTypeSearchStrings
-rept 9
+rept POKEDEX_TYPE_STRING_LENGTH
 	add hl, de
 endr
 	ld e, l
@@ -2115,9 +2115,9 @@ Pokedex_PutScrollbarOAM:
 .asm_41333
 	ld a, e
 	sub c
-	ld e, a
-	ld a, d
-	sbc $0
+	ld e, a ; no-optimize a = X +/- carry
+	ld a, d ; no-optimize b|c|d|e|h|l -= carry
+	sbc 0
 	ld d, a
 	jr c, .asm_41341
 	inc b
@@ -2458,7 +2458,7 @@ NewPokedexEntry:
 .NewPokedexEntry:
 	xor a
 	ldh [hBGMapMode], a
-	farcall Pokedex_DrawDexEntryScreenRightEdge
+	call Pokedex_DrawDexEntryScreenRightEdge
 	call Pokedex_ResetBGMapMode
 	call DisableLCD
 	call LoadStandardFont
@@ -2471,10 +2471,10 @@ NewPokedexEntry:
 	ld [wDexMonForm], a
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_DrawFootprint
-	hlcoord 0, 17
-	ld [hl], $3b
-	inc hl
-	ld bc, 19
+	hlcoord 0, SCREEN_HEIGHT - 1
+	ld a, $3b
+	ld [hli], a
+	ld bc, SCREEN_WIDTH - 1
 	ld a, " "
 	rst ByteFill
 	farcall DisplayDexEntry
@@ -2521,5 +2521,4 @@ INCBIN "gfx/pokedex/slowpoke.2bpp.lz"
 QuestionMarkLZ:
 INCBIN "gfx/pokedex/question_mark.2bpp.lz"
 
-Footprints:
 INCLUDE "gfx/pokemon/footprints.asm"

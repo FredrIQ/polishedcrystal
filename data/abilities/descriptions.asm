@@ -1,4 +1,5 @@
 AbilityDescriptions:
+	table_width 2, AbilityDescriptions
 	dw NoAbilityDescription
 	dw StenchDescription
 	dw DrizzleDescription
@@ -65,6 +66,7 @@ AbilityDescriptions:
 	dw DroughtDescription
 	dw ArenaTrapDescription
 	dw VitalSpiritDescription
+	dw WhiteSmokeDescription
 	dw ShellArmorDescription
 	dw TangledFeetDescription
 	dw MotorDriveDescription
@@ -135,12 +137,16 @@ AbilityDescriptions:
 	dw ToughClawsDescription
 	dw PixilateDescription
 	dw ParentalBondDescription
+	dw BerserkDescription
 	dw SlushRushDescription
 	dw GalvanizeDescription
 	dw CorrosionDescription
 	dw TanglingHairDescription
+	dw GorillaTacticsDescription
 	dw NeutralizingGasDescription
 	dw PastelVeilDescription
+	dw QuickDrawDescription
+	assert_table_length NUM_ABILITIES
 
 NoAbilityDescription:
 	db    "Abilities are"
@@ -250,6 +256,7 @@ SynchronizeDescription:
 	next1 "or Brn to foes.@"
 
 ClearBodyDescription:
+WhiteSmokeDescription:
 	db    "Prevents foes from"
 	next1 "lowering stats.@"
 
@@ -678,6 +685,10 @@ ParentalBondDescription:
 	db    "Parent and child"
 	next1 "attack together.@"
 
+BerserkDescription:
+	db    "Ups Spcl.Atk. when"
+	next1 "damaged over half.@"
+
 SlushRushDescription:
 	db    "Boosts Speed in"
 	next1 "a hailstorm.@"
@@ -694,6 +705,14 @@ TanglingHairDescription:
 	db    "Contact may lower"
 	next1 "the foe's Speed.@"
 
+GorillaTacticsDescription:
+	db    "Boosts Attack, but"
+	next1 "allows one move.@"
+
 NeutralizingGasDescription:
 	db    "Suppresses all"
 	next1 "other Abilities.@"
+
+QuickDrawDescription:
+	db    "Moves first"
+	next1 "occasionally.@"

@@ -32,17 +32,26 @@ SECTION "bank3", ROMX
 
 INCLUDE "engine/events/checktime.asm"
 INCLUDE "engine/events/specials.asm"
-INCLUDE "engine/math/print_num.asm"
 INCLUDE "engine/pokemon/health.asm"
 INCLUDE "engine/events/overworld.asm"
 INCLUDE "engine/items/items.asm"
 INCLUDE "engine/battle/anim_hp_bar.asm"
 INCLUDE "engine/pokemon/move_mon.asm"
-INCLUDE "engine/pokemon/bills_pc_top.asm"
 INCLUDE "engine/pokemon/breedmon_level_growth.asm"
 INCLUDE "engine/events/bug_contest/caught_mon.asm"
 INCLUDE "engine/events/bug_contest/display_stats.asm"
 INCLUDE "engine/items/item_effects.asm"
+
+
+SECTION "Print Number", ROMX
+
+INCLUDE "engine/math/print_num.asm"
+
+
+SECTION "Bills PC", ROMX
+
+INCLUDE "engine/pokemon/bills_pc.asm"
+INCLUDE "engine/pokemon/bills_pc_ui.asm"
 
 
 SECTION "Poke Ball Effects", ROMX
@@ -141,6 +150,7 @@ INCLUDE "data/moves/effects.asm"
 SECTION "bankA", ROMX
 
 INCLUDE "engine/link/link.asm"
+INCLUDE "engine/movie/trade_animation.asm"
 
 
 SECTION "Wild Data", ROMX
@@ -224,12 +234,11 @@ INCLUDE "engine/events/buena_menu.asm"
 
 SECTION "Collision Permissions", ROMX
 
-INCLUDE "data/collision_permissions.asm"
+INCLUDE "data/collision/collision_permissions.asm"
 
 
 SECTION "bank13", ROMX
 
-INCLUDE "engine/menus/empty_sram.asm"
 INCLUDE "engine/events/checksave.asm"
 INCLUDE "data/maps/scenes.asm"
 INCLUDE "engine/rtc/reset_password.asm"
@@ -245,10 +254,8 @@ INCLUDE "engine/events/catch_tutorial.asm"
 INCLUDE "engine/movie/evolution_animation.asm"
 INCLUDE "engine/movie/init_hof_credits.asm"
 INCLUDE "engine/battle/sliding_intro.asm"
-INCLUDE "engine/battle/check_battle_scene.asm"
 INCLUDE "engine/movie/bsod.asm"
 INCLUDE "engine/events/judge_machine.asm"
-
 INCLUDE "engine/events/poisonstep.asm"
 INCLUDE "engine/events/squirtbottle.asm"
 INCLUDE "engine/events/card_key.asm"
@@ -265,7 +272,6 @@ INCLUDE "engine/pokemon/mon_stats.asm"
 INCLUDE "engine/pokemon/experience.asm"
 INCLUDE "engine/pokemon/switchpartymons.asm"
 INCLUDE "engine/gfx/load_pics.asm"
-INCLUDE "engine/pokemon/move_mon_wo_mail.asm"
 INCLUDE "data/pokemon/names.asm"
 INCLUDE "engine/pokemon/natures.asm"
 
@@ -429,7 +435,6 @@ SECTION "bank38", ROMX
 INCLUDE "engine/games/card_flip.asm"
 INCLUDE "engine/games/unown_puzzle.asm"
 ;INCLUDE "engine/games/memory_game.asm"
-INCLUDE "engine/pokemon/bills_pc.asm"
 INCLUDE "engine/gfx/fade.asm"
 
 

@@ -41,47 +41,52 @@
 ; used by PokemonActionSubmenu (see engine/pokemon/mon_menu.asm)
 	const_def 1
 	; moves
-	const MONMENU_CUT        ; 1
-	const MONMENU_FLY        ; 2
-	const MONMENU_SURF       ; 3
-	const MONMENU_STRENGTH   ; 4
-	const MONMENU_WATERFALL  ; 5
-	const MONMENU_FLASH      ; 6
-	const MONMENU_WHIRLPOOL  ; 7
-	const MONMENU_DIG        ; 8
-	const MONMENU_TELEPORT   ; 9
-	const MONMENU_FRESHSNACK ; 10
-	const MONMENU_HEADBUTT   ; 11
-	const MONMENU_ROCKSMASH  ; 12
+	const MONMENUITEM_CUT        ; 1
+	const MONMENUITEM_FLY        ; 2
+	const MONMENUITEM_SURF       ; 3
+	const MONMENUITEM_STRENGTH   ; 4
+	const MONMENUITEM_WATERFALL  ; 5
+	const MONMENUITEM_FLASH      ; 6
+	const MONMENUITEM_WHIRLPOOL  ; 7
+	const MONMENUITEM_DIG        ; 8
+	const MONMENUITEM_TELEPORT   ; 9
+	const MONMENUITEM_FRESHSNACK ; 10
+	const MONMENUITEM_HEADBUTT   ; 11
+	const MONMENUITEM_ROCKSMASH  ; 12
 	; options
-	const MONMENU_STATS      ; 13
-	const MONMENU_SWITCH     ; 14
-	const MONMENU_ITEM       ; 15
-	const MONMENU_CANCEL     ; 16
-	const MONMENU_MOVE       ; 17
-	const MONMENU_MAIL       ; 18
-	const MONMENU_ERROR      ; 19
+	const MONMENUITEM_STATS      ; 13
+	const MONMENUITEM_SWITCH     ; 14
+	const MONMENUITEM_ITEM       ; 15
+	const MONMENUITEM_CANCEL     ; 16
+	const MONMENUITEM_MOVE       ; 17
+	const MONMENUITEM_MAIL       ; 18
+	const MONMENUITEM_ERROR      ; 19
+NUM_MONMENUITEMS EQU const_value - 1
 
 ; MonMenuOptions categories
 MONMENU_FIELD_MOVE EQU 0
 MONMENU_MENUOPTION EQU 1
 
-NUM_MON_SUBMENU_ITEMS EQU 8
+NUM_MONMENU_ITEMS EQU 8
 
-SAVE_VERSION EQU 1
+; start/select menu return values
+HMENURETURN_SCRIPT EQU %10000000
+HMENURETURN_ASM    EQU %11111111
 
 ; PartyMenuQualityPointers indexes (see data/party_menu_qualities.asm)
 	const_def
 	const PARTYMENUACTION_CHOOSE_POKEMON
 	const PARTYMENUACTION_HEALING_ITEM
 	const PARTYMENUACTION_SWITCH
-	const PARTYMENUACTION_TEACH_TM
+	const PARTYMENUACTION_TEACH_TMHM
 	const PARTYMENUACTION_MOVE
 	const PARTYMENUACTION_EVO_STONE
 	const PARTYMENUACTION_GIVE_MON
-	const PARTYMENUACTION_GIVE_MON_FEMALE ; unused?
+	const PARTYMENUACTION_GIVE_MON_FEMALE ; unused
 	const PARTYMENUACTION_GIVE_ITEM
 	const PARTYMENUACTION_MOVE_RELEARNER
+	const PARTYMENUACTION_BATTLE_TOWER
+NUM_PARTYMENUACTIONS EQU const_value
 ; PrintPartyMenuActionText arguments (see engine/pokemon/party_menu.asm)
 	const_def $f0
 	const PARTYMENUTEXT_HEAL_PSN
@@ -94,3 +99,12 @@ SAVE_VERSION EQU 1
 	const PARTYMENUTEXT_REVIVE
 	const PARTYMENUTEXT_LEVEL_UP
 	const PARTYMENUTEXT_HEAL_CONFUSION
+
+; Naming types (see engine/menus/naming_screen.asm)
+	const_def
+	const NAME_MON
+	const NAME_PLAYER
+	const NAME_RIVAL
+	const NAME_TRENDY
+	const NAME_BOX
+NUM_NAME_TYPES EQU const_value

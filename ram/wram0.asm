@@ -14,16 +14,14 @@ wMusic::
 wMusicPlaying:: db ; nonzero if playing
 
 wChannels::
-wChannel1:: channel_struct wChannel1
-wChannel2:: channel_struct wChannel2
-wChannel3:: channel_struct wChannel3
-wChannel4:: channel_struct wChannel4
+for n, 1, NUM_MUSIC_CHANS + 1
+wChannel{d:n}:: channel_struct wChannel{d:n}
+endr
 
 wSFXChannels::
-wChannel5:: channel_struct wChannel5
-wChannel6:: channel_struct wChannel6
-wChannel7:: channel_struct wChannel7
-wChannel8:: channel_struct wChannel8
+for n, NUM_MUSIC_CHANS + 1, NUM_CHANNELS + 1
+wChannel{d:n}:: channel_struct wChannel{d:n}
+endr
 
 wCurTrackDuty:: db
 wCurTrackIntensity:: db
@@ -201,16 +199,9 @@ wSpriteAnimDict:: ds 10 * 2
 wSpriteAnimationStructs::
 ; Field  0: Index
 ; Fields 1-3: Loaded from SpriteAnimSeqData
-wSpriteAnim1::  sprite_anim_struct wSpriteAnim1
-wSpriteAnim2::  sprite_anim_struct wSpriteAnim2
-wSpriteAnim3::  sprite_anim_struct wSpriteAnim3
-wSpriteAnim4::  sprite_anim_struct wSpriteAnim4
-wSpriteAnim5::  sprite_anim_struct wSpriteAnim5
-wSpriteAnim6::  sprite_anim_struct wSpriteAnim6
-wSpriteAnim7::  sprite_anim_struct wSpriteAnim7
-wSpriteAnim8::  sprite_anim_struct wSpriteAnim8
-wSpriteAnim9::  sprite_anim_struct wSpriteAnim9
-wSpriteAnim10:: sprite_anim_struct wSpriteAnim10
+for n, 1, NUM_SPRITE_ANIM_STRUCTS + 1
+wSpriteAnim{d:n}:: sprite_anim_struct wSpriteAnim{d:n}
+endr
 wSpriteAnimationStructsEnd::
 
 wSpriteAnimCount:: db
@@ -275,46 +266,9 @@ wMusicPlayerWRAMEnd::
 SECTION "Sprites", WRAM0
 
 wVirtualOAM::
-wVirtualOAMSprite00:: sprite_oam_struct wVirtualOAMSprite00
-wVirtualOAMSprite01:: sprite_oam_struct wVirtualOAMSprite01
-wVirtualOAMSprite02:: sprite_oam_struct wVirtualOAMSprite02
-wVirtualOAMSprite03:: sprite_oam_struct wVirtualOAMSprite03
-wVirtualOAMSprite04:: sprite_oam_struct wVirtualOAMSprite04
-wVirtualOAMSprite05:: sprite_oam_struct wVirtualOAMSprite05
-wVirtualOAMSprite06:: sprite_oam_struct wVirtualOAMSprite06
-wVirtualOAMSprite07:: sprite_oam_struct wVirtualOAMSprite07
-wVirtualOAMSprite08:: sprite_oam_struct wVirtualOAMSprite08
-wVirtualOAMSprite09:: sprite_oam_struct wVirtualOAMSprite09
-wVirtualOAMSprite10:: sprite_oam_struct wVirtualOAMSprite10
-wVirtualOAMSprite11:: sprite_oam_struct wVirtualOAMSprite11
-wVirtualOAMSprite12:: sprite_oam_struct wVirtualOAMSprite12
-wVirtualOAMSprite13:: sprite_oam_struct wVirtualOAMSprite13
-wVirtualOAMSprite14:: sprite_oam_struct wVirtualOAMSprite14
-wVirtualOAMSprite15:: sprite_oam_struct wVirtualOAMSprite15
-wVirtualOAMSprite16:: sprite_oam_struct wVirtualOAMSprite16
-wVirtualOAMSprite17:: sprite_oam_struct wVirtualOAMSprite17
-wVirtualOAMSprite18:: sprite_oam_struct wVirtualOAMSprite18
-wVirtualOAMSprite19:: sprite_oam_struct wVirtualOAMSprite19
-wVirtualOAMSprite20:: sprite_oam_struct wVirtualOAMSprite20
-wVirtualOAMSprite21:: sprite_oam_struct wVirtualOAMSprite21
-wVirtualOAMSprite22:: sprite_oam_struct wVirtualOAMSprite22
-wVirtualOAMSprite23:: sprite_oam_struct wVirtualOAMSprite23
-wVirtualOAMSprite24:: sprite_oam_struct wVirtualOAMSprite24
-wVirtualOAMSprite25:: sprite_oam_struct wVirtualOAMSprite25
-wVirtualOAMSprite26:: sprite_oam_struct wVirtualOAMSprite26
-wVirtualOAMSprite27:: sprite_oam_struct wVirtualOAMSprite27
-wVirtualOAMSprite28:: sprite_oam_struct wVirtualOAMSprite28
-wVirtualOAMSprite29:: sprite_oam_struct wVirtualOAMSprite29
-wVirtualOAMSprite30:: sprite_oam_struct wVirtualOAMSprite30
-wVirtualOAMSprite31:: sprite_oam_struct wVirtualOAMSprite31
-wVirtualOAMSprite32:: sprite_oam_struct wVirtualOAMSprite32
-wVirtualOAMSprite33:: sprite_oam_struct wVirtualOAMSprite33
-wVirtualOAMSprite34:: sprite_oam_struct wVirtualOAMSprite34
-wVirtualOAMSprite35:: sprite_oam_struct wVirtualOAMSprite35
-wVirtualOAMSprite36:: sprite_oam_struct wVirtualOAMSprite36
-wVirtualOAMSprite37:: sprite_oam_struct wVirtualOAMSprite37
-wVirtualOAMSprite38:: sprite_oam_struct wVirtualOAMSprite38
-wVirtualOAMSprite39:: sprite_oam_struct wVirtualOAMSprite39
+for n, NUM_SPRITE_OAM_STRUCTS
+wVirtualOAMSprite{02d:n}:: sprite_oam_struct wVirtualOAMSprite{02d:n}
+endr
 wVirtualOAMEnd::
 
 
@@ -351,10 +305,6 @@ wOddEggName:: ds MON_NAME_LENGTH
 wOddEggOTName:: ds MON_NAME_LENGTH
 
 NEXTU
-; battle tower temp struct
-wBT_OTTemp:: battle_tower_struct wBT_OTTemp
-
-NEXTU
 ; hall of fame temp struct
 wHallOfFameTemp:: hall_of_fame wHallOfFameTemp
 
@@ -363,6 +313,11 @@ NEXTU
 wTimeSetBuffer:: ds 20
 wInitHourBuffer:: ds 13
 wInitMinuteBuffer:: ds 17
+
+NEXTU
+; link patch lists
+wPlayerPatchLists:: ds 200
+wOTPatchLists:: ds 200
 
 NEXTU
 ; link engine
@@ -379,8 +334,8 @@ wBattle::
 wEnemyMoveStruct::  move_struct wEnemyMoveStruct
 wPlayerMoveStruct:: move_struct wPlayerMoveStruct
 
-wEnemyMonNick::  ds MON_NAME_LENGTH
-wBattleMonNick:: ds MON_NAME_LENGTH
+wEnemyMonNickname::  ds MON_NAME_LENGTH
+wBattleMonNickname:: ds MON_NAME_LENGTH
 
 wBattleMon:: battle_struct wBattleMon
 
@@ -856,59 +811,94 @@ NEXTU
 wCreditsBlankFrame2bpp:: ds 8 * 8 * 2
 
 NEXTU
-; Bill's PC
-wBillsPCData::
-wBillsPCPokemonList::
-; (species, box number, list index) x30
-	ds 3 * 30
-	ds 721
-wBillsPC_ScrollPosition:: db
-wBillsPC_CursorPosition:: db
-wBillsPC_NumMonsInBox:: db
-wBillsPC_NumMonsOnScreen:: db
-wBillsPC_LoadedBox:: db ; 0 if party, 1 - 14 if box, 15 if active box
-wBillsPC_BackupScrollPosition:: db
-wBillsPC_BackupCursorPosition:: db
-wBillsPC_BackupLoadedBox:: db
-wBillsPC_MonHasMail:: db
-wBillsPCDataEnd::
+
+; If you change ordering of this, remember to fix LCD hblank code too.
+; Note that (as of when comment was written), hblank can't always keep up
+; if doing 4 pals in one go during party shifting.
+wBillsPC_CurPals::
+wBillsPC_CurPartyPals:: ds 2 * 2 * 2 ; 2 bytes per color, 2 colors, 2 mons
+wBillsPC_CurMonPals:: ds 2 * 2 * 4 ; 2 bytes per color, 2 colors, 4 mons
+
+; Stores palettes used for party+box.
+wBillsPC_PalList::
+wBillsPC_PokepicPal:: ds 2 * 2 * 1
+wBillsPC_PokerusShinyPal:: ds 2 * 2 * 1
+wBillsPC_MonPals1:: ds 2 * 2 * 4
+
+	ds 2 * 2 * 2 ; unused row2 BG2-3
+
+wBillsPC_MonPals2:: ds 2 * 2 * 4
+wBillsPC_PartyPals3:: ds 2 * 2 * 2
+wBillsPC_MonPals3:: ds 2 * 2 * 4
+wBillsPC_PartyPals4:: ds 2 * 2 * 2
+wBillsPC_MonPals4:: ds 2 * 2 * 4
+wBillsPC_PartyPals5:: ds 2 * 2 * 2
+wBillsPC_MonPals5:: ds 2 * 2 * 4
+
+; Species lists
+wBillsPC_PartyList:: ds 6 * 2
+wBillsPC_BoxList:: ds 20 * 2
+
+wBillsPC_HeldIcon:: dw
+wBillsPC_QuickIcon:: dw
+
+; Cursor data
+wBillsPC_CursorItem:: db ; what item is selected.
+wBillsPC_CursorPos:: db ; 0-3 * 4*row, row 0 is title. Bit 7 means in party.
+wBillsPC_CursorHeldBox:: db ; 0 for party, 1-15 otherwise
+wBillsPC_CursorHeldSlot:: db ; 0 for nothing held, or 1-20 (1-6 if party)
+wBillsPC_CursorDestBox:: db ; 0 for party, 1-15 otherwise
+wBillsPC_CursorDestSlot:: db ; 0 for release, or 1-20 (1-6 if party)
+wBillsPC_CursorMode:: db ; 0 for regular mode (red), 1 for swap mode (blue), 2 for item mode (green)
+wBillsPC_CursorAnimFlag:: db ; manage cursor behaviour
+wBillsPC_ItemVWF:: ds 10 tiles
+
+; Quick-move sprite data.
+wBillsPC_QuickFrom::
+wBillsPC_QuickFromBox:: db
+wBillsPC_QuickFromSlot:: db
+wBillsPC_QuickFromX:: db
+wBillsPC_QuickFromY:: db
+
+wBillsPC_QuickTo::
+wBillsPC_QuickToBox:: db
+wBillsPC_QuickToSlot:: db
+wBillsPC_QuickToX:: db
+wBillsPC_QuickToY:: db
+wBillsPC_QuickFrames:: db
+
+wBillsPC_ApplyThemePals:: db ; used by _CGB_BillsPC
 
 NEXTU
-; link data
-wLinkData::
+; raw link data
+wLinkData:: ds 1300
+wLinkDataEnd::
+
+NEXTU
+; link data members
 wLinkPlayerName:: ds NAME_LENGTH
 wLinkPartyCount:: db
 wLinkPartySpecies:: ds PARTY_LENGTH
 wLinkPartyEnd:: db ; older code doesn't check PartyCount
 
+UNION
+; link player data
 wLinkPlayerData::
-wLinkPlayerPartyMon1:: party_struct wLinkPlayerPartyMon1
-wLinkPlayerPartyMon2:: party_struct wLinkPlayerPartyMon2
-wLinkPlayerPartyMon3:: party_struct wLinkPlayerPartyMon3
-wLinkPlayerPartyMon4:: party_struct wLinkPlayerPartyMon4
-wLinkPlayerPartyMon5:: party_struct wLinkPlayerPartyMon5
-wLinkPlayerPartyMon6:: party_struct wLinkPlayerPartyMon6
-wLinkPlayerPartyMonOTNames:: ds PARTY_LENGTH * NAME_LENGTH
-wLinkPlayerPartyMonNicks:: ds PARTY_LENGTH * MON_NAME_LENGTH
-wLinkPlayerDataEnd::
-	ds 861
-wLinkDataEnd::
+for n, 1, PARTY_LENGTH + 1
+wLinkPlayerPartyMon{d:n}:: party_struct wLinkPlayerPartyMon{d:n}
+endr
 
-NEXTU
-; more link data
-; TODO: replace with meaningful labels
-	ds 271
-wc90f:: ds 229
-wc9f4:: ds 5
-wc9f9:: ds 145
-	ds 53
-wcabf:: ds 79
-wcb0e:: ds 5
-wcb13:: ds 113
-wcb84:: ds 102
-	ds 96
-wcc4a:: ds 84
-wcc9e:: ds 130
+wLinkPlayerPartyMonOTs::
+for n, 1, PARTY_LENGTH + 1
+wLinkPlayerPartyMon{d:n}OT:: ds NAME_LENGTH
+endr
+
+wLinkPlayerPartyMonNicknames::
+for n, 1, PARTY_LENGTH + 1
+wLinkPlayerPartyMon{d:n}Nickname:: ds MON_NAME_LENGTH
+endr
+wLinkPlayerDataEnd::
+
 NEXTU
 ; Assumes map blockdata for Pokécenters never exceed 308 bytes (size of PCC).
 	ds 308 ; may contain map blockdata
@@ -966,6 +956,35 @@ wPO_RNGPointer:: db
 
 ; current battle log pointer, useful for spectators
 wPO_BattleLog:: dw
+
+NEXTU
+; link patch lists
+wLinkPatchList1:: ds SERIAL_PATCH_LIST_LENGTH
+wLinkPatchList2:: ds SERIAL_PATCH_LIST_LENGTH
+ENDU
+
+NEXTU
+; link mail data
+	ds 500
+wLinkPlayerMail::
+wLinkPlayerMailPreamble:: ds SERIAL_MAIL_PREAMBLE_LENGTH
+wLinkPlayerMailMessages:: ds (MAIL_MSG_LENGTH + 1) * PARTY_LENGTH
+wLinkPlayerMailMetadata:: ds (MAIL_STRUCT_LENGTH - (MAIL_MSG_LENGTH + 1)) * PARTY_LENGTH
+wLinkPlayerMailPatchSet:: ds 103
+wLinkPlayerMailEnd::
+	ds 10
+wLinkOTMail::
+wLinkOTMailMessages:: ds (MAIL_MSG_LENGTH + 1) * PARTY_LENGTH
+wLinkOTMailMetadata:: ds (MAIL_STRUCT_LENGTH - (MAIL_MSG_LENGTH + 1)) * PARTY_LENGTH
+wOTPlayerMailPatchSet:: ds 103 + SERIAL_MAIL_PREAMBLE_LENGTH
+wLinkOTMailEnd::
+	ds 10
+
+NEXTU
+; received link mail data
+	ds 500
+wLinkReceivedMail:: ds MAIL_STRUCT_LENGTH * PARTY_LENGTH
+wLinkReceivedMailEnd:: db
 ENDU
 
 
@@ -980,7 +999,6 @@ wMemCGBLayout:: db
 UNION
 wCreditsPos:: dw
 wCreditsTimer:: db
-wCopyingSGBTileData:: db
 wTrainerCardBadgePaletteAddr:: dw
 
 NEXTU
@@ -994,13 +1012,18 @@ ENDU
 
 wTileAnimBuffer:: ds 1 tiles
 
-; addresses dealing with serial comms
+; link data
+UNION
 wOtherPlayerLinkMode:: db
 wOtherPlayerLinkAction:: db
 	ds 3
 wPlayerLinkAction:: db
-wcf57:: db ; TODO: replace with meaningful label
-	ds 3
+	ds 4
+NEXTU
+wLinkReceivedSyncBuffer:: ds 5
+wLinkPlayerSyncBuffer:: ds 5
+ENDU
+
 wLinkTimeoutFrames:: dw
 wLinkByteTimeout:: dw
 
@@ -1078,10 +1101,6 @@ wBattleTransitionSpinQuadrant:: db
 NEXTU
 ; stats screen
 wStatsScreenFlags:: db
-
-NEXTU
-; battle tower
-wNrOfBeatenBattleTowerTrainers:: db
 
 NEXTU
 ; miscellaneous
@@ -1203,7 +1222,7 @@ wTextDelayFrames:: db
 
 wGenericDelay:: db
 
-wGameTimerPause::
+wGameTimerPaused::
 ; bit 0
 	db
 
@@ -1243,7 +1262,13 @@ wOBP0:: db
 wOBP1:: db
 
 wNumHits:: db
-	ds 1 ; pretty sure wNumHits only needs one byte?
+
+wOptions3::
+; bit 0: keyword abc/qwerty
+; bits 1-7: unused
+	db
+
+wOptions::
 
 wOptions1::
 ; bit 0-1: text delay

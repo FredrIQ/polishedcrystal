@@ -30,6 +30,11 @@ CreditsSequence1GFX:: INCBIN "gfx/credits/sequence1.2bpp.lz"
 CreditsSequence2GFX:: INCBIN "gfx/credits/sequence2.2bpp.lz"
 
 
+SECTION "Trade Graphics", ROMX
+
+TradeScreenGFX:: INCBIN "gfx/trade/trade_screen.2bpp.lz"
+
+
 SECTION "Stats Graphics", ROMX
 
 GFX_Stats:: INCBIN "gfx/stats/stats_balls.2bpp.lz"
@@ -111,3 +116,9 @@ AnimObjDuskBallGFX::    INCBIN "gfx/battle_balls/dusk_ball.2bpp.lz"
 AnimObjDreamBallGFX::   INCBIN "gfx/battle_balls/dream_ball.2bpp.lz"
 AnimObjPremierBallGFX:: INCBIN "gfx/battle_balls/premier_ball.2bpp.lz"
 AnimObjCherishBallGFX:: INCBIN "gfx/battle_balls/cherish_ball.2bpp.lz"
+
+
+SECTION "SGB Border Graphics", ROMX
+
+SGBBorderGFX::
+INCBIN "gfx/sgb/sgb_border.4bpp.lz"

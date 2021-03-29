@@ -32,7 +32,7 @@ SpecialsPointers::
 	add_special ContestDropOffMons
 	add_special ContestReturnMons
 	add_special Special_GiveParkBalls
-	add_special Special_CheckMagikarpLength
+	add_special CheckMagikarpLength
 	add_special Special_MagikarpHouseSign
 	add_special HealParty
 	add_special PokemonCenterPC
@@ -78,7 +78,7 @@ SpecialsPointers::
 	add_special ToggleMaptileDecorations
 	add_special ToggleDecorationsVisibility
 	add_special SpecialGiveShuckie
-	add_special SpecialReturnShuckie
+	add_special ReturnShuckie
 	add_special TeachShuckiePoisonJab
 	add_special Special_BillsGrandfather
 	add_special SpecialCheckPokerus
@@ -100,8 +100,8 @@ SpecialsPointers::
 	add_special MapCallbackSprites_LoadUsedSpritesGFX
 	add_special PlaySlowCry
 	add_special SpecialSnorlaxAwake
-	add_special Special_YoungerHaircutBrother
 	add_special Special_OlderHaircutBrother
+	add_special Special_YoungerHaircutBrother
 	add_special Special_DaisyMassage
 	add_special PlayCurMonCry
 	add_special ProfOaksPCBoot
@@ -134,22 +134,18 @@ SpecialsPointers::
 	add_special Special_InitialClearDSTFlag
 
 ; Battle Tower
-	add_special Special_BattleTower_FindChallengeLevel
 	add_special Special_BattleTower_Battle
-	add_special Special_BattleTower_ResetTrainersSRAM
-	add_special Special_BattleTower_CheckNewSaveFile
+	add_special Special_BattleTower_GetBattleResult
+	add_special Special_BattleTower_CommitChallengeResult
 	add_special Special_BattleTower_GetChallengeState
 	add_special Special_BattleTower_SetChallengeState
-	add_special Special_BattleTower_MarkNewSaveFile
-	add_special Special_BattleTower_SaveLevelGroup
-	add_special Special_BattleTower_LoadLevelGroup
-	add_special Special_BattleTower_CheckSaveFileExistsAndIsYours
+	add_special Special_BattleTower_GenerateNextOpponent
+	add_special Special_BattleTower_NextRentalBattle
+	add_special Special_BattleTower_SetupRentalMode
+	add_special Special_BattleTower_SelectParticipants
 	add_special Special_BattleTower_MaxVolume
 	add_special Special_BattleTower_BeginChallenge
 	add_special Special_BattleTower_LoadOpponentTrainerAndPokemonsWithOTSprite
-	add_special Special_BattleTower_CheckForRules
-	add_special Special_BattleTower_MainMenu
-	add_special Special_BattleTower_Fade
 
 ; Polished Crystal
 	add_special SaveOptions
@@ -159,7 +155,6 @@ SpecialsPointers::
 	add_special GiveMystriEgg
 	add_special Special_ReiBlessing
 	add_special BillBoxSwitchCheck
-	add_special BillBoxSwitch
 	add_special HealPartyEvenForNuzlocke
 	add_special SaveMusic
 	add_special RestoreMusic

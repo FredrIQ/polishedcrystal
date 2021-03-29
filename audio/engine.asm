@@ -112,7 +112,7 @@ _UpdateSound::
 	; turn vibrato off for now
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	res SOUND_PITCH_WHEEL, [hl]
+	res SOUND_PITCH_SLIDE, [hl]
 	; get next note
 	call ParseMusic
 .continue_sound_update
@@ -210,27 +210,32 @@ UpdateChannels:
 	call StackJumpTable
 
 .Jumptable:
-	dw .wChannel1
-	dw .wChannel2
-	dw .wChannel3
-	dw .wChannel4
-; sfx ch ptrs are identical to music chs
-; ..except 5
-	dw .wChannel5
-	dw .wChannel6
-	dw .wChannel7
-	dw .wChannel8
+	table_width 2, UpdateChannels.Jumptable
+; music channels
+	dw .Channel1
+	dw .Channel2
+	dw .Channel3
+	dw .Channel4
+	assert_table_length NUM_MUSIC_CHANS
+; sfx channels
+; identical to music channels, except .Channel5 is not disabled by the low-HP danger sound
+; (instead, PlayDanger does not play the danger sound if sfx is playing)
+	dw .Channel5
+	dw .Channel6
+	dw .Channel7
+	dw .Channel8
+	assert_table_length NUM_CHANNELS
 
-.wChannel1:
+.Channel1:
 	ld a, [wLowHealthAlarm]
 	cp 255
-	jr z, .wChannel5
+	jr z, .Channel5
 	bit 7, a
 	ret nz
-.wChannel5:
+.Channel5:
 	ld hl, wChannel1NoteFlags - wChannel1
 	add hl, bc
-	bit NOTE_UNKN_3, [hl]
+	bit NOTE_PITCH_SWEEP, [hl]
 	jr z, .asm_e8159
 	ld a, [wSoundInput]
 	ldh [rNR10], a
@@ -293,8 +298,8 @@ UpdateChannels:
 	ldh [rNR14], a
 	ret
 
-.wChannel2:
-.wChannel6:
+.Channel2:
+.Channel6:
 	ld hl, wChannel1NoteFlags - wChannel1
 	add hl, bc
 	bit NOTE_REST, [hl] ; rest
@@ -345,8 +350,8 @@ UpdateChannels:
 	ldh [rNR24], a
 	ret
 
-.wChannel3:
-.wChannel7:
+.Channel3:
+.Channel7:
 	ld hl, wChannel1NoteFlags - wChannel1
 	add hl, bc
 	bit NOTE_REST, [hl] ; rest
@@ -354,10 +359,8 @@ UpdateChannels:
 	bit NOTE_NOISE_SAMPLING, [hl]
 	jr nz, .asm_e824d
 	bit NOTE_VIBRATO_OVERRIDE, [hl]
-	jr nz, .asm_e823a
-	ret
+	ret z
 
-.asm_e823a
 	ld a, [wCurTrackFrequency]
 	ldh [rNR33], a
 	ret
@@ -394,8 +397,8 @@ UpdateChannels:
 	ldh [rNR32], a
 	ret
 
-.wChannel4:
-.wChannel8:
+.Channel4:
+.Channel8:
 	ld hl, wChannel1NoteFlags - wChannel1
 	add hl, bc
 	bit NOTE_REST, [hl] ; rest
@@ -627,7 +630,7 @@ LoadNote:
 	; wait for pitch wheel to finish
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	bit SOUND_PITCH_WHEEL, [hl]
+	bit SOUND_PITCH_SLIDE, [hl]
 	ret z
 	; get note duration
 	ld hl, wChannel1NoteDuration - wChannel1
@@ -657,8 +660,8 @@ LoadNote:
 	ld a, e
 	sub [hl]
 	ld e, a
-	ld a, d
-	sbc 0
+	sbc d
+	add e
 	ld d, a
 	ld hl, wChannel1PitchWheelTarget + 1 - wChannel1
 	add hl, bc
@@ -666,7 +669,7 @@ LoadNote:
 	jr nc, .greater_than
 	ld hl, wChannel1Flags3 - wChannel1
 	add hl, bc
-	set SOUND_PITCH_WHEEL_DIR, [hl]
+	set SOUND_PITCH_SLIDE_DIR, [hl]
 	; get frequency
 	ld hl, wChannel1Frequency - wChannel1
 	add hl, bc
@@ -679,8 +682,8 @@ LoadNote:
 	ld a, [hl]
 	sub e
 	ld e, a
-	ld a, d
-	sbc 0
+	sbc d
+	add e
 	ld d, a
 	ld hl, wChannel1PitchWheelTarget + 1 - wChannel1
 	add hl, bc
@@ -692,7 +695,7 @@ LoadNote:
 .greater_than
 	ld hl, wChannel1Flags3 - wChannel1
 	add hl, bc
-	res SOUND_PITCH_WHEEL_DIR, [hl]
+	res SOUND_PITCH_SLIDE_DIR, [hl]
 	; get frequency
 	ld hl, wChannel1Frequency - wChannel1
 	add hl, bc
@@ -705,8 +708,8 @@ LoadNote:
 	ld a, e
 	sub [hl]
 	ld e, a
-	ld a, d
-	sbc 0
+	sbc d
+	add e
 	ld d, a
 	; ????
 	ld hl, wChannel1PitchWheelTarget + 1 - wChannel1
@@ -753,7 +756,7 @@ HandleTrackVibrato:
 ; handle duty, cry pitch, and vibrato
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	bit SOUND_DUTY, [hl] ; duty
+	bit SOUND_DUTY_LOOP, [hl] ; duty
 	jr z, .next
 	ld hl, wChannel1SFXDutyLoop - wChannel1
 	add hl, bc
@@ -769,7 +772,7 @@ HandleTrackVibrato:
 .next
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	bit SOUND_CRY_PITCH, [hl]
+	bit SOUND_PITCH_OFFSET, [hl]
 	jr z, .vibrato
 	ld hl, wChannel1CryPitch - wChannel1
 	add hl, bc
@@ -869,7 +872,7 @@ ApplyPitchWheel:
 	; quit if pitch wheel inactive
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	bit SOUND_PITCH_WHEEL, [hl]
+	bit SOUND_PITCH_SLIDE, [hl]
 	ret z
 	; de = Frequency
 	ld hl, wChannel1Frequency - wChannel1
@@ -880,7 +883,7 @@ ApplyPitchWheel:
 	; check whether pitch wheel is going up or down
 	ld hl, wChannel1Flags3 - wChannel1
 	add hl, bc
-	bit SOUND_PITCH_WHEEL_DIR, [hl]
+	bit SOUND_PITCH_SLIDE_DIR, [hl]
 	jr z, .decreasing
 	; frequency += [Channel*PitchWheelAmount]
 	ld hl, wChannel1PitchWheelAmount - wChannel1
@@ -899,12 +902,9 @@ ApplyPitchWheel:
 	add hl, bc
 	add [hl]
 	ld [hl], a
-	adc e
-	sub [hl]
-	ld e, a
-	adc d
-	sub e
-	ld d, a
+	jr nc, .no_increment
+	inc de
+.no_increment
 	; Compare the dw at [Channel*PitchWheelTarget] to de.
 	; If frequency is greater, we're finished.
 	; Otherwise, load the frequency and set two flags.
@@ -929,8 +929,8 @@ ApplyPitchWheel:
 	ld e, [hl]
 	sub e
 	ld e, a
-	ld a, d
-	sbc 0
+	sbc d
+	add e
 	ld d, a
 	; [Channel*Field0x25] *= 2
 	; if rollover: Frequency -= 1
@@ -939,12 +939,9 @@ ApplyPitchWheel:
 	ld a, [hl]
 	add a
 	ld [hl], a
-	ld a, e
-	sbc 0
-	ld e, a
-	ld a, d
-	sbc 0
-	ld d, a
+	jr nc, .no_decrement
+	dec de
+.no_decrement
 	; Compare the dw at [Channel*PitchWheelTarget] to de.
 	; If frequency is lower, we're finished.
 	; Otherwise, load the frequency and set two flags.
@@ -962,10 +959,10 @@ ApplyPitchWheel:
 .finished_pitch_wheel
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	res SOUND_PITCH_WHEEL, [hl]
+	res SOUND_PITCH_SLIDE, [hl]
 	ld hl, wChannel1Flags3 - wChannel1
 	add hl, bc
-	res SOUND_PITCH_WHEEL_DIR, [hl]
+	res SOUND_PITCH_SLIDE_DIR, [hl]
 	ret
 
 .continue_pitch_wheel
@@ -1300,8 +1297,8 @@ ParseMusicCommand:
 	call StackJumpTable
 
 MusicCommands:
-; pointer to each command in order
-	; octaves
+; entries correspond to audio constants (see macros/scripts/audio.asm)
+	table_width 2, MusicCommands
 	dw Music_Octave8 ; octave 8
 	dw Music_Octave7 ; octave 7
 	dw Music_Octave6 ; octave 6
@@ -1350,6 +1347,7 @@ MusicCommands:
 	dw Music_LoopChannel ; loop
 	dw Music_CallChannel ; call
 	dw Music_EndChannel ; return
+	assert_table_length $100 - FIRST_MUSIC_CMD
 
 MusicE2:
 MusicE7:
@@ -1638,7 +1636,7 @@ Music_SlidePitchTo:
 	ld [hl], d
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	set SOUND_PITCH_WHEEL, [hl]
+	set SOUND_PITCH_SLIDE, [hl]
 	ret
 
 Music_Tone:
@@ -1646,7 +1644,7 @@ Music_Tone:
 ; params: 1 (dw)
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	set SOUND_CRY_PITCH, [hl]
+	set SOUND_PITCH_OFFSET, [hl]
 	ld hl, wChannel1CryPitch + 1 - wChannel1
 	add hl, bc
 	call GetMusicByte
@@ -1660,7 +1658,7 @@ Music_SoundDuty:
 ; params: 1 (4 2-bit duty cycle arguments)
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	set SOUND_DUTY, [hl] ; duty cycle
+	set SOUND_DUTY_LOOP, [hl] ; duty cycle
 	; sound duty sequence
 	call GetMusicByte
 	rrca
@@ -1757,7 +1755,7 @@ Music_SoundStatus:
 	ld [wSoundInput], a
 	ld hl, wChannel1NoteFlags - wChannel1
 	add hl, bc
-	set NOTE_UNKN_3, [hl]
+	set NOTE_PITCH_SWEEP, [hl]
 	ret
 
 Music_DutyCycle:
@@ -1798,11 +1796,9 @@ Music_Tempo:
 	ld a, [wTempoAdjustment]
 	ld l, a
 	bit 7, a
-	jr nz, .negative
 	ld h, 0
-	jr .ok
-.negative
-	ld h, $ff
+	jr z, .ok
+	dec h ; negative
 .ok
 	add hl, de
 	push hl
@@ -2280,7 +2276,7 @@ _PlayCryHeader::
 
 	ld hl, wChannel1Flags2 - wChannel1
 	add hl, bc
-	set SOUND_CRY_PITCH, [hl]
+	set SOUND_PITCH_OFFSET, [hl]
 
 	ld hl, wChannel1CryPitch - wChannel1
 	add hl, bc
@@ -2687,16 +2683,19 @@ MonoOrStereoTracks:
 	db $11, $22, $44, $88
 
 ChannelPointers:
+	table_width 2, ChannelPointers
 ; music channels
 	dw wChannel1
 	dw wChannel2
 	dw wChannel3
 	dw wChannel4
+	assert_table_length NUM_MUSIC_CHANS
 ; sfx channels
 	dw wChannel5
 	dw wChannel6
 	dw wChannel7
 	dw wChannel8
+	assert_table_length NUM_CHANNELS
 
 ClearChannel:
 ; input: hl = beginning hw sound register (rNR10, rNR20, rNR30, rNR40)

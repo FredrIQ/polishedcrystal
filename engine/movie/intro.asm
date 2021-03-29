@@ -401,10 +401,8 @@ IntroScene10:
 	cp $20
 	jr z, .wooper
 	cp $40
-	jr z, .pichu
-	ret
-
-.pichu
+	ret nz
+; pichu
 	depixel 21, 16, 1, 0
 	ld a, SPRITE_ANIM_INDEX_INTRO_PICHU
 	jr .got_anim
@@ -856,9 +854,7 @@ IntroScene22:
 	ld a, [hl]
 	inc [hl]
 	cp $8
-	jr nc, .done
-	ret
-.done
+	ret c
 	farcall DeinitializeAllSprites
 	jp NextIntroScene
 
@@ -1107,7 +1103,7 @@ CrystalIntro_InitUnownAnim:
 	push de
 	ld a, SPRITE_ANIM_INDEX_INTRO_UNOWN
 	call _InitSpriteAnimStruct
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld [hl], $8
 	ld a, SPRITE_ANIM_FRAMESET_INTRO_UNOWN_4
@@ -1117,7 +1113,7 @@ CrystalIntro_InitUnownAnim:
 	push de
 	ld a, SPRITE_ANIM_INDEX_INTRO_UNOWN
 	call _InitSpriteAnimStruct
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld [hl], $18
 	ld a, SPRITE_ANIM_FRAMESET_INTRO_UNOWN_3
@@ -1127,7 +1123,7 @@ CrystalIntro_InitUnownAnim:
 	push de
 	ld a, SPRITE_ANIM_INDEX_INTRO_UNOWN
 	call _InitSpriteAnimStruct
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld [hl], $28
 	ld a, SPRITE_ANIM_FRAMESET_INTRO_UNOWN_1
@@ -1136,7 +1132,7 @@ CrystalIntro_InitUnownAnim:
 
 	ld a, SPRITE_ANIM_INDEX_INTRO_UNOWN
 	call _InitSpriteAnimStruct
-	ld hl, SPRITEANIMSTRUCT_0C
+	ld hl, SPRITEANIMSTRUCT_VAR1
 	add hl, bc
 	ld [hl], $38
 	ld a, SPRITE_ANIM_FRAMESET_INTRO_UNOWN_2
@@ -1234,10 +1230,8 @@ endc
 .BWFade:
 ; Fade between black and white.
 if !DEF(MONOCHROME)
-hue = 0
-rept 32
+for hue, 32
 	RGB hue, hue, hue
-hue = hue + 1
 endr
 else
 rept 8
@@ -1257,10 +1251,8 @@ endc
 .BlackLBlueFade:
 ; Fade between black and light blue.
 if !DEF(MONOCHROME)
-hue = 0
-rept 32
+for hue, 32
 	RGB 0, hue / 2, hue
-hue = hue + 1
 endr
 else
 rept 8
@@ -1280,10 +1272,8 @@ endc
 .BlackBlueFade:
 ; Fade between black and blue.
 if !DEF(MONOCHROME)
-hue = 0
-rept 32
+for hue, 32
 	RGB 0, 0, hue
-hue = hue + 1
 endr
 else
 rept 8
@@ -1405,12 +1395,9 @@ endr
 
 .FastFadePalettes:
 if !DEF(MONOCHROME)
-hue = 31
-rept 8
+for hue, 31, 9, -3
 	RGB hue, hue, hue
-hue = hue - 1
-	RGB hue, hue, hue
-hue = hue - 2
+	RGB hue - 1, hue - 1, hue - 1
 endr
 else
 rept 4
@@ -1429,10 +1416,8 @@ endc
 
 .SlowFadePalettes:
 if !DEF(MONOCHROME)
-hue = 31
-rept 16
+for hue, 31, 15, -1
 	RGB hue, hue, hue
-hue = hue - 1
 endr
 else
 rept 8
@@ -1485,10 +1470,7 @@ Intro_Scene16_AnimateSuicune:
 	and $3
 	jr z, Intro_ColoredSuicuneFrameSwap
 	cp $3
-	jr z, .PrepareForSuicuneSwap
-	ret
-
-.PrepareForSuicuneSwap:
+	ret nz
 	xor a
 	ldh [hBGMapMode], a
 	ret

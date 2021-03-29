@@ -73,9 +73,7 @@ EnterMap:
 
 	ldh a, [hMapEntryMethod]
 	cp MAPSETUP_CONNECTION
-	jr nz, .dont_enable
-	call EnableEvents
-.dont_enable
+	call z, EnableEvents
 
 	ldh a, [hMapEntryMethod]
 	cp MAPSETUP_RELOADMAP
@@ -113,7 +111,7 @@ MapEvents:
 	ret nz
 	call PlayerEvents
 	call DisableEvents
-	farjp ScriptEvents
+	jp ScriptEvents
 
 NextOverworldFrame:
 	; If we haven't already performed a delay outside DelayFrame as a result
@@ -240,7 +238,7 @@ PlayerEvents:
 
 .ok
 	push af
-	farcall EnableScriptMode
+	call EnableScriptMode
 	pop af
 
 	ld [wScriptRunning], a
@@ -369,7 +367,7 @@ RunSceneScript:
 
 	ld a, [wMapScriptsBank]
 	ld b, a
-	call GetFarHalfword
+	call GetFarWord
 	ld a, b
 	call GetFarByte
 	cp end_command
@@ -380,8 +378,8 @@ RunSceneScript:
 	ld hl, wScriptFlags
 	res 3, [hl]
 
-	farcall EnableScriptMode
-	farcall ScriptEvents
+	call EnableScriptMode
+	call ScriptEvents
 
 	ld hl, wScriptFlags
 	bit 3, [hl]
@@ -500,18 +498,20 @@ TryObjectEvent:
 	ld a, [hl]
 	and %00001111
 
-	cp NUM_OBJECTTYPES
+	cp NUM_OBJECT_TYPES
 	ret nc
 
 	call StackJumpTable
 
-.pointers:
+ObjectEventTypeArray:
+	table_width 2, ObjectEventTypeArray
 	dw .script   ; OBJECTTYPE_SCRIPT
 	dw .itemball ; OBJECTTYPE_ITEMBALL
 	dw .trainer  ; OBJECTTYPE_TRAINER
 	dw .trainer  ; OBJECTTYPE_GENERICTRAINER
 	dw .pokemon  ; OBJECTTYPE_POKEMON
 	dw .command  ; OBJECTTYPE_COMMAND
+	assert_table_length NUM_OBJECT_TYPES
 
 .script:
 	ld hl, MAPOBJECT_SCRIPT_POINTER
@@ -587,10 +587,11 @@ TryBGEvent:
 .IsBGEvent:
 	ld a, [wCurBGEventType]
 	cp BGEVENT_ITEM
-	jp nc, .itemifset
+	jp nc, BGEventJumptable.itemifset
 	call StackJumpTable
 
-.signs
+BGEventJumptable:
+	table_width 2, BGEventJumptable
 	dw .read     ; BGEVENT_READ
 	dw .up       ; BGEVENT_UP
 	dw .down     ; BGEVENT_DOWN
@@ -601,6 +602,7 @@ TryBGEvent:
 	dw .jumptext ; BGEVENT_JUMPTEXT
 	dw .jumpstd  ; BGEVENT_JUMPSTD
 	dw .ifnotset ; BGEVENT_GROTTOITEM
+	assert_table_length NUM_BGEVENTS
 
 .up
 	ld b, OW_UP
@@ -698,7 +700,7 @@ TryBGEvent:
 	ld [hld], a
 	ld a, [wCurBGEventScriptAddr + 1]
 	ld [hld], a
-	ld [hl], writebyte_command ; just to be safe (as opposed to directly writing to hScriptVar)
+	ld [hl], setval_command ; just to be safe (as opposed to directly writing to hScriptVar)
 	jr .callMapScriptAndReturnCarry
 
 CheckBGEventFlag:
@@ -708,7 +710,7 @@ CheckBGEventFlag:
 	ld l, a
 	push hl
 	ld a, [wMapScriptsBank]
-	call GetFarHalfword
+	call GetFarWord
 	ld e, l
 	ld d, h
 	ld b, CHECK_FLAG
@@ -723,56 +725,57 @@ INCLUDE "engine/events/hidden_item.asm"
 PlayerMovement:
 	farcall DoPlayerMovement
 	ld a, c
-	ld hl, .pointers
+	ld hl, PlayerMovementPointers
 	call JumpTable
 	ld a, c
 	ret
 
-.pointers
-	dw .zero
-	dw .one
-	dw .two
-	dw .three
-	dw .four
-	dw .five
-	dw .six
-	dw .seven
+PlayerMovementPointers:
+; entries correspond to PLAYERMOVEMENT_* constants
+	table_width 2, PlayerMovementPointers
+	dw .normal
+	dw .warp
+	dw .turn
+	dw .force_turn
+	dw .finish
+	dw .continue
+	dw .exit_water
+	dw .jump
+	assert_table_length NUM_PLAYER_MOVEMENTS
 
-.zero
-.four
+.normal:
+.finish:
 	xor a
 	ld c, a
 	ret
 
-.seven ; functionally the same as zero/four?
+.jump: ; functionally the same as normal/finish?
 	xor a
 	ld c, a
 	ret
 
-.one
-	ld a, 5
+.warp:
+	ld a, PLAYEREVENT_WARP
 	ld c, a
 	scf
 	ret
 
-.two
-	ld a, 9
+.turn:
+	ld a, PLAYEREVENT_JOYCHANGEFACING
 	ld c, a
 	scf
 	ret
 
-.three
-; force the player to move in some direction
+.force_turn:
 	ld a, BANK(Script_ForcedMovement)
 	ld hl, Script_ForcedMovement
 	call CallScript
-;	ld a, -1
 	ld c, a
 	scf
 	ret
 
-.five
-.six
+.continue:
+.exit_water:
 	ld a, -1
 	ld c, a
 	and a
@@ -809,24 +812,24 @@ CheckMenuOW:
 
 StartMenuScript:
 	callasm StartMenu
-	jump StartMenuCallback
+	sjump StartMenuCallback
 
 SelectMenuScript:
 	callasm SelectMenu
-	jump SelectMenuCallback
+	sjump SelectMenuCallback
 
 StartMenuCallback:
 SelectMenuCallback:
-	copybytetovar hMenuReturn
+	readmem hMenuReturn
 	ifequal HMENURETURN_SCRIPT, .Script
 	ifequal HMENURETURN_ASM, .Asm
 	end
 
 .Script:
-	ptjump wQueuedScriptBank
+	memjump wQueuedScriptBank
 
 .Asm:
-	ptcallasm wQueuedScriptBank
+	memcallasm wQueuedScriptBank
 	end
 
 CountStep:
@@ -879,7 +882,7 @@ CountStep:
 	jr c, .doscript
 
 .skip_poison
-	farcall DoBikeStep
+	call DoBikeStep
 
 .done
 	xor a
@@ -920,7 +923,7 @@ DoRepelStep:
 	ret
 
 RepelWoreOffScript:
-	farjumptext UnknownText_0x1bd308
+	farjumptext _RepelWoreOffText
 
 UseAnotherRepelScript:
 	opentext
@@ -956,7 +959,9 @@ DoPlayerEvent:
 	ret
 
 PlayerEventScriptPointers:
-	dba Invalid_0x96c2d          ; PLAYEREVENT_NONE
+; entries correspond to PLAYEREVENT_* constants
+	table_width 3, PlayerEventScriptPointers
+	dba InvalidEventScript       ; PLAYEREVENT_NONE
 	dba SeenByTrainerScript      ; PLAYEREVENT_SEENBYTRAINER
 	dba TalkToTrainerScript      ; PLAYEREVENT_TALKTOTRAINER
 	dba FindItemInBallScript     ; PLAYEREVENT_ITEMBALL
@@ -968,11 +973,12 @@ PlayerEventScriptPointers:
 	dba ChangeDirectionScript    ; PLAYEREVENT_JOYCHANGEFACING
 	dba FindTMHMInBallScript     ; PLAYEREVENT_TMHMBALL
 	dba FindKeyItemInBallScript  ; PLAYEREVENT_KEYITEMBALL
-	dba Invalid_0x96c2d          ; NUM_PLAYER_EVENTS
+	dba InvalidEventScript       ; (NUM_PLAYER_EVENTS)
+	assert_table_length NUM_PLAYER_EVENTS + 1
 
 HatchEggScript:
 	callasm OverworldHatchEgg
-Invalid_0x96c2d:
+InvalidEventScript:
 	end
 
 WarpToNewMapScript:
@@ -983,12 +989,12 @@ WarpToNewMapScript:
 FallIntoMapScript:
 	newloadmap MAPSETUP_FALL
 	playsound SFX_KINESIS
-	applymovement PLAYER, MovementData_0x96c48
+	applymovement PLAYER, .SkyfallMovement
 	playsound SFX_STRENGTH
 	scall LandAfterPitfallScript
 	end
 
-MovementData_0x96c48:
+.SkyfallMovement:
 	skyfall
 	step_end
 
@@ -997,7 +1003,7 @@ LandAfterPitfallScript:
 	end
 
 EdgeWarpScript: ; 4
-	reloadandreturn MAPSETUP_CONNECTION
+	reloadend MAPSETUP_CONNECTION
 
 ChangeDirectionScript: ; 9
 	deactivatefacing 6
@@ -1041,8 +1047,8 @@ LoadScriptBDE::
 	and a
 	ret nz
 ; Set the flag
-	ld [hl], 1
-	inc hl
+	inc a ; 1
+	ld [hli], a
 ; Load the script pointer b:de into (wMapReentryScriptBank):(wMapReentryScriptAddress)
 	ld [hl], b
 	inc hl

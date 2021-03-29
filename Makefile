@@ -14,7 +14,7 @@ RGBDS_DIR =
 endif
 
 RGBASM_FLAGS = -E -Weverything
-RGBLINK_FLAGS = -n $(ROM_NAME).sym -m $(ROM_NAME).map -l contents/contents.link -p $(FILLER)
+RGBLINK_FLAGS = -n $(ROM_NAME).sym -m $(ROM_NAME).map -l layout.link -p $(FILLER)
 RGBFIX_FLAGS = -csjv -t $(TITLE) -i $(MCODE) -n $(ROMVERSION) -p $(FILLER) -k 01 -l 0x33 -m 0x10 -r 3
 
 ifeq ($(filter faithful,$(MAKECMDGOALS)),faithful)
@@ -35,14 +35,6 @@ endif
 ifeq ($(filter debug,$(MAKECMDGOALS)),debug)
 RGBASM_FLAGS += -DDEBUG
 endif
-
-
-roms_md5      = roms.md5
-bank_ends_txt = contents/bank_ends.txt
-copied_sym    = contents/$(NAME).sym
-copied_map    = contents/$(NAME).map
-copied_gbc    = contents/$(NAME).gbc
-
 
 crystal_obj := \
 main.o \
@@ -66,13 +58,11 @@ gfx/misc.o
 
 
 .SUFFIXES:
-.PHONY: all clean tidy crystal faithful nortc debug monochrome freespace compare tools
+.PHONY: clean tidy crystal faithful nortc debug monochrome freespace tools bsp
 .SECONDEXPANSION:
 .PRECIOUS: %.2bpp %.1bpp
 .SECONDARY:
-
-
-all: crystal freespace
+.DEFAULT_GOAL: crystal
 
 crystal: ROM_NAME = $(NAME)-$(VERSION)
 crystal: $(NAME)-$(VERSION).gbc
@@ -84,33 +74,24 @@ noir: crystal
 hgss: crystal
 debug: crystal
 
-freespace: $(bank_ends_txt) $(roms_md5) $(copied_sym) $(copied_map) $(copied_gbc)
-
 tools:
 	$(MAKE) -C tools/
 
 clean: tidy
 	find gfx maps data/tilesets -name '*.lz' -delete
-	find gfx \( -name '*.[12]bpp' -o -name '*.2bpp.vram[012]' \) -delete
+	find gfx \( -name '*.[12]bpp' -o -name '*.2bpp.vram[012]' -o -name '*.2bpp.vram[012]p' \) -delete
 	find gfx/pokemon -mindepth 1 \( -name 'bitmask.asm' -o -name 'frames.asm' -o -name 'front.animated.tilemap' -o -name 'front.dimensions' \) -delete
 	find data/tilesets -name '*_collision.bin' -delete
-
-tidy:
-	rm -f $(crystal_obj) $(wildcard $(NAME)-*.gbc) $(wildcard $(NAME)-*.map) $(wildcard $(NAME)-*.sym)
 	$(MAKE) clean -C tools/
 
-compare: crystal
-	md5sum -b -c $(roms_md5)
+tidy:
+	rm -f $(crystal_obj) $(wildcard $(NAME)-*.gbc) $(wildcard $(NAME)-*.map) $(wildcard $(NAME)-*.sym) $(wildcard $(NAME)-*.bsp)
 
+freespace: ROM_NAME = $(NAME)-$(VERSION)
+freespace: crystal tools/bankends
+	tools/bankends $(ROM_NAME).map > bank_ends.txt
 
-$(bank_ends_txt): ROM_NAME = $(NAME)-$(VERSION)
-$(bank_ends_txt): crystal tools/bankends
-	tools/bankends $(ROM_NAME).map > $@
-
-$(roms_md5): crystal ; md5sum -b $(NAME)-$(VERSION).gbc > $@
-$(copied_sym): crystal ; cp $(NAME)-$(VERSION).sym $@
-$(copied_map): crystal ; cp $(NAME)-$(VERSION).map $@
-$(copied_gbc): crystal ; cp $(NAME)-$(VERSION).gbc $@
+bsp: $(NAME)-$(VERSION).bsp
 
 
 define DEP
@@ -124,10 +105,15 @@ $(foreach obj, $(crystal_obj), $(eval $(call DEP,$(obj),$(obj:.o=.asm))))
 endif
 
 
-.gbc:
+.gbc: tools/bankends
 %.gbc: $(crystal_obj)
 	$(RGBDS_DIR)rgblink $(RGBLINK_FLAGS) -o $@ $^
 	$(RGBDS_DIR)rgbfix $(RGBFIX_FLAGS) $@
+	tools/bankends -q $(ROM_NAME).map
+
+.bsp: tools/bspcomp
+%.bsp: $(wildcard bsp/*.txt)
+	cd bsp; ../tools/bspcomp patch.txt ../$@; cd ..
 
 
 gfx/battle/lyra_back.2bpp: rgbgfx += -h
@@ -166,6 +152,7 @@ gfx/new_game/shrink2.2bpp: rgbgfx += -h
 
 gfx/overworld/overworld.2bpp: gfx/overworld/puddle_splash.2bpp gfx/overworld/cut_grass.2bpp gfx/overworld/cut_tree.2bpp gfx/overworld/heal_machine.2bpp gfx/overworld/fishing_rod.2bpp gfx/overworld/shadow.2bpp gfx/overworld/shaking_grass.2bpp gfx/overworld/boulder_dust.2bpp ; cat $^ > $@
 
+gfx/pack/pack_left.2bpp: tools/gfx += --trim-whitespace
 gfx/pack/pack_top_left.2bpp: gfx/pack/pack_top.2bpp gfx/pack/pack_left.2bpp ; cat $^ > $@
 
 gfx/paintings/%.2bpp: rgbgfx += -h
@@ -182,6 +169,8 @@ gfx/pokegear/pokegear_sprites.2bpp: tools/gfx += --trim-whitespace
 
 gfx/pokemon/%/back.2bpp: rgbgfx += -h
 
+gfx/pc/obj.2bpp: gfx/pc/modes.2bpp gfx/pc/bags.2bpp ; cat $^ > $@
+
 gfx/slots/slots_1.2bpp: tools/gfx += --trim-whitespace
 gfx/slots/slots_2.2bpp: tools/gfx += --interleave --png=$<
 gfx/slots/slots_3.2bpp: tools/gfx += --interleave --png=$< --remove-duplicates --keep-whitespace --remove-xflip
@@ -196,6 +185,7 @@ gfx/trade/game_boy.2bpp: tools/gfx += --remove-duplicates
 gfx/trade/link_cable.2bpp: tools/gfx += --remove-duplicates
 gfx/trade/ball_poof_cable.2bpp: gfx/trade/ball.2bpp gfx/trade/poof.2bpp gfx/trade/cable.2bpp ; cat $^ > $@
 gfx/trade/game_boy_cable.2bpp: gfx/trade/game_boy.2bpp gfx/trade/link_cable.2bpp ; cat $^ > $@
+gfx/trade/trade_screen.2bpp: gfx/trade/border.2bpp gfx/trade/textbox.2bpp ; cat $^ > $@
 
 gfx/trainer_card/chris_card.2bpp: rgbgfx += -h
 gfx/trainer_card/kris_card.2bpp: rgbgfx += -h
@@ -203,7 +193,7 @@ gfx/trainer_card/kris_card.2bpp: rgbgfx += -h
 gfx/trainers/%.2bpp: rgbgfx += -h
 
 gfx/type_chart/bg.2bpp: tools/gfx += --remove-duplicates --remove-xflip --remove-yflip
-gfx/type_chart/bg0.2bpp: gfx/type_chart/bg.2bpp.vram1 gfx/type_chart/bg.2bpp.vram0 ; cat $^ > $@
+gfx/type_chart/bg0.2bpp: gfx/type_chart/bg.2bpp.vram1p gfx/type_chart/bg.2bpp.vram0p ; cat $^ > $@
 gfx/type_chart/ob.2bpp: tools/gfx += --interleave --png=$<
 
 
@@ -219,6 +209,9 @@ gfx/pokemon/%/frames.asm: gfx/pokemon/%/front.animated.tilemap gfx/pokemon/%/fro
 
 %.lz: %
 	tools/lzcomp -- $< $@
+
+#%.4bpp: %.png
+#	superfamiconv tiles -R -i $@ -d $<
 
 %.2bpp: %.png
 	$(RGBDS_DIR)rgbgfx $(rgbgfx) -o $@ $<
@@ -238,6 +231,15 @@ gfx/pokemon/%/frames.asm: gfx/pokemon/%/front.animated.tilemap gfx/pokemon/%/fro
 
 %.2bpp.vram2: %.2bpp
 	tools/sub_2bpp.sh $< 256 128 > $@
+
+%.2bpp.vram0p: %.2bpp
+	tools/sub_2bpp.sh $< 127 > $@
+
+%.2bpp.vram1p: %.2bpp
+	tools/sub_2bpp.sh $< 127 128 > $@
+
+%.2bpp.vram2p: %.2bpp
+	tools/sub_2bpp.sh $< 255 128 > $@
 
 %.dimensions: %.png
 	tools/png_dimensions $< $@

@@ -1,4 +1,6 @@
 MoveEffectsPointers:
+; entries correspond to EFFECT_* constants
+	table_width 2, MoveEffectsPointers
 	dw NormalHit
 	dw NormalHit
 	dw NormalHit
@@ -53,6 +55,9 @@ MoveEffectsPointers:
 	dw Growth
 	dw DragonDance
 	dw HoneClaws
+	dw DefenseCurl
+	dw Minimize
+	dw ShellSmash
 	dw AttackDown
 	dw DefenseDown
 	dw StringShot
@@ -132,8 +137,6 @@ MoveEffectsPointers:
 	dw Thunder
 	dw Teleport
 	dw Fly
-	dw DefenseCurl
-	dw Minimize
 	dw FlareBlitz
 	dw NormalHit
 	dw NormalHit
@@ -152,4 +155,4 @@ MoveEffectsPointers:
 	dw LowKick
 	dw BrickBreak
 	dw TrickRoom
-	dw ShellSmash
+	assert_table_length NUM_MOVE_EFECTS

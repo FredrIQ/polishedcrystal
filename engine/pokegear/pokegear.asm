@@ -92,7 +92,7 @@ Pokegear_LoadGFX:
 	ld hl, TownMapGFX
 	ld de, vTiles2
 	ld a, BANK(TownMapGFX)
-	call FarDecompress
+	call FarDecompressToDE
 	ld hl, PokegearGFX
 	ld de, vTiles2 tile $40
 	ld a, BANK(PokegearGFX)
@@ -260,7 +260,7 @@ InitPokegearTilemap:
 	dw .Radio
 
 .Clock:
-	ld de, ClockTilemapRLE
+	ld hl, ClockTilemapRLE
 	call Pokegear_LoadTilemapRLE
 	hlcoord 12, 1
 	ld de, .switch
@@ -274,7 +274,7 @@ InitPokegearTilemap:
 	db " Switch▶@"
 
 .Map:
-	farcall PokegearMap
+	call PokegearMap
 	ld a, $7
 	ld bc, $12
 	hlcoord 1, 2
@@ -287,14 +287,14 @@ InitPokegearTilemap:
 	jp PokegearMap_UpdateLandmarkName
 
 .Radio:
-	ld de, RadioTilemapRLE
+	ld hl, RadioTilemapRLE
 	call Pokegear_LoadTilemapRLE
 	hlcoord 0, 12
 	lb bc, 4, 18
 	jp Textbox
 
 .Phone:
-	ld de, PhoneTilemapRLE
+	ld hl, PhoneTilemapRLE
 	call Pokegear_LoadTilemapRLE
 	hlcoord 0, 12
 	lb bc, 4, 18
@@ -457,7 +457,7 @@ Pokegear_UpdateClock:
 	jp PlaceWholeStringInBoxAtOnce
 
 .DayText:
-	text_jump UnknownText_0x1c5821
+	text_far _GearTodayText
 	text_end
 
 PokegearMap_CheckRegion:
@@ -907,7 +907,7 @@ PokegearPhone_MakePhoneCall:
 	ret
 
 .no_service
-	farcall Phone_NoSignal
+	call Phone_NoSignal
 	ld hl, .OutOfServiceArea
 	call PrintText
 	ld a, $a
@@ -917,19 +917,19 @@ PokegearPhone_MakePhoneCall:
 
 .dotdotdot
 	;
-	text_jump UnknownText_0x1c5824
+	text_far _GearEllipseText
 	text_end
 
 .OutOfServiceArea:
 	; You're out of the service area.
-	text_jump UnknownText_0x1c5827
+	text_far _GearOutOfServiceText
 	text_end
 
 PokegearPhone_FinishPhoneCall:
 	ldh a, [hJoyPressed]
 	and A_BUTTON | B_BUTTON
 	ret z
-	farcall HangUp
+	call HangUp
 	ld a, $a
 	ld [wJumptableIndex], a
 	ld hl, PokegearText_WhomToCall
@@ -1084,7 +1084,7 @@ PokegearPhoneContactSubmenu:
 	ld d, 0
 	add hl, de
 	ld c, [hl]
-	farcall CheckCanDeletePhoneNumber
+	call CheckCanDeletePhoneNumber
 	ld a, c
 	and a
 	jr z, .cant_delete
@@ -1286,37 +1286,23 @@ DeleteSpriteAnimStruct2ToEnd:
 
 Pokegear_LoadTilemapRLE:
 	; Format: repeat count, tile ID
-	; Terminated with $FF
-	hlcoord 0, 0
-.loop
-	ld a, [de]
-	cp $ff
-	ret z
-	ld b, a
-	inc de
-	ld a, [de]
-	ld c, a
-	inc de
-	ld a, b
-.load
-	ld [hli], a
-	dec c
-	jr nz, .load
-	jr .loop
+	; Terminated with $ff
+	decoord 0, 0
+	jp CopyRLE
 
 PokegearText_WhomToCall:
 	; Whom do you want to call?
-	text_jump UnknownText_0x1c5847
+	text_far _PokegearAskWhoCallText
 	text_end
 
 PokegearText_PressAnyButtonToExit:
 	; Press any button to exit.
-	text_jump UnknownText_0x1c5862
+	text_far _PokegearPressButtonText
 	text_end
 
 PokegearText_DeleteStoredNumber:
 	; Delete this stored phone number?
-	text_jump UnknownText_0x1c587d
+	text_far _PokegearAskDeleteText
 	text_end
 
 PokegearSpritesGFX:
@@ -1766,7 +1752,7 @@ _TownMap:
 	jr .loop2
 
 .InitTilemap:
-	farcall PokegearMap
+	call PokegearMap
 	ld a, $7
 	ld bc, 6
 	hlcoord 1, 0
@@ -1815,9 +1801,7 @@ PlayRadio:
 	ld l, a
 	ld a, [wPokegearRadioChannelBank]
 	and a
-	jr z, .zero
-	call FarCall_hl
-.zero
+	call nz, FarCall_hl
 	call DelayFrame
 	jr .loop
 
@@ -1829,7 +1813,7 @@ PlayRadio:
 .PlayStation:
 	ld a, -1
 	ld [wEnemyTurnsTaken], a
-	ld hl, .StationPointers
+	ld hl, PlayRadioStationPointers
 	ld d, $0
 	add hl, de
 	add hl, de
@@ -1851,8 +1835,10 @@ PlayRadio:
 	ld [hl], "”"
 	jp ApplyTilemapInVBlank
 
-.StationPointers:
-	dw .OakOrPnP
+PlayRadioStationPointers:
+; entries correspond to MAPRADIO_* constants
+	table_width 2, PlayRadioStationPointers
+	dw LoadStation_PokemonChannel
 	dw LoadStation_OaksPokemonTalk
 	dw LoadStation_PokedexShow
 	dw LoadStation_PokemonMusic
@@ -1861,8 +1847,9 @@ PlayRadio:
 	dw LoadStation_PlacesAndPeople
 	dw LoadStation_LetsAllSing
 	dw LoadStation_RocketRadio
+	assert_table_length NUM_MAP_RADIO_STATIONS
 
-.OakOrPnP:
+LoadStation_PokemonChannel:
 	call GetCurrentLandmark
 	cp KANTO_LANDMARK
 	jr nc, .kanto_or_orange
@@ -1872,7 +1859,7 @@ PlayRadio:
 	jp z, LoadStation_PokedexShow
 	jp LoadStation_OaksPokemonTalk
 
-.kanto_or_orange
+.kanto_or_orange:
 	jp LoadStation_PlacesAndPeople
 
 PokegearMap:

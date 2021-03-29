@@ -1,4 +1,5 @@
 AbilityNames:
+	table_width 2, AbilityNames
 	dw NoAbility
 	dw Stench
 	dw Drizzle
@@ -65,6 +66,7 @@ AbilityNames:
 	dw Drought
 	dw ArenaTrap
 	dw VitalSpirit
+	dw WhiteSmoke
 	dw ShellArmor
 	dw TangledFeet
 	dw MotorDrive
@@ -135,12 +137,16 @@ AbilityNames:
 	dw ToughClaws
 	dw Pixilate
 	dw ParentalBond
+	dw Berserk
 	dw SlushRush
 	dw Galvanize
 	dw Corrosion
 	dw TanglingHair
+	dw GorillaTactics
 	dw NeutralizingGas
 	dw PastelVeil
+	dw QuickDraw
+	assert_table_length NUM_ABILITIES
 
 NoAbility:       rawchar "---@"
 Stench:          rawchar "Stench@"
@@ -208,6 +214,7 @@ RockHead:        rawchar "Rock Head@"
 Drought:         rawchar "Drought@"
 ArenaTrap:       rawchar "Arena Trap@"
 VitalSpirit:     rawchar "Vital Spirit@"
+WhiteSmoke:      rawchar "White Smoke@"
 ShellArmor:      rawchar "Shell Armor@"
 TangledFeet:     rawchar "Tangled Feet@"
 MotorDrive:      rawchar "Motor Drive@"
@@ -278,9 +285,12 @@ MegaLauncher:    rawchar "Mega Launcher@"
 ToughClaws:      rawchar "Tough Claws@"
 Pixilate:        rawchar "Pixilate@"
 ParentalBond:    rawchar "Parental Bond@"
+Berserk:         rawchar "Berserk@"
 SlushRush:       rawchar "Slush Rush@"
 Galvanize:       rawchar "Galvanize@"
 Corrosion:       rawchar "Corrosion@"
 TanglingHair:    rawchar "Tangling Hair@"
+GorillaTactics:  rawchar "Gorilla Tactics@"
 NeutralizingGas: rawchar "Neutralizing Gas@"
 PastelVeil:      rawchar "Pastel Veil@"
+QuickDraw:       rawchar "Quick Draw@"

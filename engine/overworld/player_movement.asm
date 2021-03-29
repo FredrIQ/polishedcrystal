@@ -85,11 +85,11 @@ DoPlayerMovement::
 	ret c
 	call .CheckWarp
 	ret c
+
+; Walking into a wall will bump.
 	ld a, [wWalkingDirection]
 	cp STANDING
-	jr z, .HitWall
-	call .BumpSound
-.HitWall:
+	call nz, .BumpSound
 	call .StandInPlace
 	xor a
 	ret
@@ -102,9 +102,7 @@ DoPlayerMovement::
 ; Walking into an edge warp won't bump.
 	ld a, [wWalkingIntoEdgeWarp]
 	and a
-	jr nz, .CantMove
-	call .BumpSound
-.CantMove:
+	call z, .BumpSound
 	call ._WalkInPlace
 	xor a
 	ret
@@ -486,6 +484,8 @@ DoPlayerMovement::
 	ret
 
 .Steps:
+; entries correspond to STEP_* constants (see constants/map_object_constants.asm)
+	table_width 2, DoPlayerMovement.Steps
 	dw .SlowStep ; x0.5
 	dw .NormalStep ; x1
 	dw .FastStep ; x4
@@ -498,6 +498,7 @@ DoPlayerMovement::
 	dw .SpinStep
 	dw .Fast ; x2
 	dw .StairsStep
+	assert_table_length NUM_STEPS
 
 .SlowStep:
 	slow_step_down

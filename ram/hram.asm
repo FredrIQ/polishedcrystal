@@ -211,7 +211,7 @@ hMobile:: db
 
 hAppendVWFText:: ds 4
 
-hFunction::
+hLCDInterruptFunction::
 hFunctionJump::     db ; $c3 jp
 hFunctionTarget::
 hFunctionTargetLo:: db ; LOW(target)
