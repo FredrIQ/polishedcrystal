@@ -264,47 +264,55 @@ GetPokedexNumber::
 	dec bc
 	ret
 
-GetExtendedSpeciesIndex::
-; input: c = species, b = form
-; output: bc = extended index
-	ld hl, ExtSpeciesTable - 1
-	call _GetSpeciesAndFormIndexHelper
-	ret c
-	ld bc, -ExtSpeciesTable
-	jr _GetSpeciesAndFormIndexFinal
-
 GetCosmeticSpeciesAndFormIndex::
 ; input: c = species, b = form
-; output: bc = extended index
-	ld hl, CosmeticSpeciesAndFormTable - 1
-	call _GetSpeciesAndFormIndexHelper
-	ret c
-	ld bc, -CosmeticSpeciesAndFormTable
-	jr _GetSpeciesAndFormIndexFinal
+; output: bc = extended index, carry if nothing found
+	ld hl, CosmeticSpeciesAndFormTable
+	jr GetExtendedSpeciesIndexFromArray
 
 GetSpeciesAndFormIndex::
 ; input: c = species, b = form
-; output: bc = extended index
-	ld hl, VariantSpeciesAndFormTable - 1
+; output: bc = extended index, carry if nothing found
+	ld hl, VariantSpeciesAndFormTable
+	jr GetExtendedSpeciesIndexFromArray
+
+GetExtendedSpeciesIndex::
+; input: c = species, b = form
+; output: bc = extended index, carry if nothing found
+	ld hl, ExtSpeciesTable
+	; fallthrough
+GetExtendedSpeciesIndexFromArray::
+; input: c = species, b = form, hl = extspecies table
+; output: bc = extended index, carry if nothing found
+	dec hl
+	push de
+	ld a, h
+	cpl
+	ld d, a
+	ld a, l
+	cpl
+	ld e, a
 	call _GetSpeciesAndFormIndexHelper
-	ret c
-	ld bc, -VariantSpeciesAndFormTable
+	jr c, _GetSpeciesAndFormIndexFinal
+	pop de
+	and a
+	ret
+
 _GetSpeciesAndFormIndexFinal:
-	add hl, bc
+	add hl, de
 	srl h
 	rr l
 	dec hl
 	inc h
 	ld b, h
 	ld c, l
+	scf
+	pop de
 	ret
 
 _GetSpeciesAndFormIndexHelper:
 	ld a, b
 	and SPECIESFORM_MASK
-	jr z, .normal ; NO_FORM?
-	cp PLAIN_FORM
-	jr z, .normal ; species index isn't >255 and form is plain
 	ld b, a
 .next
 	inc hl
@@ -318,14 +326,24 @@ _GetSpeciesAndFormIndexHelper:
 	; If form mask is 0, only verify extspecies
 	ld a, SPECIESFORM_MASK
 	and [hl]
-	jr z, .next ; Should never happen
+	jr nz, .not_null_speciesform
+
+	; Compare extspecies only
+	ld a, b
+	and EXTSPECIES_MASK
+	jr z, .found_index
+	jr .next
+
+.not_null_speciesform
 	cp EXTSPECIES_MASK
 	jr nz, .full_comparision
 
 	; Table index is extspecies only. If input form isn't, ignore it.
 	bit MON_EXTSPECIES_F, b
 	jr z, .next
+.found_index
 	inc hl ; makes sure we point at a proper index with final helper
+	scf
 	ret
 
 .full_comparision
@@ -333,9 +351,10 @@ _GetSpeciesAndFormIndexHelper:
 	bit MON_EXTSPECIES_F, a
 	cp b
 	jr nz, .loop
+	scf
 	ret
 
 .normal
 	ld b, 0
-	scf
+	and a
 	ret

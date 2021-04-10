@@ -415,15 +415,16 @@ BT_CheckEnterState:
 	push af
 	ld hl, wPartyMon1IsEgg
 	call GetPartyLocation
-	bit MON_IS_EGG_F, [hl]
+	ld b, [hl]
+	bit MON_IS_EGG_F, b
 	jr nz, .banned
 	pop af
 	push af
 	ld hl, wPartyMon1Species
 	call GetPartyLocation
-	ld a, [hl]
+	ld c, [hl]
 	ld hl, UberMons
-	call IsInByteArray
+	call GetExtendedSpeciesIndexFromArray
 	jr c, .banned
 	pop af
 

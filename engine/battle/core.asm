@@ -5767,8 +5767,11 @@ ApplyLegendaryDVs:
 
 	push hl
 	ld a, [wCurPartySpecies]
+	ld c, a
+	ld a, [wCurForm]
+	ld b, a
 	ld hl, LegendaryMons
-	call IsInByteArray
+	call GetExtendedSpeciesIndexFromArray
 	pop hl
 	jr nc, .done
 
@@ -7142,8 +7145,12 @@ GetNewBaseExp:
 	jr .stage_1_or_nonevolver
 
 .not_basic
+	ld a, [wCurPartySpecies]
+	ld c, a
+	ld a, [wCurForm]
+	ld b, a
 	ld hl, LegendaryMons
-	call IsInByteArray
+	call GetExtendedSpeciesIndexFromArray
 	jr c, .legendary
 	farcall GetPreEvolution
 .legendary
