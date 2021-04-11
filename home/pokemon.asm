@@ -302,8 +302,8 @@ _GetSpeciesAndFormIndexFinal:
 	add hl, de
 	srl h
 	rr l
-	dec hl
-	inc h
+	ld de, REAL_NUM_POKEMON - 1
+	add hl, de
 	ld b, h
 	ld c, l
 	scf
@@ -355,6 +355,12 @@ _GetSpeciesAndFormIndexHelper:
 	ret
 
 .normal
+	; Converts species 1-254, extspecies to 256-509 (egg is 255)
+	bit MON_EXTSPECIES_F, b
 	ld b, 0
+	jr z, .done
+	inc b
+	dec c
+.done
 	and a
 	ret

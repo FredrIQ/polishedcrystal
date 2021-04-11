@@ -528,6 +528,16 @@ INCLUDE "gfx/pokemon/sylveon/hgss/shiny.pal"
 
 INCLUDE "gfx/pokemon/egg/hgss/normal.pal"
 INCLUDE "gfx/pokemon/egg/hgss/shiny.pal"
+INCLUDE "gfx/pokemon/egg/hgss/normal.pal"
+INCLUDE "gfx/pokemon/egg/hgss/shiny.pal"
+
+INCLUDE "gfx/pokemon/sylveon/hgss/normal.pal"
+INCLUDE "gfx/pokemon/sylveon/hgss/shiny.pal"
+INCLUDE "gfx/pokemon/sylveon/hgss/normal.pal"
+INCLUDE "gfx/pokemon/sylveon/hgss/shiny.pal"
+INCLUDE "gfx/pokemon/sylveon/hgss/normal.pal"
+INCLUDE "gfx/pokemon/sylveon/hgss/shiny.pal"
+	assert_table_length NUM_SPECIES + 1
 
 INCLUDE "gfx/pokemon/gyarados_red/hgss/normal.pal"
 INCLUDE "gfx/pokemon/gyarados_red/hgss/shiny.pal"
@@ -1105,6 +1115,14 @@ INCLUDE "gfx/pokemon/sylveon/shiny.pal"
 
 INCLUDE "gfx/pokemon/egg/normal.pal"
 INCLUDE "gfx/pokemon/egg/shiny.pal"
+
+INCLUDE "gfx/pokemon/sylveon/normal.pal" ; PLACEHOLDER
+INCLUDE "gfx/pokemon/sylveon/shiny.pal"
+INCLUDE "gfx/pokemon/sylveon/normal.pal"
+INCLUDE "gfx/pokemon/sylveon/shiny.pal"
+INCLUDE "gfx/pokemon/sylveon/normal.pal"
+INCLUDE "gfx/pokemon/sylveon/shiny.pal"
+	assert_table_length NUM_SPECIES + 1
 
 INCLUDE "gfx/pokemon/gyarados_red/normal.pal"
 INCLUDE "gfx/pokemon/gyarados_red/shiny.pal"

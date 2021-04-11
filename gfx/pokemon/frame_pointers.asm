@@ -257,6 +257,12 @@ FramesPointers:
 	assert_table_length NUM_POKEMON
 
 	dw EggFrames
+	dw EggFrames
+
+	dw SylveonFrames
+	dw SylveonFrames
+	dw SylveonFrames
+	assert_table_length NUM_SPECIES
 
 	dw UnownBFrames
 	dw UnownCFrames

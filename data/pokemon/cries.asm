@@ -262,4 +262,8 @@ PokemonCries::
 	mon_cry CRY_VENONAT,     $0b0,  $16f ; Sylveon
 	assert_table_length NUM_POKEMON
 	mon_cry CRY_NIDORAN_M,      0,     0 ; Egg
+	mon_cry CRY_NIDORAN_M,      0,     0 ; Unused
+	mon_cry CRY_VENONAT,     $0b0,  $16f ; Sylveon
+	mon_cry CRY_VENONAT,     $0b0,  $16f ; Sylveon
+	mon_cry CRY_VENONAT,     $0b0,  $16f ; Sylveon
 	assert_table_length NUM_SPECIES
