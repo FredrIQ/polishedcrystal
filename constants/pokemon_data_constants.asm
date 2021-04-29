@@ -291,7 +291,7 @@ NUM_TREEMON_SETS EQU const_value
 ; ChangeHappiness arguments (see data/events/happiness_changes.asm)
 	const_def
 	const HAPPINESS_GAINLEVEL         ; 00
-	const HAPPINESS_USEDITEM          ; 01
+	const HAPPINESS_USEDVITAMIN       ; 01
 	const HAPPINESS_USEDXITEM         ; 02
 	const HAPPINESS_USEDEVBERRY       ; 03
 	const HAPPINESS_GYMBATTLE         ; 04
@@ -312,6 +312,7 @@ NUM_TREEMON_SETS EQU const_value
 	const HAPPINESS_GAINLEVELATHOME   ; 13
 	const HAPPINESS_PHOTOGRAPH        ; 14
 	const HAPPINESS_BLESSING          ; 15
+	const HAPPINESS_STEP              ; 16
 NUM_HAPPINESS_CHANGES EQU const_value
 
 ; significant happiness values

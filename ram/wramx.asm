@@ -95,6 +95,11 @@ NEXTU
 wSwitchItemBuffer:: ds 2 ; may store 1 or 2 bytes
 
 NEXTU
+; Some trade stuff. Needs to be seperate from wSwitchMonBuffer.
+wCurTradePartyMon:: db
+wCurOTTradePartyMon:: db
+wBufferTrademonNickname:: ds MON_NAME_LENGTH
+
 ; switching pokemon in party
 ; may store NAME_LENGTH, PARTYMON_STRUCT_LENGTH, or MAIL_STRUCT_LENGTH bytes
 wSwitchMonBuffer:: ds 48
@@ -117,11 +122,6 @@ wNumOwnedDecoCategories:: db
 wOwnedDecoCategories:: ds 16
 ENDU
 
-NEXTU
-; trade
-wCurTradePartyMon:: db
-wCurOTTradePartyMon:: db
-wBufferTrademonNickname:: ds MON_NAME_LENGTH
 
 NEXTU
 ; link battle record data
@@ -399,6 +399,7 @@ wCurItem::
 	db
 wMartItemID::
 wCurItemQuantity::
+wGiftMonBall::
 	db
 
 wCurPartySpecies:: db
@@ -472,7 +473,9 @@ UNION
 wTempMon:: party_struct wTempMon
 wTempMonNickname:: ds MON_NAME_LENGTH
 wTempMonOT:: ds PLAYER_NAME_LENGTH
-wTempMonExtra:: ds 3
+wTempMonExtra::
+wTempMonHyperTraining:: db
+	ds 2 ; the other 2 extra bytes
 NEXTU
 wEncodedTempMon:: savemon_struct wEncodedTempMon
 ENDU
@@ -1251,7 +1254,7 @@ wPoisonStepCount:: db
 
 wPhoneList:: ds CONTACT_LIST_SIZE + 1
 
-wHappinessStepCount:: db
+	ds 1 ; unused
 
 wParkBallsRemaining::
 wSafariBallsRemaining:: db
@@ -1312,7 +1315,9 @@ endr
 wPartyMonOTs::
 for n, 1, PARTY_LENGTH + 1
 wPartyMon{d:n}OT:: ds PLAYER_NAME_LENGTH
-wPartyMon{d:n}Extra:: ds 3
+wPartyMon{d:n}Extra::
+wPartyMon{d:n}HyperTraining:: db
+	ds 2 ; the other 2 extra bytes
 endr
 
 wPartyMonNicknames::

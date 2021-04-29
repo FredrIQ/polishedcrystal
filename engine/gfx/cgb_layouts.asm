@@ -4,7 +4,7 @@ LoadCGBLayout::
 	ld a, [wMemCGBLayout]
 .not_ram
 	cp CGB_PARTY_MENU_HP_PALS
-	jp z, ApplyPartyMenuHPPals
+	jmp z, ApplyPartyMenuHPPals
 	call ResetBGPals
 	dec a
 	call StackJumpTable
@@ -52,7 +52,7 @@ rept 2
 	ld hl, DarkGrayPalette
 	call LoadHLPaletteIntoDE
 endr
-	jp _CGB_FinishBattleScreenLayout
+	jmp _CGB_FinishBattleScreenLayout
 
 _CGB_BattleColors:
 	push bc
@@ -121,18 +121,15 @@ _CGB_BattleColors:
 
 	ld hl, wBGPals1 palette PAL_BATTLE_BG_PLAYER
 	ld de, wBGPals1 palette PAL_BATTLE_BG_TYPE_CAT
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
 	ld hl, wBGPals1 palette PAL_BATTLE_BG_ENEMY
 	ld de, wOBPals1 palette PAL_BATTLE_OB_ENEMY
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
 	ld hl, wBGPals1 palette PAL_BATTLE_BG_PLAYER
 	ld de, wOBPals1 palette PAL_BATTLE_OB_PLAYER
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
 	ld a, CGB_BATTLE_COLORS
 	ld [wMemCGBLayout], a
@@ -218,8 +215,8 @@ _CGB_FinishBattleScreenLayout:
 
 	ld hl, BattleObjectPals
 	ld de, wOBPals1 palette PAL_BATTLE_OB_GRAY
-	ld bc, 6 palettes
-	call FarCopyColorWRAM
+	ld c, 6 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 	pop bc
 
 	ld a, b
@@ -240,21 +237,20 @@ _CGB_FinishBattleScreenLayout:
 	farcall SetAbilityOverlayAttributes
 
 .apply_attr_map
-	jp ApplyAttrMap
+	jmp ApplyAttrMap
 
 _CGB_PokegearPals:
 	ld hl, PokegearPals
 	ld de, wBGPals1
-	ld bc, 8 palettes
-	call FarCopyColorWRAM
+	ld c, 8 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .male
 	ld hl, FemalePokegearInterfacePalette
 	ld de, wBGPals1 palette 0
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 .male
 
 	call ApplyPals
@@ -265,13 +261,12 @@ _CGB_PokegearPals:
 _CGB_PokedexAreaPals:
 	ld hl, PokegearPals
 	ld de, wBGPals1
-	ld bc, 8 palettes
-	call FarCopyColorWRAM
+	ld c, 8 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	ld hl, .InvertedGrayPalette
 	ld de, wBGPals1 palette 0
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
 	call ApplyPals
 	ld a, $1
@@ -308,8 +303,8 @@ _CGB_StatsScreenHPPals:
 	call LoadPalette_White_Col1_Col2_Black
 
 	ld hl, StatsScreenPals
-	ld bc, 4 palettes
-	call FarCopyColorWRAM
+	ld c, 4 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	ld hl, CaughtBallPals
 	ld bc, $4
@@ -354,7 +349,7 @@ _CGB_StatsScreenHPPals:
 	ld a, $7
 	call FillBoxWithByte
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_Pokedex:
 	ld de, wBGPals1
@@ -382,15 +377,14 @@ _CGB_Pokedex:
 
 	ld hl, PokegearOBPals
 	ld de, wOBPals1
-	ld bc, 2 palettes
-	call FarCopyColorWRAM
+	ld c, 2 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	ld hl, .CursorPalette
 	ld de, wOBPals1 palette 7
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 .GreenPicPalette:
 if !DEF(MONOCHROME)
@@ -415,8 +409,8 @@ endc
 _CGB_SlotMachine:
 	ld hl, SlotMachinePals
 	ld de, wBGPals1
-	ld bc, 16 palettes
-	call FarCopyColorWRAM
+	ld c, 16 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	call WipeAttrMap
 
@@ -470,20 +464,20 @@ _CGB_SlotMachine:
 	ld a, $7
 	rst ByteFill
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_Diploma:
 	ld hl, DiplomaPals
 	ld de, wBGPals1
-	ld bc, 16 palettes
-	call FarCopyColorWRAM
+	ld c, 16 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	ld de, wBGPals1
 	ld hl, .DiplomaPalette
 	call LoadHLPaletteIntoDE
 
 	call WipeAttrMap
-	jp ApplyAttrMap
+	jmp ApplyAttrMap
 
 .DiplomaPalette
 if !DEF(MONOCHROME)
@@ -524,7 +518,7 @@ _CGB_PartyMenu:
 	lb bc, 11, 1
 	ld a, $4
 	call FillBoxWithByte
-	jp ApplyAttrMap
+	jmp ApplyAttrMap
 
 .PartyMenuBGPalette:
 if !DEF(MONOCHROME)
@@ -570,12 +564,12 @@ _CGB_Evolution:
 
 	ld hl, BattleObjectPals
 	ld de, wOBPals1 palette 2
-	ld bc, 6 palettes
-	call FarCopyColorWRAM
+	ld c, 6 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 .got_palette
 	call WipeAttrMap
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_MoveList:
 	hlcoord 0, 0, wAttrMap
@@ -596,8 +590,8 @@ _CGB_MoveList:
 	ld b, 0
 	add hl, bc
 	ld de, wBGPals1 palette 0 + 2
-	ld bc, 4
-	call FarCopyColorWRAM
+	ld c, 4
+	call LoadCPaletteBytesFromHLIntoDE
 
 	ld hl, Moves + MOVE_TYPE
 	call GetCurMoveProperty
@@ -607,10 +601,10 @@ _CGB_MoveList:
 	ld b, 0
 	add hl, bc
 	ld de, wBGPals1 palette 0 + 6
-	ld bc, 2
-	call FarCopyColorWRAM
+	ld c, 2
+	call LoadCPaletteBytesFromHLIntoDE
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_PokedexSearchOption:
 	ld de, wBGPals1
@@ -618,7 +612,7 @@ _CGB_PokedexSearchOption:
 	call LoadHLPaletteIntoDE
 
 	call WipeAttrMap
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_BuyMenu:
 	ld a, [wMartType]
@@ -631,8 +625,8 @@ _CGB_BuyMenu:
 	ld hl, MartMenuPals
 .ok
 	ld de, wBGPals1
-	ld bc, 3 palettes
-	call FarCopyColorWRAM
+	ld c, 3 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 rept 2
 	ld hl, CancelPalette
@@ -651,7 +645,7 @@ endr
 	ld a, $7
 	call FillBoxWithByte
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_PackPals:
 ; pack pals
@@ -668,8 +662,8 @@ _CGB_PackPals:
 	ld hl, MalePackPals
 .got_gender
 	ld de, wBGPals1
-	ld bc, 8 palettes
-	call FarCopyColorWRAM
+	ld c, 8 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	call WipeAttrMap
 
@@ -714,7 +708,7 @@ endr
 	ld a, $7
 	call FillBoxWithByte
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_TrainerCard:
 	call LoadFirstTwoTrainerCardPals
@@ -742,7 +736,7 @@ _CGB_TrainerCard:
 	inc a ; crystal
 	ld [hl], a
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_TrainerCard2:
 	call LoadFirstTwoTrainerCardPals
@@ -774,8 +768,8 @@ _CGB_TrainerCard2:
 	; Badges
 	ld hl, JohtoBadgePalettes
 	ld de, wOBPals1
-	ld bc, 8 palettes
-	call FarCopyColorWRAM
+	ld c, 8 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	; Falkner
 	hlcoord 3, 10, wAttrMap
@@ -825,7 +819,7 @@ _CGB_TrainerCard2:
 	ld a, $7
 	call FillBoxWithByte
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_TrainerCard3:
 	call LoadFirstTwoTrainerCardPals
@@ -857,8 +851,8 @@ _CGB_TrainerCard3:
 	; Badges
 	ld hl, KantoBadgePalettes
 	ld de, wOBPals1
-	ld bc, 8 palettes
-	call FarCopyColorWRAM
+	ld c, 8 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	; Lt.Surge
 	hlcoord 3, 10, wAttrMap
@@ -908,7 +902,7 @@ _CGB_TrainerCard3:
 	ld a, $7
 	call FillBoxWithByte
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 LoadFirstTwoTrainerCardPals:
 	; trainer card
@@ -968,7 +962,7 @@ _CGB_PokedexUnownMode:
 
 	call InitPartyMenuOBPals
 
-	jp _CGB_FinishLayout
+	jmp _CGB_FinishLayout
 
 _CGB_BillsPC:
 	; Get box theme
@@ -1019,7 +1013,7 @@ BillsPC_PreviewTheme:
 	call LoadHLPaletteIntoDE
 	ld hl, .PackPal
 	ld de, wOBPals1 palette 4
-	jp LoadHLPaletteIntoDE
+	jmp LoadHLPaletteIntoDE
 
 .apply_pals
 	farjp BillsPC_SetPals
@@ -1083,7 +1077,7 @@ endc
 	ldh [rSVBK], a
 
 	call WipeAttrMap
-	jp ApplyAttrMap
+	jmp ApplyAttrMap
 
 .UnownPuzzlePalette:
 if !DEF(MONOCHROME)
@@ -1140,14 +1134,13 @@ _CGB_TradeTube:
 
 	ld hl, .TradeTubeRedPalette
 	ld de, wOBPals1
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
 	ld de, wOBPals1 palette 7
 	ld hl, .TradeTubeBluePalette
 	call LoadHLPaletteIntoDE
 
-	jp WipeAttrMap
+	jmp WipeAttrMap
 
 .TradeTubeBluePalette:
 if !DEF(MONOCHROME)
@@ -1180,8 +1173,7 @@ _CGB_IntroPals:
 	pop de
 
 	ld hl, .IntroGradientPalette
-	ld bc, 1 palettes
-	call FarCopyColorWRAM
+	call LoadHLPaletteIntoDE
 
 	call WipeAttrMap
 
@@ -1191,7 +1183,7 @@ _CGB_IntroPals:
 	call FillBoxWithByte
 
 	call ApplyAttrMap
-	jp ApplyPals
+	jmp ApplyPals
 
 .IntroGradientPalette:
 if !DEF(MONOCHROME)
@@ -1212,7 +1204,7 @@ _CGB_PlayerOrMonFrontpicPals:
 	call VaryBGPal0ByTempMonDVs
 	call WipeAttrMap
 	call ApplyAttrMap
-	jp ApplyPals
+	jmp ApplyPals
 
 _CGB_TrainerOrMonFrontpicPals:
 	ld de, wBGPals1
@@ -1223,7 +1215,7 @@ _CGB_TrainerOrMonFrontpicPals:
 	call VaryBGPal0ByTempMonDVs
 	call WipeAttrMap
 	call ApplyAttrMap
-	jp ApplyPals
+	jmp ApplyPals
 
 _CGB_JudgeSystem:
 	; gender icon
@@ -1237,10 +1229,11 @@ _CGB_JudgeSystem:
 	call LoadPalette_White_Col1_Col2_Black
 	ld hl, wBGPals1 palette 7 + 2
 	call VaryBGPalByTempMonDVs
-	; max stat sparkle
+	; max stat sparkle and bottle cap
 	ld de, wOBPals1 palette 0
-	ld hl, .SparkleMaxStatPalette
-	call LoadHLPaletteIntoDE
+	ld hl, .SparkleAndBottleCapPalette
+	ld c, 2 palettes
+	call LoadCPaletteBytesFromHLIntoDE
 
 	call WipeAttrMap
 
@@ -1326,17 +1319,29 @@ _CGB_JudgeSystem:
 	ld [hl], a
 	ret
 
-.SparkleMaxStatPalette:
+.SparkleAndBottleCapPalette:
 if !DEF(MONOCHROME)
+; max stat sparkle
 	RGB 31, 31, 31
 	RGB 31, 31, 31
 	RGB 31, 29, 00
-	RGB 31, 29, 00
+	RGB 00, 00, 00
+; hyper trained bottle cap
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+	RGB 22, 23, 24
+	RGB 13, 15, 18
 else
+; max stat sparkle
 	RGB_MONOCHROME_WHITE
 	RGB_MONOCHROME_WHITE
 	RGB_MONOCHROME_LIGHT
+	RGB_MONOCHROME_DARK
+; hyper trained bottle cap
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
 	RGB_MONOCHROME_LIGHT
+	RGB_MONOCHROME_DARK
 endc
 
 _CGB_FinishLayout:

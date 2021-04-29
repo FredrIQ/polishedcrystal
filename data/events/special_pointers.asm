@@ -77,9 +77,7 @@ SpecialsPointers::
 	add_special Special_ActivateFishingSwarm
 	add_special ToggleMaptileDecorations
 	add_special ToggleDecorationsVisibility
-	add_special SpecialGiveShuckie
 	add_special ReturnShuckie
-	add_special TeachShuckiePoisonJab
 	add_special Special_BillsGrandfather
 	add_special SpecialCheckPokerus
 	add_special Special_DisplayCoinCaseBalance
@@ -109,6 +107,7 @@ SpecialsPointers::
 	add_special InitRoamMons
 	add_special Special_FadeOutMusic
 	add_special Diploma
+	add_special Special_HyperTrain
 
 ; Crystal
 	add_special GiveOddEgg
@@ -121,7 +120,6 @@ SpecialsPointers::
 	add_special CheckCaughtCelebi
 	add_special JudgeMachine
 	add_special SpecialBuenasPassword
-	add_special TeachDratiniExtremeSpeed
 	add_special Special_SampleKenjiBreakCountdown
 	add_special SpecialBeastsCheck
 	add_special SpecialBirdsCheck
@@ -160,13 +158,11 @@ SpecialsPointers::
 	add_special RestoreMusic
 	add_special DeleteSavedMusic
 	add_special CheckIfTrendyPhraseIsLucky
-	add_special TeachMagikarpDragonRage
 	add_special Special_ChooseItem
 	add_special GetGourmetManiacPrice
 	add_special GetOreManiacPrice
 	add_special GetFossilManiacPrice
 	add_special Give_hMoneyTemp
-	add_special SetLastPartyMonBall
 	add_special CheckForSurfingPikachu
 	add_special InitializeHiddenGrotto
 	add_special GetHiddenGrottoContents
@@ -174,3 +170,5 @@ SpecialsPointers::
 	add_special Special_HiddenPowerGuru
 	add_special Special_GetOvercastIndex
 	add_special Special_SetCopycatPalette
+	add_special Special_CurBoxFullCheck
+	add_special GetCurBoxName

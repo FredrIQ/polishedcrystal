@@ -215,7 +215,7 @@ Serial_ExchangeByte::
 	ld a, [hl]
 	ldh [hSerialSend], a
 	call DelayFrame
-	jp Serial_ExchangeByte
+	jmp Serial_ExchangeByte
 
 .delay_15_cycles
 	ld a, 15
@@ -269,7 +269,7 @@ Serial_PlaceWaitingTextAndSyncAndExchangeNybble::
 	call LoadTileMapToTempTileMap
 	call PlaceWaitingText
 	call Serial_SyncAndExchangeNybble
-	jp Call_LoadTempTileMapToTileMap
+	jmp Call_LoadTempTileMapToTileMap
 
 PlaceWaitingText::
 	hlcoord 4, 10
@@ -290,7 +290,7 @@ PlaceWaitingText::
 	ld de, .Waiting
 	rst PlaceString
 	ld c, 50
-	jp DelayFrames
+	jmp DelayFrames
 
 .Waiting:
 	db "Waiting…!@"
@@ -312,7 +312,7 @@ Serial_SyncAndExchangeNybble::
 	jr nz, .skip
 	pop hl
 	xor a
-	jp SerialDisconnected
+	jmp SerialDisconnected
 
 .skip
 	pop hl
