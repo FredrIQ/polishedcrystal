@@ -39,6 +39,52 @@ SafeCopyTilemapAtOnce::
 CopyTilemapAtOnce::
 	farjp _CopyTilemapAtOnce
 
+CopyUsingHDMA::
+; Returns z if we should copy with HDMA.
+	; Is HDMA copy disabled globally?
+	ldh a, [hDisableHDMACopy]
+.fail
+	and a
+	ret nz
+
+	; HDMA copy only works with source+dest being a multiple of 16.
+	ld a, l
+	or e
+	and $f
+	ret nz
+
+	; HDMA copy only works from non-VRAM to VRAM.
+	ld a, d
+	call .IsInVRAM
+	ret c ; also nz
+	ld a, h
+	call .IsInVRAM
+	jr nc, .fail ; a is definitely nonzero (so and a+ret nz is correct)
+	xor a
+	ret
+
+.IsInVRAM
+	; Returns carry if a is between $80 and $9f.
+	sub $80
+	cp $20
+	ret
+
+PrepareHDMATransfer::
+.wait_for_hdma
+	ldh a, [rHDMA5]
+	inc a
+	jr nz, .wait_for_hdma
+
+	ld a, d
+	ldh [rHDMA1], a
+	ld a, e
+	ldh [rHDMA2], a
+	ld a, h
+	ldh [rHDMA3], a
+	ld a, l
+	ldh [rHDMA4], a
+	ret
+
 DecompressRequest2bpp::
 ; Decompress lz data from b:hl to scratch space at 6:d000, then copy c tiles to de.
 	push de
@@ -47,8 +93,8 @@ DecompressRequest2bpp::
 	pop bc
 	pop hl
 	ld de, wDecompressScratch
+	; fallthrough
 
-; fallthrough
 Request2bppInWRA6::
 	ldh a, [hROMBank]
 	ld b, a
@@ -60,6 +106,48 @@ Get2bpp::
 	jr nz, Request2bpp
 
 Copy2bpp::
+	call CopyUsingHDMA
+	jr nz, Copy2bpp_NoHDMA
+	call StackCallInBankB
+
+.Function:
+	call PrepareHDMATransfer
+
+.loop
+	; Copy up to 10 tiles unless we're in rLY $8f.
+	; In the latter case, if VBlank is enabled, DelayFrame.
+	; Otherwise, continue anyway.
+	ldh a, [rLY]
+	cp $8f
+	jr c, .not_yet_vblank
+	ldh a, [rIE]
+	bit VBLANK, a
+
+	; If vblank interrupt is enabled, deliberately trigger it.
+	call nz, DelayFrame
+.not_yet_vblank
+	ld a, c
+	sub 10
+	jr c, .final_copy
+	ld c, a
+	ld a, 9
+	ldh [rHDMA5], a
+	jr .loop
+
+.final_copy
+	ld a, c
+	and a
+	ret z
+	dec a
+	ldh [rHDMA5], a
+	ret
+
+Get2bpp_NoHDMA:
+	ldh a, [rLCDC]
+	bit 7, a ; lcd on?
+	jr nz, Request2bpp_NoHDMA
+
+Copy2bpp_NoHDMA::
 ; copy c 2bpp tiles from b:de to hl
 	call StackCallInBankB
 
@@ -69,6 +157,77 @@ Copy2bpp::
 	jmp _Serve2bppRequest
 
 Request2bpp::
+	call CopyUsingHDMA
+	jr nz, Request2bpp_NoHDMA
+	call StackCallInBankB
+
+.Function:
+	call PrepareHDMATransfer
+
+	ld b, c
+	ld hl, rSTAT
+
+	; Wait until mode 2 so we don't end up badly timing the first iteration.
+.busyloop
+	ld a, [hl]
+	and %11
+	cp 2
+	jr nz, .busyloop
+
+	; If LCD interrupt is enabled, copy min 2 tiles per line. Otherwise, min 4.
+	; After copying those 4, continue copying 2 lines until we leave mode0.
+	ld d, 4
+	ld c, LOW(rHDMA5)
+	ld a, [rIE]
+	bit LCD_STAT, a
+	jr z, .loop
+	ld d, 2
+.loop
+	; If we're too late into rLY, delay until after vblank.
+	; TODO: continue this in vblank.
+	ldh a, [rLY]
+	cp $8e
+	jr c, .not_yet_vblank
+	ldh a, [rIE]
+	bit VBLANK, a
+	call nz, DelayFrame
+.not_yet_vblank
+	ld a, b
+	sub d
+	jr c, .final_copy
+	ld e, a
+	ld a, 3
+
+.busyloop2
+	bit 1, [hl]
+	jr nz, .busyloop2
+	ld [c], a
+
+.loop2
+	; Potential bonus copying on the same line.
+	ld b, e
+	ld a, e
+	sub 2
+	jr c, .loop
+	ld e, a
+	ld a, 1
+
+.busyloop3
+	; This is deliberate. If we're in mode 2-3, return to regular copying.
+	bit 1, [hl]
+	jr nz, .loop
+	ld [c], a
+	jr .loop2
+
+.final_copy
+	ld a, b
+	and a
+	ret z
+	dec a
+	ld [c], a
+	ret
+
+Request2bpp_NoHDMA::
 ; Load 2bpp at b:de to occupy c tiles of hl.
 	call StackCallInBankB
 

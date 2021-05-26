@@ -12,6 +12,7 @@
 ;	ret
 
 DoubleSpeed::
+	ret
 	ld hl, rKEY1
 	bit 7, [hl]
 	ret nz

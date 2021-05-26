@@ -208,7 +208,9 @@ ENDU
 
 hCrashCode:: db
 
-	ds 8
+hDisableHDMACopy:: db
+
+	ds 7
 
 hAppendVWFText:: ds 4
 
