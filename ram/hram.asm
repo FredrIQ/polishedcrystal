@@ -208,7 +208,7 @@ ENDU
 
 hCrashCode:: db
 
-hDisableHDMACopy:: db
+hDisableGDMACopy:: db
 
 	ds 7
 

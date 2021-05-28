@@ -39,21 +39,21 @@ SafeCopyTilemapAtOnce::
 CopyTilemapAtOnce::
 	farjp _CopyTilemapAtOnce
 
-CopyUsingHDMA::
-; Returns z if we should copy with HDMA.
-	; Is HDMA copy disabled globally?
-	ldh a, [hDisableHDMACopy]
+AllowGDMACopy::
+; Returns z if we can copy using GDMA.
+	; Is GDMA copy disabled globally?
+	ldh a, [hDisableGDMACopy]
 .fail
 	and a
 	ret nz
 
-	; HDMA copy only works with source+dest being a multiple of 16.
+	; GDMA copy only works with source+dest being a multiple of 16.
 	ld a, l
 	or e
 	and $f
 	ret nz
 
-	; HDMA copy only works from non-VRAM to VRAM.
+	; GDMA copy only works from non-VRAM to VRAM.
 	ld a, d
 	call .IsInVRAM
 	ret c ; also nz
@@ -69,11 +69,11 @@ CopyUsingHDMA::
 	cp $20
 	ret
 
-PrepareHDMATransfer::
-.wait_for_hdma
+PrepareGDMATransfer::
+.wait_for_gdma
 	ldh a, [rHDMA5]
 	inc a
-	jr nz, .wait_for_hdma
+	jr nz, .wait_for_gdma
 
 	ld a, d
 	ldh [rHDMA1], a
@@ -106,12 +106,12 @@ Get2bpp::
 	jr nz, Request2bpp
 
 Copy2bpp::
-	call CopyUsingHDMA
-	jr nz, Copy2bpp_NoHDMA
+	call AllowGDMACopy
+	jr nz, Copy2bpp_NoGDMA
 	call StackCallInBankB
 
 .Function:
-	call PrepareHDMATransfer
+	call PrepareGDMATransfer
 
 .loop
 	; Copy up to 10 tiles unless we're in rLY $8f.
@@ -142,12 +142,12 @@ Copy2bpp::
 	ldh [rHDMA5], a
 	ret
 
-Get2bpp_NoHDMA:
+Get2bpp_NoGDMA:
 	ldh a, [rLCDC]
 	bit 7, a ; lcd on?
-	jr nz, Request2bpp_NoHDMA
+	jr nz, Request2bpp_NoGDMA
 
-Copy2bpp_NoHDMA::
+Copy2bpp_NoGDMA::
 ; copy c 2bpp tiles from b:de to hl
 	call StackCallInBankB
 
@@ -157,12 +157,12 @@ Copy2bpp_NoHDMA::
 	jmp _Serve2bppRequest
 
 Request2bpp::
-	call CopyUsingHDMA
-	jr nz, Request2bpp_NoHDMA
+	call AllowGDMACopy
+	jr nz, Request2bpp_NoGDMA
 	call StackCallInBankB
 
 .Function:
-	call PrepareHDMATransfer
+	call PrepareGDMATransfer
 
 	ld b, c
 	ld hl, rSTAT
@@ -230,7 +230,7 @@ Request2bpp::
 	ld [c], a
 	ret
 
-Request2bpp_NoHDMA::
+Request2bpp_NoGDMA::
 ; Load 2bpp at b:de to occupy c tiles of hl.
 	call StackCallInBankB
 
