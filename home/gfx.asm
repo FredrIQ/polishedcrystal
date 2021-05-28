@@ -224,6 +224,9 @@ Request2bpp::
 	and a
 	ret z
 	dec a
+.busyloop4
+	bit 1, [hl]
+	jr nz, .busyloop4
 	ld [c], a
 	ret
 
