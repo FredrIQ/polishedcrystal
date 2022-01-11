@@ -317,3 +317,21 @@ rawchar: MACRO
 	db \#
 	setcharmap default
 ENDM
+
+; ASCII charmap, for mobile functions
+pushc
+newcharmap ascii
+popc
+
+asciichar: MACRO
+	setcharmap ascii
+	db \#
+	setcharmap default
+ENDM
+
+asciistr: MACRO
+	setcharmap ascii
+	db \#
+	db 0 ; null terminator
+	setcharmap default
+ENDM

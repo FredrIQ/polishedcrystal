@@ -2,6 +2,7 @@
 	const_def 2
 	const LINK_TRADECENTER ; 2
 	const LINK_COLOSSEUM   ; 3
+	const LINK_MOBILE      ; 4
 
 ; hSerialReceive high nybbles
 SERIAL_TRADECENTER EQU $70

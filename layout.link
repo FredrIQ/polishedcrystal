@@ -241,6 +241,7 @@ WRAMX $1
 WRAMX $2
 	org $d000
 	"Pic Animations RAM"
+	"Mobile Adapter Config"
 	align 8
 	"Sound Stack"
 

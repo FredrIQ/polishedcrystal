@@ -211,7 +211,9 @@ ENDU
 
 hCrashCode:: db
 
-	ds 7
+hMobile:: db
+
+	ds 6
 
 hAppendVWFText:: ds 4
 

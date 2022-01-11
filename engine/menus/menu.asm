@@ -596,6 +596,28 @@ _PushWindow::
 	jr nz, .row
 	ret
 
+PushWindow_MenuBoxCoordToTile::
+	bccoord 0, 0
+	jr PushWindow_MenuBoxCoordToAbsolute
+
+PushWindow_MenuBoxCoordToAttr::
+	bccoord 0, 0, wAttrmap
+
+; fallthrough
+PushWindow_MenuBoxCoordToAbsolute:
+	push bc
+	call LoadMenuBoxCoords
+	ld a, [wMenuFlags]
+	bit 1, a
+	jr z, .noDec
+	dec b
+	dec c
+.noDec
+	call Coord2Absolute
+	pop bc
+	add hl, bc
+	ret
+
 _ExitMenu::
 	xor a
 	ldh [hBGMapMode], a
@@ -631,6 +653,48 @@ _ExitMenu::
 	ldh [rSVBK], a
 	ld hl, wWindowStackSize
 	dec [hl]
+	ret
+
+RestoreTileBackup::
+	call PushWindow_MenuBoxCoordToTile
+	call .copy
+	call PushWindow_MenuBoxCoordToAttr
+	; fallthrough
+
+.copy
+	call GetTileBackupMenuBoxDims
+
+.row
+	push bc
+	push hl
+
+.col
+	ld a, [de]
+	ld [hli], a
+	dec de
+	dec c
+	jr nz, .col
+
+	pop hl
+	ld bc, SCREEN_WIDTH
+	add hl, bc
+	pop bc
+	dec b
+	jr nz, .row
+	ret
+
+GetTileBackupMenuBoxDims::
+	call GetMenuBoxDims
+	ld a, [wMenuFlags]
+	bit 1, a
+	jr z, .offsetOfOne
+	inc b
+	inc b
+	inc c
+	inc c
+.offsetOfOne
+	inc b
+	inc c
 	ret
 
 Error_Cant_ExitMenu:

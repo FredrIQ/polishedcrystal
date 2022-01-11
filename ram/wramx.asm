@@ -724,6 +724,7 @@ wNumFleeAttempts:: db
 wOTPartyData::
 wOTPlayerName:: ds NAME_LENGTH
 wOTPlayerID:: dw
+wOTPokemonData::
 wOTPartyCount:: db
 
 	ds 7 ; unused
@@ -1711,6 +1712,11 @@ wPalFadeDelay:: db
 
 wLYOverridesBackup:: ds SCREEN_HEIGHT_PX
 wLYOverridesBackupEnd::
+
+
+SECTION "Mobile Adapter Config", WRAMX
+
+wMobileConfig:: ds MOBILE_CONFIGURATION_SIZE
 
 
 SECTION "Scratch RAM", WRAMX

@@ -320,6 +320,104 @@ DetermineMoveOrder:
 	scf
 	ret
 
+CheckMoveSpeed::
+; Does speed checks, but includes Quick Claw and Lagging Tail, which are only
+; taken into account for moves.
+	; Quick Claw has a chance to override speed
+	ldh a, [hBattleTurn]
+	ld e, a
+	ld d, 0
+	push de
+	call SetFastestTurn
+	pop de
+	call .do_it
+	call SwitchTurn
+	call .do_it
+	ld a, e
+	ldh [hBattleTurn], a
+	ld a, d ; +1/+2: player, -1/-2: enemy, 0: both/neither
+	and a
+	jmp z, CheckSpeed
+	dec a
+	ret z
+	dec a
+	ret
+
+.do_it
+	; Increases d if player is given priority, decreases if enemy is given it.
+	; d can be +2 or -2 if one is holding Quick Claw and the other Lagging Tail.
+	push de
+
+	; Quick Draw works like Quick Claw except 30% of the time
+	call GetTrueUserAbility
+	cp QUICK_DRAW
+	jr nz, .quick_draw_done
+	ld b, a
+	farcall BufferAbility
+	ld a, 100
+	call RandomRange
+	cp 30
+	jr nc, .quick_draw_done
+
+	farcall DisableAnimations
+	farcall ShowAbilityActivation
+	ld hl, BattleText_UserItemLetItMoveFirst
+	call StdBattleTextbox
+	farcall EnableAnimations
+	jr .set_priority
+
+.quick_draw_done
+	predef GetUserItemAfterUnnerve
+	ld a, b
+	cp HELD_QUICK_CLAW
+	jr z, .quick_claw
+	cp HELD_CUSTAP_BERRY
+	jr z, .custap_berry
+	cp HELD_LAGGING_TAIL
+	pop de
+	ret nz
+
+	; Lagging tail gives the foe priority
+	ldh a, [hBattleTurn]
+	and a
+	ret nz
+	dec d
+	dec d
+	ret
+
+.custap_berry
+	call QuarterPinchOrGluttony
+	pop de
+	ret nz
+	call .activate_item
+	push de
+	farcall ConsumeUserItem
+	pop de
+	ret
+
+.quick_claw
+	ld a, 100
+	call BattleRandomRange
+	cp c
+	pop de
+	ret nc
+.activate_item
+	push de
+	call ItemRecoveryAnim
+	predef GetUserItemAfterUnnerve
+	call GetCurItemName
+	ld hl, BattleText_UserItemLetItMoveFirst
+	call StdBattleTextbox
+.set_priority
+	pop de
+	inc d
+	ldh a, [hBattleTurn]
+	and a
+	ret z
+	dec d
+	dec d
+	ret
+
 GetSpeed::
 ; Sets bc to speed after items and stat changes.
 ; Fainted mons use raw speed (Tailwind and Pledge swamp isn't implemented).
@@ -5556,11 +5654,27 @@ LinkBattleError:
 	call StdBattleTextbox
 	jmp SoftReset
 
+LinkBattleSendRaw:
+; Ignores current battle state and sends whatever is in a without updating
+; link result
+	ld b, a
+	ld a, [wBattleAction]
+	push af
+	ld a, b
+	call BattleDoSendLink
+	pop af
+	ld [wBattleAction], a
+	ret
+
 LinkBattleSendReceiveAction:
 ; Note that only the lower 4 bits is usable. The higher 4 determines what kind
 ; of linking we are performing.
-	call .StageForSend
+	call LinkBattle_StageForSend
+BattleDoSendLink:
 	ld [wLinkBattleSentAction], a
+	call MobileLinkTransfer
+	ret c
+	ret nz
 	call PlaceWaitingText
 	ld a, [wLinkBattleSentAction]
 	ld [wPlayerLinkAction], a
@@ -5592,7 +5706,7 @@ LinkBattleSendReceiveAction:
 	ld [wBattleAction], a
 	ret
 
-.StageForSend:
+LinkBattle_StageForSend:
 	ld a, [wBattlePlayerAction]
 	and a
 	jr nz, .switch
@@ -5609,6 +5723,32 @@ LinkBattleSendReceiveAction:
 	ld a, [wPlayerSwitchTarget]
 	add BATTLEACTION_SWITCH1 - 1
 	jr .use_move
+
+MobileLinkTransfer:
+; Returns z if not on mobile, c if disconnected
+	ldh a, [hMobile]
+	and a
+	ret z
+	ld a, [wLinkBattleSentAction]
+	and $f
+	cp BATTLEACTION_NEWRANDOM
+	jr z, .firstloop
+	ld hl, BattleText_WaitingForOpponent
+	call StdBattleTextbox
+	jr .firstloop
+
+.loop
+	ld c, 60
+	call DelayFrames
+.firstloop
+	ld a, PO_CMD_BATTLETURN
+	farcall PO_ServerCommand
+	ret c
+	jr z, .loop
+	ld a, [wOtherPlayerLinkAction]
+	ld [wBattleAction], a
+	or 1
+	ret
 
 LoadEnemyWildmon:
 ; Initialize wildmon data
@@ -6045,9 +6185,35 @@ _BattleRandom::
 	and a
 	jmp z, Random
 
-; The PRNG operates in streams of 10 values.
+	ldh a, [hMobile]
+	and a
+	jr z, .link_rng
 
-; Which value are we trying to pull?
+	; Uses random numbers provided by the server
+	push hl
+	push de
+	push bc
+.got_newrng
+	ld a, [wPO_RNGPointer]
+	ld c, a
+	inc a
+	and $f
+	jr z, .request_new_numbers
+	ld [wPO_RNGPointer], a
+	ld b, 0
+	ld hl, wPO_RNGStream
+	add hl, bc
+	ld a, [hl]
+	jmp PopBCDEHL
+
+.request_new_numbers
+	ld a, BATTLEACTION_NEWRANDOM
+	call LinkBattleSendRaw
+	jr .got_newrng
+
+.link_rng
+	; The PRNG operates in streams of 10 values.
+	; Which value are we trying to pull?
 	push hl
 	push bc
 	ld a, [wLinkBattleRNCount]

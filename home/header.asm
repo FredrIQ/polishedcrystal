@@ -126,6 +126,7 @@ GetCGBLayout::
 
 SECTION "timer", ROM0[$0050]
 ; TIMER is never enabled
+	jmp Timer
 
 
 SECTION "serial", ROM0[$0058]

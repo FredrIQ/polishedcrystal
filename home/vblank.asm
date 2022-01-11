@@ -22,7 +22,7 @@ VBlank::
 	; _SafeCopyTilemapAtOnce sets it to 1 << 7 | 7 to execute actual VBlank7.
 	ldh a, [hVBlank]
 	cp 7
-	jr z, .skipToGameTime
+	jmp z, .skipToGameTime
 
 	; Avoid chaining crashes as a rule. This is especially for vblank ones.
 	; Thus, the fact that this doesn't avoid chaining rst0 (error code 0) is ok.
@@ -77,6 +77,25 @@ VBlank::
 .doGameTime
 	call GameTimer
 
+	; mobile adapter keep-alive
+	ldh a, [hMobile]
+	cp MOBILE_STANDBY
+	jr nz, .no_mobile
+	ld hl, wMobileSessionEnabled
+	ld a, [hl]
+	and a
+	jr z, .no_mobile
+	dec [hl]
+	jr nz, .no_mobile
+	ld [hl], 20
+	ld a, MOBILE_RECV_BYTE
+	ldh [rSB], a
+
+	; Stage for sending in timer interrupt.
+	ld a, 1 << MOBILE_NEXTBYTE_F | MOBILE_STANDBY
+	ldh [hMobile], a
+
+.no_mobile
 	ld hl, hVBlankOccurred
 	dec [hl]
 	jr nz, .noVBlankLeak
