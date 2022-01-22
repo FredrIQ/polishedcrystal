@@ -94,11 +94,6 @@ CheckWarpTile::
 	scf
 	ret
 
-WarpCheck::
-	call GetDestinationWarpNumber
-	ret nc
-	jr CopyWarpData
-
 GetDestinationWarpNumber::
 	farcall CheckWarpCollision
 	ret nc
@@ -165,6 +160,9 @@ GetDestinationWarpNumber::
 	scf
 	ret
 
+WarpCheck::
+	call GetDestinationWarpNumber
+	ret nc
 CopyWarpData::
 	ldh a, [hROMBank]
 	push af
@@ -962,30 +960,26 @@ ObjectEvent::
 DoNothingScript::
 	end
 
-CheckObjectMask::
+_GetObjectMask:
 	ldh a, [hMapObjectIndexBuffer]
 	ld e, a
-	ld d, $0
+	ld d, 0
 	ld hl, wObjectMasks
 	add hl, de
+	ret
+
+CheckObjectMask::
+	call _GetObjectMask
 	ld a, [hl]
 	ret
 
 MaskObject::
-	ldh a, [hMapObjectIndexBuffer]
-	ld e, a
-	ld d, $0
-	ld hl, wObjectMasks
-	add hl, de
+	call _GetObjectMask
 	ld [hl], -1 ; , masked
 	ret
 
 UnmaskObject::
-	ldh a, [hMapObjectIndexBuffer]
-	ld e, a
-	ld d, $0
-	ld hl, wObjectMasks
-	add hl, de
+	call _GetObjectMask
 	ld [hl], 0 ; unmasked
 	ret
 
@@ -1919,22 +1913,6 @@ GetWorldMapLocation::
 	call GetAnyMapField
 	ld a, c
 	jmp PopBCDEHL
-
-RandomRegionCheck::
-; Returns current region, like RegionCheck, except that Mt. Silver and Route 28
-; is considered Kanto or Johto at random.
-; e returns 0 in Johto, 1 in Kanto and 2 in Shamouti Island.
-	call GetCurrentLandmark
-	cp SILVER_CAVE
-	jr z, .random
-	cp ROUTE_28
-	jr nz, RegionCheck
-	; fallthrough
-.random
-	call Random
-	and 1
-	ld e, a
-	ret
 
 RegionCheck::
 ; Checks if the player is in Kanto or Johto.

@@ -128,6 +128,8 @@ SECTION "timer", ROM0[$0050]
 ; TIMER is never enabled
 	jmp Timer
 
+	ds 5 ; unused
+
 
 SECTION "serial", ROM0[$0058]
 	jmp Serial

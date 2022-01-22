@@ -213,7 +213,9 @@ hCrashCode:: db
 
 hMobile:: db
 
-	ds 6
+	ds 4
+
+hPlaceStringCoords:: dw
 
 hAppendVWFText:: ds 4
 

@@ -65,9 +65,7 @@ wNextRadioLine:: db
 wRadioTextDelay:: db
 wNumRadioLinesPrinted:: db
 wOaksPkmnTalkSegmentCounter:: db
-	ds 5
 wRadioText:: ds 2 * SCREEN_WIDTH
-wRadioTextEnd::
 
 NEXTU
 ; movement buffer data
@@ -1331,13 +1329,13 @@ wPokedexFlags::
 wPokedexCaught:: flag_array NUM_UNIQUE_POKEMON
 wEndPokedexCaught::
 
-	ds 4 ; unused
+	ds 2 ; unused
 
 wPokedexSeen:: flag_array NUM_UNIQUE_POKEMON
 wEndPokedexSeen::
 wEndPokedexFlags::
 
-	ds 4 ; unused
+	ds 2 ; unused
 
 wUnlockedUnowns:: db
 
@@ -1578,7 +1576,7 @@ wDexAreaModeCopy:: db ; written to from hPokedexAreaMode on screen reload
 
 	; Used to align wDexAreaMons2. Feel free to add more data here, just don't
 	; let wDexAreaMons2 be misaligned (an assert will tell you if you do).
-	ds $2c
+	ds $2b
 
 wDexAreaMons2:: ds (wDexAreaMonsEnd - wDexAreaMons)
 
