@@ -1,4 +1,4 @@
-add_special: MACRO
+MACRO add_special
 \1Special::
 	dba \1
 ENDM
@@ -11,7 +11,7 @@ SpecialsPointers::
 	add_special Special_WaitForLinkedFriend
 	add_special Special_CheckLinkTimeout
 	add_special Special_TryQuickSave
-	add_special Special_CheckBothSelectedSameRoom
+	add_special PerformLinkChecks
 	add_special Special_FailedLinkToPast
 	add_special Special_CloseLink
 	add_special WaitForOtherPlayerToExit
@@ -174,3 +174,4 @@ SpecialsPointers::
 	add_special GetCurBoxName
 	add_special CountCaught
 	add_special CountSeen
+	add_special PickPsychicInverParty

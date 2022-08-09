@@ -33,6 +33,8 @@ ROM0
 	"Header"
 	org $0150
 	"Home"
+	org $3fd7
+	"Build Timestamp"
 
 ROMX $01
 	"bank1"
@@ -91,6 +93,7 @@ ROMX $11
 
 ROMX $12
 	"Crystal Features 1"
+	"Bill's PC"
 
 ROMX $13
 	"bank13"
@@ -230,6 +233,9 @@ WRAM0
 	"Misc 1300"
 	org $ced0
 	"Video"
+	"More WRAM 0"
+	org $cff0
+	"Options"
 
 WRAMX $1
 	org $d000
@@ -270,19 +276,20 @@ WRAMX $7
 	"Window Stack"
 
 SRAM $0
-	"Scratch"
-	"SRAM Bank 0"
 	"PokeDB bank 1B"
-	org $b200
-	"Backup Save"
 	"Link Battle Data"
 	"SRAM Battle Tower"
+	org $a600
+	"SRAM Mail"
+	"SRAM Bank 0"
+	"PokeDB bank 2B"
+	org $b200
+	"Backup Save"
 
 SRAM $1
 	"Save"
 	"SRAM Hall of Fame"
 	"Active Box"
-	"PokeDB bank 2B"
 	"PokeDB bank 1C"
 	"PokeDB bank 2C"
 

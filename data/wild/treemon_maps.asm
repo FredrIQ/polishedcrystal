@@ -1,4 +1,4 @@
-treemon_map: MACRO
+MACRO treemon_map
 	map_id \1
 	db  \2 ; treemon set
 ENDM
@@ -32,7 +32,6 @@ TreeMonMaps:
 	treemon_map VIOLET_CITY, TREEMON_SET_CITY
 	treemon_map AZALEA_TOWN, TREEMON_SET_TOWN
 	treemon_map CIANWOOD_CITY, TREEMON_SET_CITY
-	treemon_map GOLDENROD_CITY, TREEMON_SET_CITY
 	treemon_map OLIVINE_CITY, TREEMON_SET_CITY
 	treemon_map ECRUTEAK_CITY, TREEMON_SET_CITY
 	treemon_map MAHOGANY_TOWN, TREEMON_SET_CITY
@@ -44,7 +43,8 @@ TreeMonMaps:
 	treemon_map YELLOW_FOREST, TREEMON_SET_FOREST
 	treemon_map ROUTE_32_COAST, TREEMON_SET_KANTO
 	treemon_map ROUTE_34_COAST, TREEMON_SET_ROUTE
-	treemon_map ROUTE_35_COAST, TREEMON_SET_ROUTE
+	treemon_map ROUTE_35_COAST_NORTH, TREEMON_SET_ROUTE
+	treemon_map ROUTE_35_COAST_SOUTH, TREEMON_SET_ROUTE
 	treemon_map NOISY_FOREST, TREEMON_SET_ROUTE
 	db -1
 

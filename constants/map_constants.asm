@@ -1,17 +1,17 @@
-newgroup: MACRO
-const_value += 1
-__map_value__ = 1
+MACRO newgroup
+	DEF const_value += 1
+	DEF __map_value__ = 1
 ENDM
 
-map_const: MACRO
+MACRO map_const
 ;\1: map id
 ;\2: width: in blocks
 ;\3: height: in blocks
-GROUP_\1 EQU const_value
-MAP_\1 EQU __map_value__
-__map_value__ += 1
-\1_WIDTH  EQU \2
-\1_HEIGHT EQU \3
+	DEF GROUP_\1 EQU const_value
+	DEF MAP_\1 EQU __map_value__
+	DEF __map_value__ += 1
+	DEF \1_WIDTH  EQU \2
+	DEF \1_HEIGHT EQU \3
 ENDM
 
 ; map group ids
@@ -38,9 +38,11 @@ ENDM
 	map_const ROUTE_39_BARN,                               4,  4 ; 10
 	map_const ROUTE_39_FARMHOUSE,                          4,  4 ; 11
 	map_const ROUTE_38,                                   20,  9 ; 12
-	map_const ROUTE_39,                                   10, 20 ; 13
-	map_const OLIVINE_CITY,                               33, 16 ; 14
-	map_const ROUTE_35_COAST,                             26, 14 ; 15
+	map_const ROUTE_39,                                   10, 27 ; 13
+	map_const OLIVINE_CITY,                               22, 16 ; 14
+	map_const ROUTE_35_COAST_NORTH,                       11, 13 ; 15
+	map_const ROUTE_35_COAST_SOUTH,                       26, 14 ; 16
+	map_const OLIVINE_CITY_ROUTE_35_COAST_DUAL,           26,  3 ; 17
 
 	newgroup                                                     ;  2
 	map_const MAHOGANY_RED_GYARADOS_SPEECH_HOUSE,          4,  4 ;  1
@@ -236,7 +238,7 @@ ENDM
 
 	newgroup                                                     ; 10
 	map_const ROUTE_32,                                   10, 45 ;  1
-	map_const ROUTE_32_COAST,                             15, 36 ;  2
+	map_const ROUTE_32_COAST,                             15, 35 ;  2
 	map_const VIOLET_CITY,                                20, 20 ;  3
 	map_const VIOLET_MART,                                 6,  4 ;  4
 	map_const VIOLET_GYM,                                  5,  8 ;  5
@@ -279,7 +281,7 @@ ENDM
 	map_const ILEX_FOREST_AZALEA_GATE,                     5,  4 ; 26
 	map_const ROUTE_34_ILEX_FOREST_GATE,                   5,  4 ; 27
 	map_const ROUTE_35_GOLDENROD_GATE,                     5,  4 ; 28
-	map_const GOLDENROD_HP_UP_HOUSE,                       4,  4 ; 29
+	map_const GOLDENROD_HONEY_HOUSE,                       4,  4 ; 29
 	map_const GOLDENROD_NET_BALL_HOUSE,                    4,  4 ; 30
 	map_const GOLDENROD_BAND_HOUSE,                        4,  4 ; 31
 	map_const GOLDENROD_MUSEUM_1F,                         7,  4 ; 32
@@ -573,10 +575,10 @@ ENDM
 	map_const SAFFRON_RICH_SPEECH_HOUSE,                   4,  4 ; 20
 
 	newgroup                                                     ; 26
-	map_const ROUTE_30,                                   10, 27 ;  1
+	map_const ROUTE_30,                                   13, 27 ;  1
 	map_const ROUTE_31,                                   22,  9 ;  2
-	map_const CHERRYGROVE_BAY,                            15, 25 ;  3
-	map_const CHERRYGROVE_CITY,                           20, 10 ;  4
+	map_const CHERRYGROVE_BAY,                            15, 26 ;  3
+	map_const CHERRYGROVE_CITY,                           20, 11 ;  4
 	map_const CHERRYGROVE_MART,                            6,  4 ;  5
 	map_const CHERRYGROVE_POKECENTER_1F,                   6,  4 ;  6
 	map_const CHERRYGROVE_GYM_SPEECH_HOUSE,                4,  4 ;  7
@@ -689,4 +691,9 @@ ENDM
 	map_const SAFFRON_CITY,                               20, 19 ;  1
 	map_const SHAMOUTI_SHRINE_RUINS,                      12, 17 ;  2
 
-NUM_MAP_GROUPS EQU const_value ; 36
+	newgroup                                                     ; 36
+	map_const RUGGED_ROAD,                                10, 27 ;  1
+	map_const SNOWTOP_MOUNTAIN,                           20, 18 ;  2
+	map_const ROUTE_39_RUGGED_ROAD_GATE,                   5,  4 ;  3
+
+DEF NUM_MAP_GROUPS EQU const_value ; 37

@@ -1,9 +1,9 @@
-parent_node: MACRO
+MACRO parent_node
 	_parent_node \1 ; left branch for bit 0
 	_parent_node \2 ; right branch for bit 1
 ENDM
 
-_parent_node: MACRO
+MACRO _parent_node
 	if STRIN("\1", "$") == 1
 		; hex literals indicate parent nodes
 		assert $00 < \1 && \1 < $7f, "invalid parent node value \1"
@@ -13,6 +13,9 @@ _parent_node: MACRO
 		DEF x = \1
 		if !DEF(___huffman_data_{02X:x})
 			fail "invalid leaf node character \1"
+		endc
+		if DEF(___huffman_leaf_node_{02X:x})
+			fail "already mapped leaf node character \1"
 		endc
 		DEF ___huffman_leaf_node_{02X:x} = 1
 		if $7f <= \1 && \1 <= $eb

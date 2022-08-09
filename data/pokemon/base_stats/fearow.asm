@@ -2,16 +2,19 @@ if DEF(FAITHFUL)
 	db  65,  90,  65, 100,  61,  61 ; 442 BST
 	;   hp  atk  def  spd  sat  sdf
 else
-	db  65,  95,  65, 105,  61,  61 ; 452 BST
+	db  75,  99,  65, 101,  66,  66 ; 472 BST
 	;   hp  atk  def  spd  sat  sdf
 endc
 
 	db NORMAL, FLYING ; type
 	db 90 ; catch rate
+if DEF(FAITHFUL)
 	db 162 ; base exp
-	db NO_ITEM ; item 1
-	db SHARP_BEAK ; item 2
-	dn GENDER_F50, 2 ; gender ratio, step cycles to hatch
+else
+	db 169 ; base exp
+endc
+	db NO_ITEM, SHARP_BEAK ; held items
+	dn GENDER_F50, HATCH_FAST ; gender ratio, step cycles to hatch
 	INCBIN "gfx/pokemon/fearow/front.dimensions"
 	abilities_for FEAROW, KEEN_EYE, KEEN_EYE, SNIPER
 	db GROWTH_MEDIUM_FAST ; growth rate

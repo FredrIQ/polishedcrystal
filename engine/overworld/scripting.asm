@@ -265,6 +265,10 @@ ScriptCommandTable:
 	dw Script_givebp                     ; ce
 	dw Script_takebp                     ; cf
 	dw Script_checkbp                    ; d0
+	dw Script_sjumpfwd                   ; d1
+	dw Script_ifequalfwd                 ; d2
+	dw Script_iffalsefwd                 ; d3
+	dw Script_iftruefwd                  ; d4
 	assert_table_length NUM_EVENT_COMMANDS
 
 StartScript:
@@ -495,6 +499,7 @@ Script_yesorno:
 	sbc a
 	inc a
 	ldh [hScriptVar], a
+	vc_hook Script_yesorno_ret
 	ret
 
 Script_loadmenu:
@@ -585,7 +590,7 @@ Script_verbosegiveitem:
 
 GiveItemScript:
 	farwritetext _ReceivedItemText
-	iffalse .Full
+	iffalsefwd .Full
 	specialsound
 	waitbutton
 	itemnotify
@@ -803,8 +808,6 @@ Script_trainerflagaction:
 	call GetScriptByte
 	ld b, a
 	call EventFlagAction
-	ld a, c
-	and a
 	ret z
 	ld a, TRUE
 	ldh [hScriptVar], a
@@ -1374,9 +1377,7 @@ Script_sjump:
 	ld l, a
 	call GetScriptByte
 	ld h, a
-	ld a, [wScriptBank]
-	ld b, a
-	jmp ScriptJump
+	jmp ScriptJumpInCurrentBank
 
 Script_farsjump:
 	call GetScriptByte
@@ -1385,7 +1386,7 @@ Script_farsjump:
 	ld l, a
 	call GetScriptByte
 	ld h, a
-	jr ScriptJump
+	jmp ScriptJump
 
 Script_memjump:
 	call GetScriptByte
@@ -1402,8 +1403,8 @@ Script_memjump:
 Script_iffalse:
 	ldh a, [hScriptVar]
 	and a
-	jr nz, SkipTwoScriptBytes
-	jr Script_sjump
+	jr z, Script_sjump
+	jr SkipTwoScriptBytes
 
 Script_iftrue:
 	ldh a, [hScriptVar]
@@ -1445,6 +1446,25 @@ SkipTwoScriptBytes:
 	call GetScriptByte
 	jmp GetScriptByte
 
+Script_iffalsefwd:
+	ldh a, [hScriptVar]
+	and a
+	jr z, Script_sjumpfwd
+	jmp GetScriptByte
+
+Script_iftruefwd:
+	ldh a, [hScriptVar]
+	and a
+	jr nz, Script_sjumpfwd
+	jmp GetScriptByte
+
+Script_ifequalfwd:
+	call GetScriptByte
+	ld hl, hScriptVar
+	cp [hl]
+	jr z, Script_sjumpfwd
+	jmp GetScriptByte
+
 Script_jumpstd:
 	call StdScript
 	jr ScriptJump
@@ -1473,11 +1493,24 @@ StdScript:
 ScriptJump:
 	ld a, b
 	ld [wScriptBank], a
+ScriptJumpInCurrentBank:
 	ld a, l
 	ld [wScriptPos], a
 	ld a, h
 	ld [wScriptPos + 1], a
 	ret
+
+Script_sjumpfwd:
+	ld hl, wScriptPos
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	call GetScriptByte
+	ld b, 0
+	ld c, a
+	add hl, bc
+	jr ScriptJumpInCurrentBank
 
 Script_sdefer:
 	ld a, [wScriptBank]
@@ -2075,21 +2108,20 @@ endr
 Script_giveegg:
 ; return 0 in hScriptVar if no room in party or box
 ; return 1 if sent to party, return 2 if sent to box
-	xor a
-	ld [wOTPartyCount], a
-	ld [wCurItem], a
-	ld [wCurPlayerMove], a
-	inc a
-	ld [wMonType], a  ; OTPARTYMON
-	ld [wBattleMode], a
-	ld [wCurPartyLevel], a ; EGG_LEVEL
-	ld a, POKE_BALL
-	ld [wGiftMonBall], a
 	call GetScriptByte
 	ld [wCurPartySpecies], a
-	ld [wEnemyMonSpecies], a
 	call GetScriptByte
 	ld [wCurForm], a
+	xor a
+	ld [wCurItem], a
+	ld [wCurPlayerMove], a
+	ld b, a
+	inc a
+	assert EGG_LEVEL == 1
+	ld [wCurPartyLevel], a
+	assert POKE_BALL == 1
+	ld [wGiftMonBall], a
+
 	farcall GivePoke
 	ld a, b
 	ldh [hScriptVar], a
@@ -2118,8 +2150,6 @@ Script_checkevent:
 	ld d, a
 	ld b, CHECK_FLAG
 	call EventFlagAction
-	ld a, c
-	and a
 	jr z, .false
 	ld a, TRUE
 .false
@@ -2527,7 +2557,7 @@ Script_checkunits:
 Script_unowntypeface:
 	ld a, [wOptions2]
 	ld [wOptionsBuffer], a
-	and $ff - FONT_MASK
+	and ~FONT_MASK
 	or UNOWN_FONT
 	ld [wOptions2], a
 	jmp LoadStandardFont
@@ -2658,6 +2688,7 @@ Script_verbosegivekeyitem:
 GiveKeyItemScript:
 	farwritetext _ReceivedItemText
 	playsound SFX_KEY_ITEM
+	waitsfx
 	waitbutton
 	keyitemnotify
 	end

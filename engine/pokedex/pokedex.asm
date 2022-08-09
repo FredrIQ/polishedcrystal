@@ -204,7 +204,8 @@ Pokedex_ChangeForm:
 Pokedex_MonHasCosmeticForms:
 ; Returns carry if the given mon on the cursor doesn't have cosmetic forms.
 	call Pokedex_GetCursorSpecies
-
+	; fallthrough
+_Pokedex_MonHasCosmeticForms:
 	; Used to track when we reach the end of the cosmetic table
 	ld de, -VariantSpeciesAndFormTable
 	ld hl, CosmeticSpeciesAndFormTable
@@ -341,7 +342,7 @@ Pokedex_GetMonIconPalette:
 	ld a, [wCurIconForm]
 	ld b, a
 	ld a, [wPokedex_Shiny]
-	farcall GetMenuMonIconTruePalette
+	farcall GetMonPalInBCDE
 	ld hl, wBGPals1 palette 2 + 5
 	ld a, d
 	ld [hld], a
@@ -777,46 +778,21 @@ Pokedex_UpdateRow:
 	push af
 	push hl
 	xor a
-	farcall GetMenuMonIconTruePalette
+	farcall GetMonPalInBCDE
 	pop hl
 	pop af
 	push af
 	jr nz, .species_caught
 
 	; Apply transparency
-	push hl
-	; Remove least significant bit from each pal color.
-	ld hl, palred 30 + palgreen 30 + palblue 30
-	ld a, c
-	and l
-	ld c, a
-	ld a, b
-	and h
-	ld b, a
-	ld a, e
-	and l
-	ld e, a
-	ld a, d
-	and h
-	ld d, a
-
-	; Halve all palette colors
-	srl b
-	rr c
-	srl d
-	rr e
-
-	; Add 16 to each palette color.
-	ld hl, palred 16 + palgreen 16 + palblue 16
-	push hl
-	add hl, de
-	ld d, h
-	ld e, l
-	pop hl
-	add hl, bc
-	ld b, h
-	ld c, l
-	pop hl
+	push bc
+	ld b, d
+	ld c, e
+	farcall ApplyWhiteTransparency
+	ld d, b
+	ld e, c
+	pop bc
+	farcall ApplyWhiteTransparency
 
 .species_caught
 	ld a, c
@@ -839,7 +815,7 @@ Pokedex_UpdateRow:
 	; Icon
 	pop bc
 	push af
-	farcall _LoadOverworldMonIcon
+	farcall LoadMiniForSpeciesAndForm
 	pop af
 	ld a, b
 	pop bc
@@ -1750,10 +1726,14 @@ Pokedex_Bio:
 	call FarString
 
 	; Print hatch rate
-	ld a, [wBaseEggSteps]
-	and $f ; no-optimize a & X == X
-	cp $f
 	ld de, Unknown
+	ld a, [wBaseEggGroups]
+	assert EGG_NONE * $11 == $ff
+	inc a
+	jr z, .goteggsteps
+	ld a, [wBaseEggSteps]
+	and $f
+	cp HATCH_UNKNOWN
 	jr z, .goteggsteps
 	ld e, a
 	ld d, 0
@@ -1852,8 +1832,8 @@ Pokedex_Bio:
 	ld e, l
 	ret
 
-.AllString
-	db "All @"
+.AllString:
+	db "100%@"
 
 INCLUDE "data/pokedex_bio.asm"
 
@@ -2896,13 +2876,33 @@ Pokedex_CountSeenOwn:
 	push de
 	push bc
 	push af
+	ld hl, wDexCacheValid
+	ld a, [hli]
+	and a
+	ld de, wTempDexSeen
+	ld bc, 4
+	jr z, .cache_not_valid
+	rst CopyBytes
+	jr .done
+
+.cache_not_valid
 	; Reset temp dex data.
+	push hl
+	push de
+	push bc
 	ld hl, wTempDex
 	ld bc, wTempDexEnd - wTempDex
 	xor a
 	rst ByteFill
 	ld hl, Pokedex_HandleSeenOwn
 	call Pokedex_IterateSpecies
+	pop bc
+	pop hl
+	pop de
+	rst CopyBytes
+	ld a, 1
+	ld [wDexCacheValid], a
+.done
 	jmp PopAFBCDEHL
 
 Pokedex_HandleSeenOwn:
@@ -3124,13 +3124,18 @@ Pokedex_GetInput:
 
 Pokedex_LoadUndiscoveredPokepic:
 ; Always returns z.
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wDecompressScratch)
+	ldh [rSVBK], a
+	ld a, 7
+	ld [wMonPicSize], a
 	ld hl, QuestionMarkLZ
-	ld de, sScratch + 1 tiles
-	ld a, BANK(sScratch)
-	call GetSRAMBank
+	call GetPaddedFrontpicAddress
 	ld a, BANK(QuestionMarkLZ)
 	call FarDecompressToDE
-	call CloseSRAM
+	pop af
+	ldh [rSVBK], a
 	ld hl, wPokedex_GFXFlags
 	set DEXGFX_FRONTPIC, [hl]
 
@@ -3267,7 +3272,13 @@ _Pokedex_GetCursorMon:
 
 	; Frontpic
 	call GetBaseData
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wCurPartySpecies)
+	ldh [rSVBK], a
 	farcall PrepareFrontpic
+	pop af
+	ldh [rSVBK], a
 	ld hl, wPokedex_GFXFlags
 	set DEXGFX_FRONTPIC, [hl]
 
@@ -3296,7 +3307,7 @@ _Pokedex_GetCursorMon:
 	pop af
 	ldh a, [rSVBK]
 	push af
-	jr z, .type_pals_done
+	jmp z, .type_pals_done
 
 	ld a, 1
 	ld [wPokedexOAM_IsCaught], a
@@ -3344,12 +3355,26 @@ _Pokedex_GetCursorMon:
 	; Footprint
 	call Pokedex_GetCursorSpecies
 	call GetSpeciesAndFormIndex
-	ld hl, Footprints
-	ld a, 4 * LEN_1BPP_TILE
-	rst AddNTimes
+	ld hl, FootprintPointers
+	add hl, bc
+	add hl, bc
+	ld a, BANK(FootprintPointers)
+	call GetFarWord
+	ld a, BANK(Footprints)
 	ld de, wDexMonFootprintTiles
-	lb bc, BANK(Footprints), 4
-	call Pokedex_Copy1bpp
+	call FarDecompressToDE
+	; Expand 1bpp to 2bpp
+	ld hl, wDexMonFootprintTiles + 4 * LEN_1BPP_TILE - 1
+	ld de, wDexMonFootprintTiles + 4 tiles - 1
+	ld c, 4 * LEN_1BPP_TILE
+.footprint_loop
+	ld a, [hld]
+	ld [de], a
+	dec de
+	ld [de], a
+	dec de
+	dec c
+	jr nz, .footprint_loop
 
 	; Make the type icons use color 1 and 2 of the pal instead of 3.
 	ld hl, wDexMonType1Tiles + 1
@@ -3371,7 +3396,7 @@ _Pokedex_GetCursorMon:
 	cp DEXDISP_DESC
 	jr c, .done_2
 
-	farcall LoadOverworldMonIcon
+	farcall LoadMini
 	ld h, d
 	ld l, e
 	ld a, BANK(wDexMonIconTiles)

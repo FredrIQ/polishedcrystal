@@ -1,4 +1,4 @@
-anim_obj_gfx: MACRO
+MACRO anim_obj_gfx
 ; # tiles, label
 	db  \1
 	dba \2
@@ -8,7 +8,7 @@ AnimObjGFX:
 ; entries correspond to ANIM_GFX_* constants
 	table_width 4, AnimObjGFX
 	anim_obj_gfx  0, AnimObj00GFX
-	anim_obj_gfx 21, AnimObjHitGFX
+	anim_obj_gfx 35, AnimObjHitGFX
 	anim_obj_gfx  6, AnimObjCutGFX
 	anim_obj_gfx  6, AnimObjFireGFX
 	anim_obj_gfx 20, AnimObjWaterGFX
@@ -16,7 +16,7 @@ AnimObjGFX:
 	anim_obj_gfx 18, AnimObjPlantGFX
 	anim_obj_gfx 12, AnimObjSmokeGFX
 	anim_obj_gfx  9, AnimObjExplosionGFX
-	anim_obj_gfx 17, AnimObjRocksGFX
+	anim_obj_gfx 19, AnimObjRocksGFX
 	anim_obj_gfx  6, AnimObjIceGFX
 	anim_obj_gfx 10, NULL ; AnimObjPokeBallGFX
 	anim_obj_gfx  9, AnimObjPoisonGFX
@@ -48,6 +48,12 @@ AnimObjGFX:
 	anim_obj_gfx 18, AnimObjWaveGFX
 	anim_obj_gfx 24, AnimObjAeroblastGFX
 	anim_obj_gfx 16, AnimObjMoonGFX
+	anim_obj_gfx  9, AnimObjBugBuzzGFX
+	anim_obj_gfx 56, AnimObjLeafStormGFX
+	anim_obj_gfx  5, AnimObjHeartsGFX
+	anim_obj_gfx  5, AnimObjStarsGFX
+	anim_obj_gfx  8, AnimObjMiniGFX
 	anim_obj_gfx  1, NULL
 	anim_obj_gfx  1, NULL
+	anim_obj_gfx 10, AnimObjPokeBallBGGFX
 	assert_table_length NUM_ANIM_GFX + 1

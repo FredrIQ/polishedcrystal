@@ -330,6 +330,35 @@ endc
 
 	jmp PopAFBCDEHL
 
+ApplyWhiteTransparency:
+; Apply transparency for colors in bc towards white.
+	push hl
+
+	; Remove least significant bit from each pal color.
+	ld hl, palred 30 + palgreen 30 + palblue 30
+	ld a, c
+	and l
+	ld c, a
+	ld a, b
+	and h
+	ld b, a
+
+	; Halve all palette colors
+	srl b
+	rr c
+
+	; Add 16 to each palette color.
+if DEF(MONOCHROME)
+	ld hl, (PAL_MONOCHROME_WHITE >> 1) & %01111_01111_01111
+else
+	ld hl, palred 16 + palgreen 16 + palblue 16
+endc
+	add hl, bc
+	ld b, h
+	ld c, l
+	pop hl
+	ret
+
 WipeAttrMap:
 	hlcoord 0, 0, wAttrmap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
@@ -422,27 +451,78 @@ ApplyPartyMenuHPPals:
 	ld a, e
 	jmp FillBoxWithByte
 
-SetPartyMenuPal:
-; Writes mon icon color a to palette in de
-	ld hl, PartyMenuOBPals
-	ld bc, 1 palettes
-	push bc
-	rst AddNTimes
-	pop bc
-	ld bc, 1 palettes
-	jmp FarCopyColorWRAM
-
 InitPartyMenuOBPals:
 	ld hl, PartyMenuOBPals
 	ld de, wOBPals1
 	ld bc, 8 palettes
-	jmp FarCopyColorWRAM
+	call FarCopyColorWRAM
+
+	ld a, [wPartyCount]
+	ld hl, wPartyMon1Species
+	ld de, wOBPals1 palette 2 + 2
+.loop
+	push af
+	push hl
+	push de
+	; a = species
+	ld a, [hl]
+	; bc = personality
+	push hl
+	ld bc, MON_PERSONALITY - MON_SPECIES
+	add hl, bc
+	ld b, h
+	ld c, l
+	; a = EGG if is egg
+	inc hl
+	bit MON_IS_EGG_F, [hl]
+	jr z, .not_egg
+	ld a, EGG
+.not_egg
+	; hl = palette
+	call GetMonNormalOrShinyPalettePointer
+	; load palette
+	ld bc, 4
+	call FarCopyColorWRAM
+	; c = species
+	pop hl
+	ld c, [hl]
+	; b = form
+	ld de, MON_FORM - MON_SPECIES
+	add hl, de
+	ld b, [hl]
+	; hl = DVs
+	ld de, MON_DVS - MON_FORM
+	add hl, de
+	; vary colors by DVs
+	call CopyDVsToColorVaryDVs ; trashes hl but not bc
+	pop de
+	ld h, d
+	ld l, e
+	call VaryColorsByDVs
+	; skip this black and next white to next colors
+rept 4
+	inc hl
+endr
+	ld d, h
+	ld e, l
+	pop hl
+	ld bc, PARTYMON_STRUCT_LENGTH
+	add hl, bc
+	pop af
+	dec a
+	jr nz, .loop
+	ret
 
 InitPokegearPalettes:
 ; This is needed because the regular palette is dark at night.
 	ld hl, PokegearOBPals
 	ld de, wOBPals1
 	ld bc, 2 palettes
+	call FarCopyColorWRAM
+
+	ld hl, PokegearFlyPalette
+	ld de, wOBPals1 palette 2
+	ld bc, 1 palettes
 	jmp FarCopyColorWRAM
 
 GetBattlemonBackpicPalettePointer:
@@ -520,7 +600,10 @@ GetMonPalettePointer:
 	ld a, [hl]
 	and SPECIESFORM_MASK
 	ld b, a
+	pop af
+_GetMonPalettePointer:
 	; bc = index
+	push af
 	call GetSpeciesAndFormIndex
 	ld h, b
 	ld l, c
@@ -531,6 +614,26 @@ GetMonPalettePointer:
 	ld bc, PokemonPalettes
 	add hl, bc
 	pop af
+	ret
+
+GetMonPalInBCDE:
+; Returns (non-shiny) mon palette for species+form bc in bcde.
+	call _GetMonPalettePointer
+	and SHINY_MASK
+	jr z, .shiny_done
+	; Shiny is the pal right below.
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+.shiny_done
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld e, a
+	ld d, [hl]
 	ret
 
 GetMonNormalOrShinyPalettePointer:
@@ -556,12 +659,12 @@ LoadPokemonPalette:
 
 	; hl = palette
 	call GetMonPalettePointer
-	; load palette in BG 7
-	ld de, wBGPals1 palette 7 + 2
+	; load palette into de (set by caller)
 	ld bc, 4
 	jmp FarCopyColorWRAM
 
 LoadPartyMonPalette:
+	push de
 	; bc = personality
 	ld hl, wPartyMon1Personality
 	ld a, [wCurPartyMon]
@@ -572,8 +675,7 @@ LoadPartyMonPalette:
 	ld a, [wCurPartySpecies]
 	; hl = palette
 	call GetMonNormalOrShinyPalettePointer
-	; load palette in BG 7
-	ld de, wBGPals1 palette PAL_BG_TEXT + 2
+	; load palette in de (set by caller)
 	ld bc, 4
 	call FarCopyColorWRAM
 	; hl = DVs
@@ -587,7 +689,7 @@ LoadPartyMonPalette:
 	ld b, a
 	; vary colors by DVs
 	call CopyDVsToColorVaryDVs
-	ld hl, wBGPals1 palette PAL_BG_TEXT + 2
+	pop hl
 	jmp VaryColorsByDVs
 
 LoadTrainerPalette:

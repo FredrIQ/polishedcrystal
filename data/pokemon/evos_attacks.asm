@@ -1,6 +1,6 @@
 INCLUDE "constants.asm"
 
-evo_data: MACRO
+MACRO evo_data
 	db \1, \2 ; evolution type, parameter
 	if (\1 == EVOLVE_STAT) || (\1 == EVOLVE_HOLDING)
 		db \3 ;  ATK_*_DEF | time of day
@@ -98,6 +98,7 @@ CharmanderEvosAttacks:
 	db 37, FLAMETHROWER
 	db 43, FIRE_SPIN
 	db 46, CRUNCH
+	db 52, FLARE_BLITZ ; Sw/Sh move
 	db -1 ; no more level-up moves
 
 CharmeleonEvosAttacks:
@@ -115,6 +116,7 @@ CharmeleonEvosAttacks:
 	db 43, FLAMETHROWER
 	db 50, FIRE_SPIN
 	db 54, CRUNCH
+	db 61, FLARE_BLITZ ; Sw/Sh move
 	db -1 ; no more level-up moves
 
 CharizardEvosAttacks:
@@ -139,6 +141,7 @@ CharizardEvosAttacks:
 	db 56, FIRE_SPIN
 	db 62, CRUNCH
 	db 71, FLARE_BLITZ
+	db 77, HURRICANE ; Sw/Sh move
 	db -1 ; no more level-up moves
 
 SquirtleEvosAttacks:
@@ -276,7 +279,7 @@ BeedrillEvosAttacks:
 	db 35, POISON_JAB
 	db 38, AGILITY
 	db 41, SWORDS_DANCE ; Endeavor → TM move
-	db 44, OUTRAGE ; Fell Stinger → Let's Go move
+	db 44, OUTRAGE ; Fell Stinger → LGPE move
 	db -1 ; no more level-up moves
 
 PidgeyEvosAttacks:
@@ -336,8 +339,25 @@ PidgeotEvosAttacks:
 	db -1 ; no more level-up moves
 
 RattataPlainEvosAttacks:
-RattataAlolanEvosAttacks:
 	evo_data EVOLVE_LEVEL, 20, RATICATE
+	db -1 ; no more evolutions
+	db 1, TACKLE
+	db 1, LEER ; Tail Whip → similar move
+	db 4, QUICK_ATTACK
+	db 7, FOCUS_ENERGY
+	db 10, BITE
+	db 13, PURSUIT
+	db 16, HYPER_FANG
+	db 19, SUCKER_PUNCH
+	db 22, CRUNCH
+	db 25, FEINT_ATTACK ; Assurance → similar move
+	db 28, SUPER_FANG
+	db 31, DOUBLE_EDGE
+	db 34, COUNTER ; Endeavor → egg move
+	db -1 ; no more level-up moves
+
+RattataAlolanEvosAttacks:
+	evo_data EVOLVE_LEVEL, 20, RATICATE, ALOLAN_FORM
 	db -1 ; no more evolutions
 	db 1, TACKLE
 	db 1, LEER ; Tail Whip → similar move
@@ -458,7 +478,7 @@ PikachuEvosAttacks:
 	db 5, GROWL
 	db 7, CHARM ; Play Nice → Pichu move
 	db 10, QUICK_ATTACK
-	db 13, DOUBLE_KICK ; Electro Ball → Let's Go move
+	db 13, DOUBLE_KICK ; Electro Ball → LGPE move
 	db 18, THUNDER_WAVE
 	db 21, MUD_SLAP ; Feint → GSC TM move
 	db 23, DOUBLE_TEAM
@@ -700,7 +720,7 @@ ClefableEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, HEALINGLIGHT ; Moonlight → similar move
 	db 1, DISARM_VOICE
-	db 1, PLAY_ROUGH ; Let's Go TM move
+	db 1, PLAY_ROUGH ; LGPE TM move
 	db 1, SING
 	db 1, MINIMIZE
 	db 1, METRONOME
@@ -802,7 +822,7 @@ JigglypuffEvosAttacks:
 
 WigglytuffEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, MINIMIZE ; Let's Go move
+	db 1, MINIMIZE ; LGPE move
 	db 1, DOUBLE_EDGE
 	db 1, PLAY_ROUGH
 	db 1, SING
@@ -836,7 +856,7 @@ GolbatEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, SCREECH
 	db 1, ABSORB
-	db 1, CRUNCH ; Let's Go move
+	db 1, CRUNCH ; LGPE move
 	db 5, SUPERSONIC
 	db 7, ASTONISH
 	db 11, BITE
@@ -911,7 +931,7 @@ ParasEvosAttacks:
 	evo_data EVOLVE_LEVEL, 24, PARASECT
 	db -1 ; no more evolutions
 	db 1, SCRATCH
-	db 2, SLEEP_POWDER ; Let's Go move
+	db 2, SLEEP_POWDER ; LGPE move
 	db 4, STUN_SPORE
 	db 6, POISONPOWDER
 	db 11, ABSORB
@@ -929,7 +949,7 @@ ParasectEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, SHADOW_CLAW ; evolution move
 	db 1, SCRATCH
-	db 2, SLEEP_POWDER ; Let's Go move
+	db 2, SLEEP_POWDER ; LGPE move
 	db 4, STUN_SPORE
 	db 6, POISONPOWDER
 	db 11, ABSORB
@@ -991,7 +1011,7 @@ DiglettPlainEvosAttacks:
 	db 1, CHARM ; XD move
 	db 4, GROWL
 	db 7, ASTONISH
-	db 10, AGILITY ; Mud-Slap → Let's Go move
+	db 10, AGILITY ; Mud-Slap → LGPE move
 	db 14, MAGNITUDE
 	db 18, BULLDOZE
 	db 22, SUCKER_PUNCH
@@ -1011,7 +1031,7 @@ DiglettAlolanEvosAttacks:
 	db 1, CHARM ; XD move
 	db 4, GROWL
 	db 7, ASTONISH
-	db 10, AGILITY ; Mud-Slap → Let's Go move
+	db 10, AGILITY ; Mud-Slap → LGPE move
 	db 14, MAGNITUDE
 	db 18, BULLDOZE
 	db 22, SUCKER_PUNCH
@@ -1032,7 +1052,7 @@ DugtrioPlainEvosAttacks:
 	db 1, CHARM ; XD move
 	db 4, GROWL
 	db 7, ASTONISH
-	db 10, AGILITY ; Mud-Slap → Let's Go move
+	db 10, AGILITY ; Mud-Slap → LGPE move
 	db 14, MAGNITUDE
 	db 18, BULLDOZE
 	db 22, SUCKER_PUNCH
@@ -1053,7 +1073,7 @@ DugtrioAlolanEvosAttacks:
 	db 1, CHARM ; XD move
 	db 4, GROWL
 	db 7, ASTONISH
-	db 10, AGILITY ; Mud-Slap → Let's Go move
+	db 10, AGILITY ; Mud-Slap → LGPE move
 	db 14, MAGNITUDE
 	db 18, BULLDOZE
 	db 22, SUCKER_PUNCH
@@ -1270,7 +1290,7 @@ GrowlithePlainEvosAttacks:
 	db 39, CRUNCH
 	db 41, SUNNY_DAY ; Heat Wave → TM move
 	db 43, OUTRAGE
-	db 45, PLAY_ROUGH ; Flare Blitz → Let's Go move
+	db 45, PLAY_ROUGH ; Flare Blitz → LGPE move
 	db 49, FLARE_BLITZ
 	db -1 ; no more level-up moves
 
@@ -1288,12 +1308,37 @@ ArcaninePlainEvosAttacks:
 GrowlitheHisuianEvosAttacks:
 	evo_data EVOLVE_ITEM, FIRE_STONE, ARCANINE, HISUIAN_FORM
 	db -1 ; no more evolutions
-	db 1, TACKLE
+	db 1, GROWL
+	db 1, BITE
+	db 1, ROAR
+	db 6, EMBER
+	db 8, LEER
+	db 10, SAFEGUARD ; Odor Sleuth → egg move
+	db 12, BATON_PASS ; Helping Hand → new move
+	db 17, FIRE_SPIN ; Flame Wheel → egg move
+	db 19, REVERSAL
+	db 21, ROCK_BLAST ; Fire Fang → new move
+	db 23, TAKE_DOWN
+	db 28, FLAME_CHARGE ; Flame Burst → TM move
+	db 30, AGILITY
+	db 32, ROCK_SLIDE
+	db 34, FLAMETHROWER
+	db 39, CRUNCH
+	db 41, POWER_GEM ; Heat Wave → new move
+	db 43, OUTRAGE
+	db 45, PLAY_ROUGH ; Flare Blitz → LGPE move
+	db 49, FLARE_BLITZ
 	db -1 ; no more level-up moves
 
 ArcanineHisuianEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, TACKLE
+	db 1, BULK_UP ; new move
+	db 1, GROWL
+	db 1, BITE
+	db 1, ROAR
+	db 1, FLAME_CHARGE
+	db 1, TAKE_DOWN
+	db 1, EXTREMESPEED ; evolution move
 	db -1 ; no more level-up moves
 
 PoliwagEvosAttacks:
@@ -1308,7 +1353,7 @@ PoliwagEvosAttacks:
 	db 18, RAIN_DANCE
 	db 21, BODY_SLAM
 	db 25, BUBBLE_BEAM
-	db 28, LOW_KICK ; Mud Shot → Let's Go move
+	db 28, LOW_KICK ; Mud Shot → LGPE move
 	db 31, BELLY_DRUM
 	db 35, GROWTH ; Wake-Up Slap → event move
 	db 38, HYDRO_PUMP
@@ -1328,7 +1373,7 @@ PoliwhirlEvosAttacks:
 	db 18, RAIN_DANCE
 	db 21, BODY_SLAM
 	db 27, BUBBLE_BEAM
-	db 28, LOW_KICK ; Mud Shot → Let's Go move
+	db 28, LOW_KICK ; Mud Shot → LGPE move
 	db 37, BELLY_DRUM
 	db 43, GROWTH ; Wake-Up Slap → event move
 	db 48, HYDRO_PUMP
@@ -1360,7 +1405,7 @@ KadabraEvosAttacks:
 	db 16, CONFUSION
 	db 18, DISABLE
 	db 21, PSYBEAM
-	db 23, NIGHT_SHADE ; Miracle Eye → Let's Go move
+	db 23, NIGHT_SHADE ; Miracle Eye → LGPE move
 	db 26, REFLECT
 	db 28, LIGHT_SCREEN ; Psycho Cut → egg move
 	db 31, RECOVER
@@ -1380,7 +1425,7 @@ AlakazamEvosAttacks:
 	db 16, CONFUSION
 	db 18, DISABLE
 	db 21, PSYBEAM
-	db 23, NIGHT_SHADE ; Miracle Eye → Let's Go move
+	db 23, NIGHT_SHADE ; Miracle Eye → LGPE move
 	db 26, REFLECT
 	db 28, LIGHT_SCREEN ; Psycho Cut → egg move
 	db 31, RECOVER
@@ -1895,7 +1940,7 @@ FarfetchDPlainEvosAttacks:
 	db 7, FURY_STRIKES ; Fury Attack → similar move
 	db 9, AERIAL_ACE
 	db 13, KNOCK_OFF
-	db 15, RAZOR_LEAF ; Let's Go move
+	db 15, RAZOR_LEAF ; LGPE move
 	db 19, SLASH
 	db 21, KARATE_CHOP ; Air Cutter → new move
 	db 25, SWORDS_DANCE
@@ -2020,7 +2065,7 @@ DewgongEvosAttacks:
 	db 55, ICE_BEAM
 	db 61, SAFEGUARD
 	db 65, HAIL
-	db 69, MEGAHORN ; Let's Go move
+	db 69, MEGAHORN ; LGPE move
 	db -1 ; no more level-up moves
 
 GrimerPlainEvosAttacks:
@@ -2065,7 +2110,7 @@ GrimerAlolanEvosAttacks:
 
 MukPlainEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, MOONBLAST ; Let's Go move
+	db 1, MOONBLAST ; LGPE move
 	db 1, TACKLE ; Pound → similar move
 	db 1, ACID ; Poison Gas → new move
 	db 4, DEFENSE_CURL ; Harden → similar move
@@ -2085,7 +2130,7 @@ MukPlainEvosAttacks:
 
 MukAlolanEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, MOONBLAST ; Let's Go move
+	db 1, MOONBLAST ; LGPE move
 	db 1, TACKLE ; Pound → similar move
 	db 1, ACID ; Poison Gas → new move
 	db 4, DEFENSE_CURL ; Harden → similar move
@@ -2311,7 +2356,7 @@ VoltorbPlainEvosAttacks:
 	evo_data EVOLVE_LEVEL, 30, ELECTRODE
 	db -1 ; no more evolutions
 	db 1, TACKLE
-	db 1, THUNDERSHOCK ; Let's Go move
+	db 1, THUNDERSHOCK ; LGPE move
 	db 4, SONIC_BOOM
 	db 6, AGILITY ; Eerie Impulse → event move
 	db 9, SPARK
@@ -2332,7 +2377,7 @@ VoltorbPlainEvosAttacks:
 ElectrodePlainEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, TACKLE
-	db 1, THUNDERSHOCK ; Let's Go move
+	db 1, THUNDERSHOCK ; LGPE move
 	db 4, SONIC_BOOM
 	db 6, AGILITY ; Eerie Impulse → event move
 	db 9, SPARK
@@ -2354,11 +2399,45 @@ VoltorbHisuianEvosAttacks:
 	evo_data EVOLVE_LEVEL, 30, ELECTRODE, HISUIAN_FORM
 	db -1 ; no more evolutions
 	db 1, TACKLE
+	db 1, THUNDERSHOCK ; LGPE move
+	db 1, ABSORB ; new move
+	db 4, SONIC_BOOM
+	db 6, AGILITY ; Eerie Impulse → event move
+	db 9, SPARK
+	db 11, ROLLOUT
+	db 13, SCREECH
+	db 16, THUNDER_WAVE ; Charge Beam → TM move
+	db 20, SWIFT
+	db 22, THUNDERBOLT ; Electro Ball → TM move
+	db 26, ENERGY_BALL
+	db 29, LIGHT_SCREEN
+	db 34, EXPLOSION ; Magnet Rise → Explosion
+	db 37, THUNDER ; Discharge → TM move
+	db 41, SOLAR_BEAM ; Chloroblast → TM move
+	db 46, GYRO_BALL
+	db 48, MIRROR_COAT
 	db -1 ; no more level-up moves
 
 ElectrodeHisuianEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, TACKLE
+	db 1, THUNDERSHOCK ; LGPE move
+	db 1, ABSORB ; new move
+	db 4, SONIC_BOOM
+	db 6, AGILITY ; Eerie Impulse → event move
+	db 9, SPARK
+	db 11, ROLLOUT
+	db 13, SCREECH
+	db 16, THUNDER_WAVE ; Charge Beam → TM move
+	db 20, SWIFT
+	db 22, THUNDERBOLT ; Electro Ball → TM move
+	db 26, ENERGY_BALL
+	db 29, LIGHT_SCREEN
+	db 36, EXPLOSION ; Magnet Rise → Explosion
+	db 41, THUNDER ; Discharge → TM move
+	db 47, SOLAR_BEAM ; Chloroblast → TM move
+	db 54, GYRO_BALL
+	db 58, MIRROR_COAT
 	db -1 ; no more level-up moves
 
 ExeggcuteEvosAttacks:
@@ -2374,7 +2453,7 @@ ExeggcuteEvosAttacks:
 	db 19, STUN_SPORE
 	db 21, POISONPOWDER
 	db 23, SLEEP_POWDER
-	db 27, PSYBEAM ; Confusion → Let's Go move
+	db 27, PSYBEAM ; Confusion → LGPE move
 	db 33, ANCIENTPOWER ; Worry Seed → HGSS tutor move
 	db 37, HEALINGLIGHT ; Natural Gift → new move
 	db 43, SOLAR_BEAM
@@ -2455,7 +2534,7 @@ MarowakAlolanEvosAttacks:
 	db 1, GROWL
 	db 3, TACKLE ; Tail Whip → new move
 	db 7, ASTONISH ; Bone Club → new move
-	db 11, FLAME_CHARGE ; Flame Wheel → TM move
+	db 11, FIRE_SPIN ; Flame Wheel → LGPE move
 	db 13, LEER
 	db 17, HEX
 	db 21, BONEMERANG
@@ -2487,7 +2566,7 @@ endc
 	db 29, HI_JUMP_KICK
 	db 33, DOUBLE_TEAM ; Mind Reader → TM move
 	db 37, FORESIGHT
-	db 41, FOCUS_ENERGY ; Wide Guard → Let's Go move
+	db 41, FOCUS_ENERGY ; Wide Guard → LGPE move
 	db 45, REVERSAL ; Blaze Kick → Reversal
 	db 49, ENDURE
 	db 53, FOCUS_BLAST ; Mega Kick → TM move
@@ -2509,7 +2588,7 @@ HitmonchanEvosAttacks:
 	db 36, THUNDERPUNCH
 	db 36, ICE_PUNCH
 	db 36, FIRE_PUNCH
-	db 41, FOCUS_ENERGY ; Sky Uppercut → Let's Go move
+	db 41, FOCUS_ENERGY ; Sky Uppercut → LGPE move
 	db 46, DYNAMICPUNCH ; Mega Punch → TM move
 	db 51, PROTECT ; Detect → TM move
 	db 56, FOCUS_BLAST ; Focus Punch → TM move
@@ -2860,7 +2939,7 @@ JynxEvosAttacks:
 	db 1, CONFUSION ; Smoochum move
 	db 1, SWEET_KISS ; Smoochum move
 	db 5, SING ; Lovely Kiss → Smoochum move
-	db 8, SCREECH ; Lovely Kiss → Let's Go move
+	db 8, SCREECH ; Lovely Kiss → LGPE move
 	db 11, ICY_WIND ; Powder Snow → TM move
 	db 15, DOUBLE_SLAP
 	db 18, ICE_PUNCH
@@ -2925,7 +3004,7 @@ PinsirEvosAttacks:
 	db 26, ROCK_SMASH ; Vital Throw → TM move
 	db 29, X_SCISSOR
 	db 33, FEINT_ATTACK ; Submission → egg moves
-	db 36, OUTRAGE ; Storm Throw → Let's Go move
+	db 36, OUTRAGE ; Storm Throw → LGPE move
 	db 40, SWORDS_DANCE
 	db 43, THRASH
 	db 47, CLOSE_COMBAT ; Superpower → similar move
@@ -2942,7 +3021,7 @@ TaurosEvosAttacks:
 	db 15, PURSUIT
 	db 19, REST
 	db 24, QUICK_ATTACK ; Payback → event move
-	db 29, FOCUS_ENERGY ; Work Up → Let's Go move
+	db 29, FOCUS_ENERGY ; Work Up → LGPE move
 	db 35, TAKE_DOWN
 	db 41, ZEN_HEADBUTT
 	db 48, SWAGGER
@@ -3002,7 +3081,7 @@ LaprasEvosAttacks:
 	db 43, SAFEGUARD
 	db 47, HYDRO_PUMP
 	db 50, OUTRAGE ; Sheer Cold → HGSS tutor move
-	db 54, MEGAHORN ; Let's Go TM move
+	db 54, MEGAHORN ; LGPE TM move
 	db -1 ; no more level-up moves
 
 DittoEvosAttacks:
@@ -3016,8 +3095,8 @@ EeveeEvosAttacks:
 	evo_data EVOLVE_ITEM, FIRE_STONE, FLAREON
 	evo_data EVOLVE_ITEM, SHINY_STONE, SYLVEON
 	evo_data EVOLVE_ITEM, LEAF_STONE, LEAFEON
-	evo_data EVOLVE_LOCATION, ILEX_FOREST, LEAFEON
 	evo_data EVOLVE_ITEM, ICE_STONE, GLACEON
+	evo_data EVOLVE_LOCATION, ILEX_FOREST, LEAFEON
 	evo_data EVOLVE_LOCATION, ICE_PATH, GLACEON
 	evo_data EVOLVE_HAPPINESS, TR_MORNDAY, ESPEON
 	evo_data EVOLVE_HAPPINESS, TR_EVENITE, UMBREON
@@ -3026,7 +3105,7 @@ EeveeEvosAttacks:
 	db 1, TACKLE
 	db 1, LEER ; Tail Whip → similar move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 10, SWIFT
 	db 13, QUICK_ATTACK
 	db 17, BITE
@@ -3047,7 +3126,7 @@ VaporeonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, WATER_GUN ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, WATER_PULSE
 	db 20, AURORA_BEAM
@@ -3066,7 +3145,7 @@ JolteonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, THUNDERSHOCK ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, DOUBLE_KICK
 	db 20, LIGHT_SCREEN ; Thunder Fang → TM move
@@ -3085,7 +3164,7 @@ FlareonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, EMBER ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, BITE
 	db 20, FIRE_SPIN ; Fire Fang → Fire Spin
@@ -3190,7 +3269,7 @@ KabutopsEvosAttacks:
 	db 36, MEGA_DRAIN
 	db 45, SCREECH ; Metal Sound → similar move
 	db 54, ANCIENTPOWER
-	db 63, LEECH_LIFE ; Wring Out → Let's Go move
+	db 63, LEECH_LIFE ; Wring Out → LGPE move
 	db 72, NIGHT_SLASH
 	db 81, SHELL_SMASH ; new move
 	db -1 ; no more level-up moves
@@ -3204,7 +3283,7 @@ AerodactylEvosAttacks:
 	db 1, BITE
 	db 1, SCARY_FACE
 	db 9, ROAR
-	db 13, ROCK_THROW ; Let's Go move
+	db 13, ROCK_THROW ; LGPE move
 	db 17, AGILITY
 	db 25, ANCIENTPOWER
 	db 33, CRUNCH
@@ -3239,7 +3318,7 @@ ArticunoPlainEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, GUST
 	db 1, ICY_WIND ; Powder Snow → similar move
-	db 1, LEER ; Let's Go move
+	db 1, LEER ; LGPE move
 	db 8, ICE_SHARD ; Mist → Ice Shard
 	db 15, SAFEGUARD ; Ice Shard → new move
 	db 22, EXTRASENSORY ; Mind Reader → event move
@@ -3260,7 +3339,7 @@ ArticunoGalarianEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, GUST
 	db 1, CONFUSION
-	db 1, LEER ; Let's Go move
+	db 1, LEER ; LGPE move
 	db 8, SAFEGUARD ; Psycho Shift → new move
 	db 15, HYPNOSIS
 	db 22, EXTRASENSORY ; Mind Reader → event move
@@ -3281,7 +3360,7 @@ ZapdosPlainEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, PECK
 	db 1, THUNDERSHOCK
-	db 1, LEER ; Let's Go move
+	db 1, LEER ; LGPE move
 	db 8, THUNDER_WAVE
 	db 15, PROTECT ; Detect → similar move
 	db 22, EXTRASENSORY ; Pluck → event move
@@ -3302,7 +3381,7 @@ ZapdosGalarianEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, PECK
 	db 1, LOW_KICK ; Rock Smash → TR move
-	db 1, LEER ; Let's Go move
+	db 1, LEER ; LGPE move
 	db 8, FOCUS_ENERGY
 	db 15, PROTECT ; Detect → similar move
 	db 22, COUNTER ; Pluck → Counter
@@ -3323,7 +3402,7 @@ MoltresPlainEvosAttacks:
 	db -1 ; no more evolutions
 	db 1, WING_ATTACK
 	db 1, EMBER
-	db 1, LEER ; Let's Go move
+	db 1, LEER ; LGPE move
 	db 8, FIRE_SPIN
 	db 15, SAFEGUARD ; Agility → Safeguard
 	db 22, EXTRASENSORY ; Endure → event move
@@ -3451,7 +3530,7 @@ MewEvosAttacks:
 	db 1, TELEPORT ; event move
 	db 1, TACKLE ; Pound → similar move
 	db 1, TRANSFORM
-	db 1, CONFUSION ; Let's Go move
+	db 1, CONFUSION ; LGPE move
 	db 10, HEADBUTT ; Mega Punch → TM move
 	db 20, METRONOME
 	db 30, PSYCHIC_M
@@ -3473,10 +3552,11 @@ ChikoritaEvosAttacks:
 	db 9, POISONPOWDER
 	db 12, HEALINGLIGHT ; Synthesis → similar move
 	db 17, REFLECT
+	db 17, LIGHT_SCREEN
 	db 20, DISARM_VOICE ; Magical Leaf → new move
 	db 23, ENERGY_BALL ; Natural Gift → tutor move
 	db 28, ANCIENTPOWER ; Sweet Scent → HGSS tutor move
-	db 31, LIGHT_SCREEN
+	db 31, DAZZLINGLEAM ; Light Screen → TM move
 	db 34, BODY_SLAM
 	db 39, SAFEGUARD
 	db 42, PLAY_ROUGH ; Aromatherapy → new move
@@ -3495,10 +3575,11 @@ BayleefEvosAttacks:
 	db 9, POISONPOWDER
 	db 12, HEALINGLIGHT ; Synthesis → similar move
 	db 18, REFLECT
+	db 18, LIGHT_SCREEN
 	db 22, DISARM_VOICE ; Magical Leaf → new move
 	db 26, ENERGY_BALL ; Natural Gift → tutor move
 	db 32, ANCIENTPOWER ; Sweet Scent → HGSS tutor move
-	db 36, LIGHT_SCREEN
+	db 36, DAZZLINGLEAM ; Light Screen → TM move
 	db 40, BODY_SLAM
 	db 43, SAFEGUARD
 	db 47, PLAY_ROUGH ; Aromatherapy → new move
@@ -3517,10 +3598,11 @@ MeganiumEvosAttacks:
 	db 9, POISONPOWDER
 	db 12, HEALINGLIGHT ; Synthesis → similar move
 	db 18, REFLECT
+	db 18, LIGHT_SCREEN
 	db 22, DISARM_VOICE ; Magical Leaf → new move
 	db 26, ENERGY_BALL ; Natural Gift → tutor move
 	db 34, ANCIENTPOWER ; Sweet Scent → HGSS tutor move
-	db 40, LIGHT_SCREEN
+	db 40, DAZZLINGLEAM ; Light Screen → TM move
 	db 46, BODY_SLAM
 	db 50, SAFEGUARD
 	db 56, PLAY_ROUGH ; Aromatherapy → new move
@@ -3595,7 +3677,24 @@ TyphlosionPlainEvosAttacks:
 
 TyphlosionHisuianEvosAttacks:
 	db -1 ; no more evolutions
+	db 1, SHADOW_CLAW ; evolution move
+	db 1, ASTONISH ; new move
 	db 1, TACKLE
+	db 1, LEER
+	db 6, SMOKESCREEN
+	db 10, EMBER
+	db 13, QUICK_ATTACK
+	db 20, DEFENSE_CURL ; Flame Wheel → Defense Curl
+	db 24, FLAME_CHARGE ; Defense Curl → Flame Charge
+	db 31, SWIFT
+	db 35, HEX
+	db 43, WILL_O_WISP ; Lava Plume → TM move
+	db 48, FLAMETHROWER
+	db 56, SHADOW_BALL
+	db 61, ROLLOUT
+	db 69, DOUBLE_EDGE
+	db 74, DARK_PULSE ; Infernal Parade → new move
+	db 81, FLARE_BLITZ ; Eruption → egg move
 	db -1 ; no more level-up moves
 
 TotodileEvosAttacks:
@@ -3837,7 +3936,7 @@ CrobatEvosAttacks:
 	db 1, X_SCISSOR ; evolution move
 	db 1, SCREECH
 	db 1, ABSORB
-	db 1, CRUNCH ; Let's Go move
+	db 1, CRUNCH ; LGPE move
 	db 5, SUPERSONIC
 	db 7, ASTONISH
 	db 11, BITE
@@ -4378,7 +4477,7 @@ EspeonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, CONFUSION ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, SWIFT
 	db 20, PSYBEAM
@@ -4397,7 +4496,7 @@ UmbreonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, PURSUIT ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, CONFUSE_RAY
 	db 20, FEINT_ATTACK
@@ -4528,6 +4627,9 @@ GirafarigEvosAttacks:
 	db 41, BATON_PASS
 	db 46, NASTY_PLOT
 	db 50, PSYCHIC_M
+if !DEF(FAITHFUL)
+	db 55, DARK_PULSE ; new move
+endc
 	db -1 ; no more level-up moves
 
 PinecoEvosAttacks:
@@ -4720,9 +4822,27 @@ QwilfishPlainEvosAttacks:
 	db -1 ; no more level-up moves
 
 QwilfishHisuianEvosAttacks:
-	evo_data EVOLVE_LEVEL, 30, OVERQWIL
+	evo_data EVOLVE_LEVEL, 33, OVERQWIL
 	db -1 ; no more evolutions
+	db 1, WATER_GUN
+	db 1, SPIKES
 	db 1, TACKLE
+	db 1, POISON_STING
+	db 5, DEFENSE_CURL ; Harden → TM move
+	db 9, MINIMIZE
+	db 13, PIN_MISSILE
+	db 17, ROLLOUT
+	db 21, TOXIC_SPIKES
+	db 25, PAIN_SPLIT ; Stockpile + Spit Up → HGSS move tutor
+	db 29, REVERSAL ; Revenge → Sw/Sh move
+	db 33, WATER_PULSE ; Brine → TM move
+	db 37, DARK_PULSE
+	db 41, TAKE_DOWN
+	db 45, AQUA_TAIL
+	db 49, POISON_JAB
+	db 53, DESTINY_BOND
+	db 57, EXPLOSION ; Self-Destruct → similar move
+	db 60, DOUBLE_EDGE ; Fell Stinger → event move
 	db -1 ; no more level-up moves
 
 ScizorEvosAttacks:
@@ -4812,7 +4932,22 @@ SneaselPlainEvosAttacks:
 SneaselHisuianEvosAttacks:
 	evo_data EVOLVE_HOLDING, RAZOR_CLAW, TR_MORNDAY, SNEASLER
 	db -1 ; no more evolutions
-	db 1, TACKLE
+	db 1, SCRATCH
+	db 1, LEER
+	db 1, BITE ; Taunt → egg move
+	db 8, QUICK_ATTACK
+	db 10, FEINT_ATTACK
+	db 14, LOW_KICK ; Rock Smash → Low Kick
+	db 16, FURY_STRIKES ; Fury Swipes → similar move
+	db 20, AGILITY
+	db 22, METAL_CLAW
+	db 25, HONE_CLAWS
+	db 28, POISON_JAB
+	db 32, SCREECH
+	db 35, SLASH
+	db 40, SWORDS_DANCE
+	db 44, X_SCISSOR ; Punishment → TM move
+	db 47, CLOSE_COMBAT
 	db -1 ; no more level-up moves
 
 TeddiursaEvosAttacks:
@@ -4833,6 +4968,7 @@ TeddiursaEvosAttacks:
 	db 43, CRUNCH ; Snore → egg move
 	db 50, THRASH
 	db 57, CLOSE_COMBAT ; Fling → new move
+	db 64, DOUBLE_EDGE ; new move
 	db -1 ; no more level-up moves
 
 UrsaringEvosAttacks:
@@ -4854,6 +4990,7 @@ UrsaringEvosAttacks:
 	db 49, CRUNCH ; Snore → egg move
 	db 58, THRASH
 	db 67, CLOSE_COMBAT ; Hammer Arm → new move
+	db 76, DOUBLE_EDGE ; new move
 	db -1 ; no more level-up moves
 
 SlugmaEvosAttacks:
@@ -5215,6 +5352,7 @@ StantlerEvosAttacks:
 	db 49, SKILL_SWAP ; Imprison → tutor move
 	db 50, HI_JUMP_KICK ; Captivate → new move
 	db 55, MEGAHORN ; Me First → egg move
+	db 60, DOUBLE_EDGE ; new move
 	db -1 ; no more level-up moves
 
 SmeargleEvosAttacks:
@@ -5586,7 +5724,7 @@ AmbipomEvosAttacks:
 	db 36, ACROBATICS ; Fling → TM move
 	db 39, NASTY_PLOT
 	db 43, DOUBLE_EDGE ; Last Resort → tutor move
-	db -1 ; no more level-up moves	
+	db -1 ; no more level-up moves
 
 MismagiusEvosAttacks:
 	db -1 ; no more evolutions
@@ -5635,7 +5773,8 @@ BonslyEvosAttacks:
 	db -1 ; no more level-up moves
 
 MimeJrEvosAttacks:
-	evo_data EVOLVE_MOVE, PROTECT, MR__MIME, PLAIN_FORM
+	evo_data EVOLVE_LEVEL, 30, MR__MIME, PLAIN_FORM
+	evo_data EVOLVE_ITEM, ICE_STONE, MR__MIME, GALARIAN_FORM
 	evo_data EVOLVE_LOCATION, ICE_PATH, MR__MIME, GALARIAN_FORM
 	db -1 ; no more evolutions
 	db 1, BARRIER
@@ -5660,7 +5799,7 @@ MimeJrEvosAttacks:
 	db -1 ; no more level-up moves
 
 HappinyEvosAttacks:
-	evo_data EVOLVE_LEVEL, 20, CHANSEY
+	evo_data EVOLVE_HOLDING, OVAL_STONE, TR_MORNDAY, CHANSEY
 	db -1 ; no more evolutions
 	db 1, MINIMIZE
 	db 1, TACKLE ; Pound → similar move
@@ -5914,7 +6053,7 @@ LeafeonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, RAZOR_LEAF ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, BITE ; Grass Whistle → new move
 	db 20, ENERGY_BALL ; Magical Leaf → TM move
@@ -5933,7 +6072,7 @@ GlaceonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, ICY_WIND ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, BITE
 	db 20, ICE_SHARD ; Ice Fang → Ice Shard
@@ -5993,7 +6132,7 @@ SylveonEvosAttacks:
 	db 1, LEER ; Tail Whip → similar move
 	db 1, DISARM_VOICE ; evolution move
 	db 5, MUD_SLAP ; Sand Attack → similar move
-	db 9, DOUBLE_KICK ; Baby-Doll Eyes → Let's Go move
+	db 9, DOUBLE_KICK ; Baby-Doll Eyes → LGPE move
 	db 13, QUICK_ATTACK
 	db 17, SWIFT
 	db 20, DRAIN_KISS
@@ -6104,27 +6243,109 @@ MrRimeEvosAttacks:
 
 WyrdeerEvosAttacks:
 	db -1 ; no more evolutions
+	db 1, EXTRASENSORY ; evolution move
 	db 1, TACKLE
+	db 3, LEER
+	db 7, ASTONISH
+	db 10, HYPNOSIS
+	db 13, STOMP
+	db 16, MUD_SLAP ; Sand-Attack → similar move
+	db 21, HEADBUTT ; Take Down → tutor move
+	db 23, CONFUSE_RAY
+	db 27, CALM_MIND
+	db 33, TAKE_DOWN ; Role Play → Take Down
+	db 38, ZEN_HEADBUTT
+	db 43, THRASH ; Jump Kick → egg move
+	db 49, SKILL_SWAP ; Imprison → tutor move
+	db 55, HI_JUMP_KICK ; Captivate → new move
+	db 60, MEGAHORN ; Me First → egg move
+	db 65, DOUBLE_EDGE ; new move
 	db -1 ; no more level-up moves
 
 KleavorEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, TACKLE
+	db 1, ROCK_THROW ; evolution move
+	db 1, QUICK_ATTACK
+	db 1, LEER
+	db 5, FOCUS_ENERGY
+	db 9, PURSUIT
+	db 13, FALSE_SWIPE
+	db 17, AGILITY
+	db 21, AERIAL_ACE
+	db 25, BUG_BITE ; Fury Cutter → similar move
+	db 29, SLASH
+	db 33, GLARE ; Razor Wind → new move
+	db 37, DEFENSE_CURL ; Stealth Rock → new move
+	db 41, X_SCISSOR
+	db 45, CRUNCH ; Night Slash → Prism tutor move
+	db 49, CLOSE_COMBAT ; Double Hit → new move
+	db 50, STONE_EDGE ; Stone Axe → new move
+	db 57, SWORDS_DANCE
 	db -1 ; no more level-up moves
 
 UrsalunaEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, TACKLE
+	db 1, BULLDOZE ; evolution move
+	db 1, GUNK_SHOT ; HGSS tutor move
+	db 1, THIEF ; Covet → TM move
+	db 1, SCRATCH
+	db 1, LEER
+	db 1, LICK
+	db 1, FOCUS_ENERGY ; Fake Tears → egg move
+	db 8, FURY_STRIKES ; Fury Swipes → similar move
+	db 15, FEINT_ATTACK
+	db 22, BELLY_DRUM ; Sweet Scent → egg move
+	db 25, PLAY_ROUGH ; Play Nice → egg move
+	db 29, SLASH
+	db 38, SCARY_FACE
+	db 47, REST
+	db 49, CRUNCH ; Snore → egg move
+	db 58, THRASH
+	db 67, CLOSE_COMBAT ; Hammer Arm → new move
+	db 76, DOUBLE_EDGE ; new move
 	db -1 ; no more level-up moves
 
 SneaslerEvosAttacks:
 	db -1 ; no more evolutions
-	db 1, TACKLE
+	db 1, SCRATCH
+	db 1, LEER
+	db 1, BITE ; Taunt → egg move
+	db 8, QUICK_ATTACK
+	db 10, FEINT_ATTACK
+	db 14, LOW_KICK ; Rock Smash → Low Kick
+	db 16, FURY_STRIKES ; Fury Swipes → similar move
+	db 20, AGILITY
+	db 22, METAL_CLAW
+	db 25, HONE_CLAWS
+	db 28, POISON_JAB
+	db 32, SCREECH
+	db 35, SLASH
+	db 40, SWORDS_DANCE
+	db 44, X_SCISSOR ; Punishment → TM move
+	db 47, CLOSE_COMBAT
 	db -1 ; no more level-up moves
 
 OverqwilEvosAttacks:
 	db -1 ; no more evolutions
+	db 1, WATER_GUN
+	db 1, SPIKES
 	db 1, TACKLE
+	db 1, POISON_STING
+	db 5, DEFENSE_CURL ; Harden → TM move
+	db 9, MINIMIZE
+	db 13, PIN_MISSILE
+	db 17, ROLLOUT
+	db 21, TOXIC_SPIKES
+	db 25, PAIN_SPLIT ; Stockpile + Spit Up → HGSS move tutor
+	db 29, REVERSAL ; Revenge → Sw/Sh move
+	db 33, WATER_PULSE ; Brine → TM move
+	db 37, DARK_PULSE
+	db 41, TAKE_DOWN
+	db 45, AQUA_TAIL
+	db 49, POISON_JAB
+	db 53, DESTINY_BOND
+	db 57, EXPLOSION ; Self-Destruct → similar move
+	db 60, DOUBLE_EDGE ; Fell Stinger → event move
 	db -1 ; no more level-up moves
 
 EggEvosAttacks::

@@ -102,6 +102,7 @@
 	const ICE_BODY
 	const SOLID_ROCK
 	const SNOW_WARNING
+	const HONEY_GATHER
 	const FRISK
 	const RECKLESS
 	const PICKPOCKET
@@ -150,4 +151,4 @@
 	const STEELY_SPIRIT
 	const PERISH_BODY
 	const SCREEN_CLEANER
-NUM_ABILITIES EQU const_value
+DEF NUM_ABILITIES EQU const_value

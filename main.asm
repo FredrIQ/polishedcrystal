@@ -49,7 +49,7 @@ SECTION "Print Number", ROMX
 INCLUDE "engine/math/print_num.asm"
 
 
-SECTION "Bills PC", ROMX
+SECTION "Bill's PC", ROMX
 
 INCLUDE "engine/pokemon/bills_pc.asm"
 INCLUDE "engine/pokemon/bills_pc_ui.asm"
@@ -184,6 +184,11 @@ SECTION "Enemy Trainer Parties", ROMX
 INCLUDE "engine/battle/read_trainer_party.asm"
 
 
+SECTION "Psychic Inver", ROMX
+
+INCLUDE "engine/battle/pick_psychic_inver_party.asm"
+
+
 SECTION "Battle Core", ROMX
 
 INCLUDE "engine/battle/core.asm"
@@ -204,6 +209,7 @@ INCLUDE "engine/pokedex/unown_dex.asm"
 
 SECTION "Pokédex Footprints", ROMX
 
+INCLUDE "data/pokemon/footprint_pointers.asm"
 INCLUDE "gfx/pokemon/footprints.asm"
 
 
@@ -269,6 +275,7 @@ INCLUDE "engine/events/squirtbottle.asm"
 INCLUDE "engine/events/card_key.asm"
 INCLUDE "engine/events/basement_key.asm"
 INCLUDE "engine/events/sacred_ash.asm"
+INCLUDE "engine/events/sweet_honey.asm"
 
 
 SECTION "bank14", ROMX
@@ -333,12 +340,15 @@ INCLUDE "engine/events/magnet_train.asm"
 INCLUDE "engine/gfx/sprites.asm"
 INCLUDE "engine/gfx/mon_icons.asm"
 INCLUDE "data/pokemon/menu_icon_pointers.asm"
+INCLUDE "data/pokemon/mini_pointers.asm"
+INCLUDE "data/pokemon/mask_pointers.asm"
 
 
 SECTION "bank24", ROMX
 
 INCLUDE "engine/phone/phone.asm"
 INCLUDE "engine/rtc/timeset.asm"
+INCLUDE "engine/pokegear/phone.asm"
 INCLUDE "engine/pokegear/pokegear.asm"
 INCLUDE "engine/events/fish.asm"
 INCLUDE "engine/games/slot_machine.asm"

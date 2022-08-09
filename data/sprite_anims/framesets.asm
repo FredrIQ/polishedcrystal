@@ -52,6 +52,7 @@ SpriteAnimFrameData:
 	dw .Frameset_MaxStatSparkle
 	dw .Frameset_HyperTrainedStat
 	dw .Frameset_PcCursor
+	dw .Frameset_PcCursorItem
 	dw .Frameset_PcQuick
 	dw .Frameset_PcMode
 	dw .Frameset_PcMode2
@@ -59,6 +60,7 @@ SpriteAnimFrameData:
 	dw .Frameset_DexCursor
 	dw .Frameset_DexUnownCursor
 	dw .Frameset_DexSlowpoke
+	dw .Frameset_TownMapFly
 	assert_table_length NUM_SPRITE_ANIM_FRAMESETS
 
 .Frameset_00:
@@ -346,6 +348,11 @@ SpriteAnimFrameData:
 	frame SPRITE_ANIM_OAMSET_PC_CURSOR, 32
 	dorestart
 
+.Frameset_PcCursorItem:
+	; Conditionally switched to when dealing with items
+	frame SPRITE_ANIM_OAMSET_PC_CURSOR_ITEM, 32
+	dorestart
+
 .Frameset_PcQuick:
 	frame SPRITE_ANIM_OAMSET_PC_QUICK, 8
 	delanim
@@ -376,4 +383,8 @@ SpriteAnimFrameData:
 	frame SPRITE_ANIM_OAMSET_DEX_SLOWPOKE_3, 3
 	frame SPRITE_ANIM_OAMSET_DEX_SLOWPOKE_4, 3
 	frame SPRITE_ANIM_OAMSET_DEX_SLOWPOKE_5, 3
+	dorestart
+
+.Frameset_TownMapFly:
+	frame SPRITE_ANIM_OAMSET_TOWN_MAP_FLY, 32
 	dorestart

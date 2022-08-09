@@ -796,6 +796,14 @@ FillSouthConnectionStrip::
 	ldh [rSVBK], a
 	ret
 
+CallMapScript::
+; Call a script at hl in the current bank if there isn't already a script running
+	ld a, [wScriptRunning]
+	and a
+	ret nz
+	ld a, [wMapScriptsBank]
+	; fallthrough
+
 CallScript::
 ; Call a script at a:hl.
 
@@ -810,14 +818,6 @@ CallScript::
 
 	scf
 	ret
-
-CallMapScript::
-; Call a script at hl in the current bank if there isn't already a script running
-	ld a, [wScriptRunning]
-	and a
-	ret nz
-	ld a, [wMapScriptsBank]
-	jr CallScript
 
 RunMapCallback::
 ; Will run the first callback found in the map header with execution index equal to a.
@@ -973,6 +973,8 @@ CheckObjectMask::
 	ld a, [hl]
 	ret
 
+DeleteObjectStruct::
+	call ApplyDeletionToMapObject
 MaskObject::
 	call _GetObjectMask
 	ld [hl], -1 ; , masked
@@ -1468,13 +1470,11 @@ GetCoordTile::
 	rr d
 	jr nc, .nocarry
 	inc hl
-
 .nocarry
 	rr e
 	jr nc, .nocarry2
 	inc hl
 	inc hl
-
 .nocarry2
 	ld a, BANK(wDecompressedCollisions)
 	jmp GetFarWRAMByte
@@ -1547,6 +1547,19 @@ CheckIfFacingTileCoordIsBGEvent::
 	jr nz, .next
 	ld a, [hli]
 	cp d
+	jr nz, .next
+	ld a, [hli]
+	cp BGEVENT_ITEM
+	jr c, .copysign
+	push bc
+	push de
+	ld a, [hli]
+	ld d, [hl]
+	ld e, a
+	ld b, CHECK_FLAG
+	call EventFlagAction
+	pop de
+	pop bc
 	jr z, .copysign
 
 .next
@@ -1642,34 +1655,6 @@ CheckCurrentMapCoordEvents::
 	scf
 	ret
 
-FadeToMenu::
-	xor a
-	ldh [hBGMapMode], a
-	call LoadStandardMenuHeader
-	farcall FadeOutPalettes
-	call ClearSprites
-	jmp DisableSpriteUpdates
-
-CloseSubmenu::
-	call ClearBGPalettes
-	call ReloadTilesetAndPalettes
-	call UpdateSprites
-	call ExitMenu
-	jr FinishExitMenu
-
-ExitAllMenus::
-	call ClearBGPalettes
-	call ExitMenu
-	call ReloadTilesetAndPalettes
-	call UpdateSprites
-FinishExitMenu::
-	ld a, CGB_MAPPALS
-	call GetCGBLayout
-	farcall LoadBlindingFlashPalette
-	call ApplyAttrAndTilemapInVBlank
-	farcall FadeInPalettes
-	jmp EnableSpriteUpdates
-
 ReturnToMapWithSpeechTextbox::
 	push af
 	ld a, $1
@@ -1714,8 +1699,13 @@ ReloadTilesetAndPalettes::
 	call SkipMusic
 	pop af
 	rst Bankswitch
+	; fallthrough
 
-	jmp EnableLCD
+EnableLCD::
+	ldh a, [rLCDC]
+	set rLCDC_ENABLE, a
+	ldh [rLCDC], a
+	ret
 
 GetMapPointer::
 	ld a, [wMapGroup]
@@ -1808,11 +1798,6 @@ CopyMapPartial::
 	ld de, wMapAttributesBank
 	ld bc, wMapPartialEnd - wMapPartial
 	rst CopyBytes
-	ret
-
-SwitchToMapScriptsBank::
-	ld a, [wMapScriptsBank]
-	rst Bankswitch
 	ret
 
 GetAnyMapBlocksBank::

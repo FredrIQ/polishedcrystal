@@ -52,6 +52,7 @@ wTownMapCursorCoordinates:: dw
 wStartFlypoint:: db
 wEndFlypoint:: db
 ENDU
+wTownMapCanShowFly:: db
 
 NEXTU
 ; phone call data
@@ -78,7 +79,7 @@ NEXTU
 ; trainer HUD data
 	ds 1
 wPlaceBallsDirection:: db
-wTrainerHUDTiles:: db
+wTrainerHUDTiles:: ds 4
 
 NEXTU
 ; battle exp gain
@@ -114,7 +115,6 @@ NEXTU
 wNumOwnedDecoCategories:: db
 wOwnedDecoCategories:: ds 16
 ENDU
-
 
 NEXTU
 ; link battle record data
@@ -239,14 +239,6 @@ NEXTU
 ; temporary script buffers
 wTempScriptBuffer:: db
 wJumpStdScriptBuffer:: ds 15
-
-NEXTU
-; phone script data
-wCheckedTime:: db
-wPhoneListIndex:: db
-wNumAvailableCallers:: db
-wAvailableCallers:: ds CONTACT_LIST_SIZE - 4 ; bug: available callers list affects mem addresses outside union (up to 4 bytes)
-wAvailableCallersEnd::
 
 NEXTU
 ; phone caller contact
@@ -486,7 +478,11 @@ ENDU
 wTempMonBox:: db
 wTempMonSlot:: db
 
-	ds 39 ; unused
+wDexCacheValid:: db
+wDexCacheSeen:: dw
+wDexCacheOwn:: dw
+
+	ds 34 ; unused
 
 wOverworldMapAnchor:: dw
 wMetatileStandingY:: db
@@ -727,7 +723,6 @@ wOTPartyCount:: db
 
 	ds 7 ; unused
 
-
 UNION
 wOTPartyMons::
 for n, 1, PARTY_LENGTH + 1
@@ -928,13 +923,12 @@ wObjectMasks:: ds NUM_OBJECTS
 
 wVariableSprites:: ds $100 - SPRITE_VARS
 
-wEnteredMapFromContinue:: db
-
 wStatusFlags3::
 	; 0 - judge machine
 	db
 
-	ds 1
+wEnteredMapFromContinue:: db
+
 wTimeOfDayPal:: db
 	ds 4
 wTimeOfDayPalFlags:: db
@@ -983,8 +977,10 @@ wPokemonJournalsEnd::
 wTMsHMs:: flag_array NUM_TMS + NUM_HMS
 wTMsHMsEnd::
 
-wKeyItems:: flag_array NUM_KEY_ITEMS
+wKeyItems:: ds NUM_KEY_ITEMS + 1
 wKeyItemsEnd::
+
+	ds 6 ; unused
 
 wNumItems:: db
 wItems:: ds MAX_ITEMS * 2 + 1
@@ -1038,7 +1034,8 @@ wFarfetchdPosition:: db
 wAlways0SceneID:: db
 wAzaleaTownSceneID:: db
 wBattleFacilitySceneID:: db
-	ds 3 ; unused
+wRoute39RuggedRoadGateSceneID:: db
+	ds 2 ; unused
 wBattleTowerOutsideSceneID:: db
 wBellchimeTrailSceneID:: db
 wBrunosRoomSceneID:: db
@@ -1158,7 +1155,7 @@ wEventFlags:: flag_array NUM_EVENTS
 
 wCurBox:: db
 
-	ds 103 ; unused
+	ds 95 ; unused
 
 wCelebiEvent:: db
 
@@ -1249,9 +1246,10 @@ wBattlePointsEnd::
 wStepCount:: db
 wPoisonStepCount:: db
 
-wPhoneList:: ds CONTACT_LIST_SIZE + 1
+wPhoneList:: flag_array NUM_PHONE_CONTACTS
+wPhoneListEnd::
 
-	ds 1 ; unused
+	ds 2 ; unused
 
 wParkBallsRemaining::
 wSafariBallsRemaining:: db

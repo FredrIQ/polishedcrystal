@@ -73,7 +73,8 @@ CheckBreedmonCompatibility:
 	ld [wCurForm], a
 	call GetBaseData
 	ld a, [wBaseEggGroups]
-	cp EGG_NONE * $11
+	assert EGG_NONE * $11 == $ff
+	inc a
 	jr z, .Incompatible
 
 	ld a, [wBreedMon1Species]
@@ -83,7 +84,8 @@ CheckBreedmonCompatibility:
 	ld [wCurForm], a
 	call GetBaseData
 	ld a, [wBaseEggGroups]
-	cp EGG_NONE * $11
+	assert EGG_NONE * $11 == $ff
+	inc a
 	jr z, .Incompatible
 
 ; Ditto is automatically compatible with everything.
@@ -319,7 +321,7 @@ HatchEggs:
 	ld hl, wStringBuffer1
 	ld bc, MON_NAME_LENGTH
 	rst CopyBytes
-	call GetBaseData
+	predef CopyPkmnToTempMon
 	ld a, [wCurPartyMon]
 	ld hl, wPartyMons
 	ld bc, PARTYMON_STRUCT_LENGTH
@@ -492,7 +494,7 @@ InitEggMoves:
 	; Default level 1 moves
 	ld de, wTempMonMoves
 	xor a
-	ld [wBuffer1], a
+	ld [wEvolutionOldSpecies], a
 	; c = species
 	ld a, [wTempMonSpecies]
 	ld c, a
@@ -718,7 +720,7 @@ EggHatch_AnimationSequence:
 	rst ByteFill
 	ld hl, EggHatchGFX
 	ld de, vTiles0 tile $00
-	ld bc, $20
+	ld bc, 2 tiles
 	ld a, BANK(EggHatchGFX)
 	call FarCopyBytes
 	call ClearSpriteAnims

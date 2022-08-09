@@ -478,13 +478,7 @@ GetSpeed::
 	jr .apply_item_mod
 .quick_powder
 	; Double speed, but only for Ditto
-	ldh a, [hBattleTurn]
-	and a
-	ld hl, wBattleMonSpecies
-	jr z, .got_species
-	ld hl, wEnemyMonSpecies
-.got_species
-	cp DITTO
+	farcall UserValidBattleItem
 	jr nz, .done
 	ln a, 2, 1 ; x2
 .apply_item_mod
@@ -1103,11 +1097,13 @@ GetPlayerSwitchTarget:
 	ld a, [wCurPartyMon]
 	inc a
 	ld [wPlayerSwitchTarget], a
+	call LoadTileMapToTempTileMap
 	ld a, [wLinkMode]
 	and a
 	ld a, 1
 	ld [wBattlePlayerAction], a
 	call nz, LinkBattleSendReceiveAction
+	call Call_LoadTempTileMapToTileMap
 	xor a
 	ld [wBattlePlayerAction], a
 	ld a, [wPlayerSwitchTarget]
@@ -1156,9 +1152,11 @@ GetUserSwitchTarget:
 	jr z, GetPlayerSwitchTarget
 
 .enemy_switch
+	call LoadTileMapToTempTileMap
 	ld a, [wLinkMode]
 	and a
 	call nz, LinkBattleSendReceiveAction
+	call Call_LoadTempTileMapToTileMap
 	jr GetEnemySwitchTarget
 
 .random_select
@@ -1444,7 +1442,7 @@ endr
 .got_pikachu_move
 	ld c, a
 	ld a, b
-	and $ff - FORM_MASK
+	and ~FORM_MASK
 	or c
 	ld [wCurForm], a
 	ld [wOTPartyMon1Form], a
@@ -3391,11 +3389,8 @@ PursuitSwitch:
 	farcall CheckOpponentWentFirst
 	ret z
 
-	ld a, BATTLE_VARS_MOVE
+	ld a, BATTLE_VARS_MOVE_EFFECT
 	call GetBattleVar
-	ld b, a
-	call GetMoveEffect
-	ld a, b
 	cp EFFECT_PURSUIT
 	ret nz
 	call PerformMove
@@ -3570,7 +3565,7 @@ ItemRecoveryAnim::
 	push de
 	push bc
 	call EmptyBattleTextbox
-	ld a, RECOVER
+	ld a, ANIM_HELD_ITEM_TRIGGER
 	ld [wFXAnimIDLo], a
 	xor a
 	ld [wNumHits], a
@@ -4739,11 +4734,11 @@ endr
 	jmp LostBattle
 
 .can_escape
+	call LoadTileMapToTempTileMap
 	ld a, [wLinkMode]
 	and a
 	ld a, DRAW
 	jr z, .fled
-	call LoadTileMapToTempTileMap
 	xor a
 	ld [wBattlePlayerAction], a
 	ld a, $f
@@ -4879,12 +4874,12 @@ MoveSelectionScreen:
 	ld c, $2c
 
 	ld a, [wMoveSelectionMenuType]
-	ld b, D_DOWN | D_UP | A_BUTTON | B_BUTTON
+	ld b, D_DOWN | D_UP | A_BUTTON | B_BUTTON | START
 	and a
 	jr z, .check_link
 	dec a
 	jr z, .okay
-	ld b, D_DOWN | D_UP | A_BUTTON
+	ld b, D_DOWN | D_UP | A_BUTTON | START
 .check_link
 	ld a, [wLinkMode]
 	and a
@@ -4927,6 +4922,8 @@ MoveSelectionScreen:
 	jmp nz, .pressed_down
 	bit SELECT_F, a
 	jmp nz, .pressed_select
+	bit START_F, a
+	jmp nz, .pressed_start
 	bit B_BUTTON_F, a
 	; A button
 	push af
@@ -5027,6 +5024,7 @@ MoveSelectionScreen:
 	call ClearSprites
 	pop hl
 	call StdBattleTextbox
+.start_over
 	call Call_LoadTempTileMapToTileMap
 	jmp MoveSelectionScreen
 
@@ -5074,6 +5072,27 @@ MoveSelectionScreen:
 	call DelayFrames
 	xor a
 	ret
+
+.pressed_start
+	ld hl, wBattleMonMoves
+	ld a, [wMenuCursorY]
+	dec a
+	ld b, 0
+	ld c, a
+	add hl, bc
+	ld c, [hl]
+	dec c
+	ld hl, MoveDescriptions
+	add hl, bc
+	add hl, bc
+	ld a, BANK(MoveDescriptions)
+	call GetFarWord
+	push hl
+	call ClearSprites
+	pop hl
+	call BattleMoveDescTextbox
+	call WaitPressAorB_BlinkCursor
+	jr .start_over
 
 SetChoiceLock:
 ; Set choice lock to move choice c (0-3)
@@ -5528,9 +5547,11 @@ ParseEnemyAction:
 	call ClearSprites
 
 	; Unconditionally perform at least one link exchange
+	call LoadTileMapToTempTileMap
 	ld a, [wLinkMode]
 	and a
 	call nz, LinkBattleSendReceiveAction
+	call Call_LoadTempTileMapToTileMap
 	call SetEnemyTurn
 	call CheckLockedIn
 	ret nz
@@ -5678,6 +5699,7 @@ BattleDoSendLink:
 	call MobileLinkTransfer
 	ret c
 	ret nz
+	vc_hook Wireless_start_exchange
 	call PlaceWaitingText
 	ld a, [wLinkBattleSentAction]
 	ld [wPlayerLinkAction], a
@@ -5691,20 +5713,35 @@ BattleDoSendLink:
 	inc a
 	jr z, .waiting
 
+	vc_hook Wireless_end_exchange
+	vc_patch Wireless_net_delay_3
+if DEF(VIRTUAL_CONSOLE)
+	ld b, 26
+else
 	ld b, 10
+endc
+	vc_patch_end
 .receive
 	call DelayFrame
 	call LinkTransfer
 	dec b
 	jr nz, .receive
 
+	vc_hook Wireless_start_send_zero_bytes
+	vc_patch Wireless_net_delay_4
+if DEF(VIRTUAL_CONSOLE)
+	ld b, 26
+else
 	ld b, 10
+endc
+	vc_patch_end
 .acknowledge
 	call DelayFrame
 	call LinkDataReceived
 	dec b
 	jr nz, .acknowledge
 
+	vc_hook Wireless_end_send_zero_bytes
 	ld a, [wOtherPlayerLinkAction]
 	ld [wBattleAction], a
 	ret
@@ -6811,6 +6848,10 @@ GiveBattleEVs:
 .check_item
 	; check held item
 	push bc
+
+	; This is a bug. The correct behaviour is to consider the item of the mon
+	; getting EVs, not the item of the mon currently in battle.
+	; WONTFIX because this has helpful synergy with EXP Share.
 	ld hl, wBattleMonItem
 	ld b, [hl]
 	farcall GetItemHeldEffect
@@ -7137,7 +7178,7 @@ AnimateExpBar:
 GetNewBaseExp:
 ; basic stage mons: BST*0.2
 ; stage 1 or non-evolver: BST*0.35
-; stage 2 or legendaries: BST*0.45
+; stage 2 or legendaries: BST*0.5
 ; exceptions: Chansey, Blissey
 	ld a, MON_SPECIES
 	call OTPartyAttr
@@ -7211,7 +7252,7 @@ _GetNewBaseExp:
 	jr c, .legendary
 	farcall GetPreEvolution
 .legendary
-	ld a, 9 ; stage 2 or legendary: *9/20 -> *0.45
+	ld a, 10 ; stage 2 or legendary: *10/20 -> *0.5
 	jr c, .got_multiplier
 .stage_1_or_nonevolver
 	ld a, 7 ; stage 1 or non-evolver: *7/20 -> *0.35
@@ -7576,13 +7617,10 @@ GetMonBackpic:
 	ld a, [wPlayerSubStatus4]
 	bit SUBSTATUS_SUBSTITUTE, a
 	ld hl, BattleAnimCmd_RaiseSub
-	jr nz, GetBackpic_DoAnim ; substitute
+	jr nz, GetBackpic_DoAnim
+	; fallthrough
 
 DropPlayerSub:
-	ld a, [wPlayerSubStatus2]
-	bit SUBSTATUS_MINIMIZED, a
-	ld hl, BattleAnimCmd_MinimizeOpp
-	jr nz, GetBackpic_DoAnim
 	ld a, [wCurPartySpecies]
 	push af
 	ld a, [wCurForm]
@@ -7615,13 +7653,9 @@ GetMonFrontpic:
 	bit SUBSTATUS_SUBSTITUTE, a
 	ld hl, BattleAnimCmd_RaiseSub
 	jr nz, GetFrontpic_DoAnim
+	; fallthrough
 
 DropEnemySub:
-	ld a, [wEnemySubStatus2]
-	bit SUBSTATUS_MINIMIZED, a
-	ld hl, BattleAnimCmd_MinimizeOpp
-	jr nz, GetFrontpic_DoAnim
-
 	ld a, [wCurPartySpecies]
 	push af
 	ld a, [wCurForm]
@@ -7868,12 +7902,20 @@ HandleNuzlockeFlags:
 	dec a
 	ret nz
 
+	; Roaming mons don't count
+	ld a, [wBattleType]
+	cp BATTLETYPE_ROAMING
+	ret z
+	; Uncatchable ghosts don't count
+	cp BATTLETYPE_GHOST
+	ret z
+
 	; Dupes clause: don't count duplicate encounters
 	ld a, [wOTPartyMon1Species]
 	ld c, a
 	ld a, [wOTPartyMon1Form]
 	ld b, a
-	call CheckCaughtMon
+	call CheckCosmeticCaughtMon
 	ret nz
 
 	; Only flag landmarks for Nuzlocke runs after getting Poké Balls

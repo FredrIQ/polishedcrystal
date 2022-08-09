@@ -119,12 +119,6 @@ hLCDCPointer::     db
 hLYOverrideStart:: db
 hLYOverrideEnd::   db
 
-hSerialReceivedNewData::     db
-hSerialConnectionStatus::    db
-hSerialIgnoringInitialData:: db
-hSerialSend::                db
-hSerialReceive::             db
-
 hSCX:: db
 hSCY:: db
 hWX::  db
@@ -144,6 +138,16 @@ hBGMapMode::
 	db
 hBGMapHalf::     db
 hBGMapAddress::  dw
+
+	ds 4 ; unused
+
+hSerialReceivedNewData::     db
+hSerialConnectionStatus::    db
+	vc_assert hSerialConnectionStatus == $ffcb, \
+		"hSerialConnectionStatus is no longer located at 00:ffcb."
+hSerialIgnoringInitialData:: db
+hSerialSend::                db
+hSerialReceive::             db
 
 hOAMUpdate:: db
 
@@ -188,7 +192,7 @@ hFarCallSavedA:: db
 
 hDelayFrameLY:: db
 
-hClockResetTrigger:: db
+hMobile:: db
 
 hMPState::  db
 hMPBuffer:: db
@@ -211,10 +215,7 @@ ENDU
 
 hCrashCode:: db
 
-hMobile:: db
-
-	ds 4
-
+hStopPrintingString:: db
 hPlaceStringCoords:: dw
 
 hAppendVWFText:: ds 4

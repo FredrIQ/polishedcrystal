@@ -10,6 +10,8 @@ wStackTop::
 
 SECTION "Audio RAM", WRAM0
 
+wEchoRAMTest:: db
+
 wMusic::
 wMusicPlaying:: db ; nonzero if playing
 
@@ -26,7 +28,6 @@ endr
 wCurTrackDuty:: db
 wCurTrackIntensity:: db
 wCurTrackFrequency:: dw
-	ds 1 ; BCD value, dummied out
 wCurNoteDuration:: db ; used in MusicE0 and LoadNote
 
 wCurMusicByte:: db
@@ -188,7 +189,12 @@ wTilePermissions::
 
 wCompressedTextBuffer:: ds 2 ; one character and "@"
 
-	ds 11
+wLinkOtherPlayerGameID:: db
+wLinkOtherPlayerVersion:: dw
+wLinkOtherPlayerMinTradeVersion:: dw
+wLinkOtherPlayerGender:: db
+
+	ds 5
 
 
 SECTION "Sprite Animations", WRAM0
@@ -339,6 +345,11 @@ wLinkMisc:: ds 10
 wLinkPlayerFixedPartyMon1ID:: ds 3
 	ds 37
 
+SECTION UNION "Misc 480", WRAM0
+; polished link transfer buffer
+wLinkReceivedPolishedMiscBuffer:: ds 10
+wLinkPolishedMiscBuffer:: ds 10
+
 
 SECTION UNION "Misc 480", WRAM0
 ; battle + pokédex (merged because pokédex can be called from battle)
@@ -360,7 +371,7 @@ wBattleMonNickname:: ds MON_NAME_LENGTH
 wBattleMon:: battle_struct wBattleMon
 
 wWildMon:: db
-	ds 1
+wBadgeBaseLevel:: db
 wEnemyTrainerItem1:: db
 wEnemyTrainerItem2:: db
 wEnemyTrainerBaseReward:: db
@@ -797,6 +808,7 @@ wPokegearRadioChannelBank:: db
 wPokegearRadioChannelAddr:: dw
 wPokegearRadioMusicPlaying:: db
 wPokegearNumberBuffer:: db
+wPokegearMapCursorSpawnpoint:: db
 
 
 SECTION UNION "Misc 480", WRAM0
@@ -940,6 +952,23 @@ wPO_RNGPointer:: db
 ; current battle log pointer, useful for spectators
 wPO_BattleLog:: dw
 
+SECTION UNION "Misc 1300", WRAM0
+; psychic inver party
+
+; large enough for 4x4 KantoHouse1.asm in wOverworldMapBlocks
+	ds (4 + 6) * (4 + 6)
+
+wInverIndexes:: ds NUM_INVER_MONS
+
+wInverGroup::
+	ds 7 ; db "Inver@"
+	db ; TRAINERTYPE_ITEM | TRAINERTYPE_DVS | TRAINERTYPE_PERSONALITY | TRAINERTYPE_MOVES
+	rept PARTY_LENGTH
+		ds 3 ; dbp <level>, <species>, <form>
+		ds 5 ; db <item>, <dv1>, <dv2>, <dv3>, <nat | abil>
+		ds NUM_MOVES ; moves
+	endr
+	db ; db -1 ; end
 
 
 SECTION UNION "Misc 1300", WRAM0
@@ -1082,20 +1111,21 @@ wBGMapBuffer:: ds 48
 wBGMapPalBuffer:: ds 48
 wBGMapBufferPtrs:: ds 48 ; 24 bg map addresses (16x8 tiles)
 
+
+SECTION "More WRAM 0", WRAM0
+
 wMemCGBLayout:: db
 
 UNION
 wCreditsPos:: dw
 wCreditsTimer:: db
 wTrainerCardBadgePaletteAddr:: dw
-
 NEXTU
 wPlayerHPPal:: db
 wEnemyHPPal:: db
 wHPPals:: ds PARTY_LENGTH
 wCurHPPal:: db
 wHPPalIndex:: db
-
 ENDU
 
 wTileAnimBuffer:: ds 1 tiles
@@ -1142,6 +1172,7 @@ NEXTU
 ; pokegear
 wPokegearCard:: db
 wPokegearMapRegion:: db
+wTownMapCanFlyHere:: db
 
 NEXTU
 ; pack
@@ -1210,6 +1241,7 @@ wPalFadeMode::
 ; bit 4: skip the last palette
 	db
 
+wMenuMetadata::
 wWindowStackPointer:: dw
 wMenuJoypad:: db
 wMenuSelection:: db
@@ -1217,8 +1249,8 @@ wMenuSelectionQuantity:: db
 wWhichIndexSet:: db
 wScrollingMenuCursorPosition:: db
 wWindowStackSize:: db
-
 	ds 8
+wMenuMetadataEnd::
 
 ; menu header
 wMenuHeader::
@@ -1294,19 +1326,21 @@ w2DMenuFlags1::
 w2DMenuFlags2:: db
 w2DMenuCursorOffsets:: db
 wMenuJoypadFilter:: db
-w2DMenuDataEnd::
 
 wMenuCursorY:: db
 wMenuCursorX:: db
 wCursorOffCharacter:: db
 wCursorCurrentTile:: dw
+	ds 3
+w2DMenuDataEnd::
+
+wMonPicSize:: db
+wMonAnimationSize:: db
 
 wBTTempOTSprite:: db
 
 wPendingOverworldGraphics:: db
 wTextDelayFrames:: db
-
-	ds 1
 
 wGenericDelay:: db
 
@@ -1351,6 +1385,9 @@ wOBP1:: db
 
 wNumHits:: db
 
+
+SECTION "Options", WRAM0
+
 wOptions3::
 ; bit 0: keyword abc/qwerty
 ; bits 1-7: unused
@@ -1372,7 +1409,7 @@ wOptions1::
 wSaveFileExists:: db
 
 wTextboxFrame::
-; bits 0-3: textbox frame 0-8
+; bits 0-4: textbox frame 1-20
 	db
 wTextboxFlags::
 ; bit 0: 1-frame text delay

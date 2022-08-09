@@ -647,8 +647,6 @@ BGEventJumptable:
 	ld d, a
 	ld b, CHECK_FLAG
 	call EventFlagAction
-	ld a, c
-	and a
 	jr nz, .dontread
 	call PlayTalkObject
 	ld hl, wHiddenItemEvent
@@ -719,8 +717,6 @@ CheckBGEventFlag:
 	ld d, h
 	ld b, CHECK_FLAG
 	call EventFlagAction
-	ld a, c
-	and a
 	pop hl
 	ret
 
@@ -816,17 +812,17 @@ CheckMenuOW:
 
 StartMenuScript:
 	callasm StartMenu
-	sjump StartMenuCallback
+	sjumpfwd StartMenuCallback
 
 SelectMenuScript:
 	callasm SelectMenu
-	sjump SelectMenuCallback
+	sjumpfwd SelectMenuCallback
 
 StartMenuCallback:
 SelectMenuCallback:
 	readmem hMenuReturn
-	ifequal HMENURETURN_SCRIPT, .Script
-	ifequal HMENURETURN_ASM, .Asm
+	ifequalfwd HMENURETURN_SCRIPT, .Script
+	ifequalfwd HMENURETURN_ASM, .Asm
 	end
 
 .Script:
@@ -1105,7 +1101,7 @@ RandomEncounter::
 ; Random encounter
 	call CheckWildEncounterCooldown
 	jr c, .nope
-	call CanUseSweetScent
+	call CanUseSweetHoney
 	jr nc, .nope
 	ld hl, wStatusFlags2
 	bit STATUSFLAGS2_SAFARI_GAME_F, [hl]
@@ -1147,7 +1143,7 @@ WildBattleScript:
 	reloadmapafterbattle
 	end
 
-CanUseSweetScent::
+CanUseSweetHoney::
 	ld hl, wStatusFlags
 	bit STATUSFLAGS_NO_WILD_ENCOUNTERS_F, [hl]
 	jr nz, .no
@@ -1225,6 +1221,7 @@ _TryWildEncounter_BugContest:
 ; Form
 	ld a, [hli]
 	ld [wCurForm], a
+	ld [wWildMonForm], a
 ; Min level
 	ld a, [hli]
 	ld d, a

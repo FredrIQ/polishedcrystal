@@ -1,8 +1,8 @@
-NAMINGSCREEN_BORDER EQU $60
-NAMINGSCREEN_CURSOR EQU $7e
+DEF NAMINGSCREEN_BORDER EQU $60
+DEF NAMINGSCREEN_CURSOR EQU $7e
 
-NAMINGSCREEN_MIDDLELINE EQU "′"
-NAMINGSCREEN_UNDERLINE  EQU "″"
+DEF NAMINGSCREEN_MIDDLELINE EQU "′"
+DEF NAMINGSCREEN_UNDERLINE  EQU "″"
 
 _NamingScreen:
 	call DisableSpriteUpdates
@@ -43,7 +43,7 @@ NamingScreen:
 
 .SetUpNamingScreen:
 	call ClearBGPalettes
-	ld a, CGB_DIPLOMA
+	ld a, CGB_NAMING_SCREEN
 	call GetCGBLayout
 	call DisableLCD
 	call LoadNamingScreenGFX
@@ -58,7 +58,6 @@ NamingScreen:
 
 .GetNamingScreenSetup:
 	ld a, [wNamingScreenType]
-	and 7
 	call StackJumpTable
 
 .Jumptable:
@@ -71,7 +70,7 @@ NamingScreen:
 .Pokemon:
 	ld a, [wCurPartySpecies]
 	ld [wTempIconSpecies], a
-	farcall LoadNamingScreenMonIcon
+	farcall LoadNamingScreenMonMini
 	call GetPartyPokemonName
 	hlcoord 5, 2
 	rst PlaceString

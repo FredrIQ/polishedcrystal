@@ -29,7 +29,7 @@ NPCTrade::
 
 	inc hl
 	ld a, [hl]
-	and $ff - EXTSPECIES_MASK
+	and ~EXTSPECIES_MASK
 	ld a, [wCurForm]
 	jr nz, .check_form ; if NO_FORM specified, then accept any mon of this species
 	and EXTSPECIES_MASK
@@ -88,14 +88,15 @@ Trade_GetDialog:
 	ret
 
 DoNPCTrade:
-	ld e, NPCTRADE_GIVEMON
-	call GetTradeAttribute
-	ld a, [hli]
-	ld [wPlayerTrademonSpecies], a
+	; Don't use NPCTRADE_GIVEMON in case the given mon is of a nonstandard form.
+	ld a, MON_SPECIES
+	call GetPartyParamLocationAndValue
 	ld c, a
-	ld a, [hl]
-	ld [wPlayerTrademonForm], a
+	ld [wPlayerTrademonSpecies], a
+	ld a, MON_FORM
+	call GetPartyParamLocationAndValue
 	ld b, a
+	ld [wPlayerTrademonForm], a
 
 	ld e, NPCTRADE_GETMON
 	call GetTradeAttribute
@@ -220,10 +221,12 @@ DoNPCTrade:
 	ld hl, wOTTrademonDVs
 	call Trade_CopyThreeBytes
 
+	; NPCTRADE_PERSONALITY only has the first personality byte.
+	; The second (form+extspecies) is part of the species word.
 	ld e, NPCTRADE_PERSONALITY
 	call GetTradeAttribute
 	ld de, wOTTrademonPersonality
-	call Trade_CopyTwoBytes
+	ld [de], a
 
 	ld hl, wPartyMon1Personality
 	ld bc, PARTYMON_STRUCT_LENGTH

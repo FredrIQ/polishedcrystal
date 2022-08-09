@@ -17,7 +17,7 @@ StatsScreenInit:
 	call LoadFontsBattleExtra
 	ld hl, GFX_Stats
 	ld de, vTiles2 tile $31
-	lb bc, BANK(GFX_Stats), 42
+	lb bc, BANK(GFX_Stats), 41
 	call DecompressRequest2bpp
 	ld a, [wTempMonBox]
 	ld b, a
@@ -774,10 +774,10 @@ TN_PrintLV:
 	ld l, c
 	inc hl
 ;	hlcoord 11, 9
-	and a
-	jr z, .traded
-	cp 1
+	inc a
 	jr z, .hatched
+	dec a
+	jr z, .traded
 	ld [wBuffer2], a
 	ld de, .str_level
 	rst PlaceString

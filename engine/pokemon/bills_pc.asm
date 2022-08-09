@@ -485,8 +485,8 @@ UpdateStorageBoxMonFromTemp:
 	; Erase the current entry before trying to find a new one.
 	; This code exists to gurantee that should the storage commit work once,
 	; it will always continue to work for the same tempmon session without an
-	; enforced save inbetween. Without it, the code could write a new 314th
-	; entry the first write, then fail to reuse the same entry later.
+	; enforced save inbetween. Without it, the code could use up the last entry
+	; the first write, then fail to reuse the same entry later.
 	call GetStorageBoxPointer
 	push de
 	ld e, 0
@@ -496,6 +496,8 @@ UpdateStorageBoxMonFromTemp:
 	pop bc
 	jr nc, .found_entry
 	pop de
+
+	; We failed to find a new entry. Restore the current box pointer.
 	call SetStorageBoxPointer
 	or 1
 	ret
@@ -710,14 +712,23 @@ OpenPokeDB:
 	inc hl
 	ret
 
+MACRO pokedb_section
+	db BANK(\1)
+	dw (\1) - (\2) * SAVEMON_STRUCT_LENGTH
+ENDM
+
 .Bank1Pointers:
-	dba sBoxMons1AMons
-	dba sBoxMons1CMons
-	dba sBoxMons1BMons
+	; Because we want to point starting from entry 0, and e ends up being above
+	; MONDB_ENTRIES_A (and beyond) for section C and B, include the offset.
+	; This means that for example e=len(A)+1 points to the first entry in
+	; pokedb section B.
+	pokedb_section sBoxMons1AMons, 0
+	pokedb_section sBoxMons1CMons, MONDB_ENTRIES_A + MONDB_ENTRIES_B
+	pokedb_section sBoxMons1BMons, MONDB_ENTRIES_A
 .Bank2Pointers:
-	dba sBoxMons2AMons
-	dba sBoxMons2CMons
-	dba sBoxMons2BMons
+	pokedb_section sBoxMons2AMons, 0
+	pokedb_section sBoxMons2CMons, MONDB_ENTRIES_A + MONDB_ENTRIES_B
+	pokedb_section sBoxMons2BMons, MONDB_ENTRIES_A
 
 EncodeTempMon:
 ; Encodes party_struct wTempMon in-place to savemon_struct wEncodedTempMon.
@@ -1383,35 +1394,30 @@ StorageFlagAction:
 	predef_jump FlagPredef
 
 Special_CurBoxFullCheck:
-; Returns 0 if wTempMonBox = wCurBox
-; Returns 1 if wTempMonBox != wCurBox
+; Returns [hScriptVar] = zero if wTempMonBox == wCurBox
+; Returns [hScriptVar] = nonzero if wTempMonBox != wCurBox
 	call CurBoxFullCheck
-	ld a, TRUE
-	jr nz, .ok
-	dec a
-.ok
 	ldh [hScriptVar], a
 	ret
 
 CurBoxFullCheck:
 ; Requires wTempMonBox to have sent mon box (returned in b)
-; Returns 0 if wTempMonBox = wCurBox (or wTempMonBox = 0)
-; Returns 1 if wTempMonBox != wCurBox
+; Returns z if wTempMonBox == wCurBox (or wTempMonBox = 0)
+; Returns nz if wTempMonBox != wCurBox
 ;   Also returns name of old wCurBox in wStringBuffer1
 ;   and sets wCurBox to wTempMonBox in this case
 	ld a, [wTempMonBox]
 	and a
 	ret z
+	dec a
 	ld b, a
 	ld a, [wCurBox]
-	inc a
 	cp b
 	ret z
 	push bc
 	call GetCurBoxName
 	pop bc
 	ld a, b
-	dec a
 	ld [wCurBox], a
 	or 1
 	ret

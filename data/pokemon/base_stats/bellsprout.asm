@@ -4,9 +4,8 @@
 	db GRASS, POISON ; type
 	db 255 ; catch rate
 	db 84 ; base exp
-	db GOLD_LEAF ; item 1
-	db GOLD_LEAF ; item 2
-	dn GENDER_F50, 3 ; gender ratio, step cycles to hatch
+	db GOLD_LEAF, GOLD_LEAF ; held items
+	dn GENDER_F50, HATCH_MEDIUM_FAST ; gender ratio, step cycles to hatch
 	INCBIN "gfx/pokemon/bellsprout/front.dimensions"
 	abilities_for BELLSPROUT, CHLOROPHYLL, CHLOROPHYLL, GLUTTONY
 	db GROWTH_MEDIUM_SLOW ; growth rate

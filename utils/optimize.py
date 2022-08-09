@@ -28,6 +28,11 @@ def isVolatile(code):
 		'[rJOYP]', '[rBGPD]', '[rOBPD]'
 	})
 
+def isNotReallyHram(code):
+	return any(r in code for r in {
+		'rROMB0', 'rROMB1', 'rRAMG', 'rRAMB', 'rRTCLATCH'
+	})
+
 # Each line has five properties:
 # - num (1, 2, 3, etc)
 # - code (no indent or comment)
@@ -67,13 +72,14 @@ patterns = {
 'Inefficient HRAM load': [
 	# Bad: ld a, [hFoo] (or [rFoo])
 	# Good: ldh a, [hFoo]
-	(lambda line1, prev: re.match(r'ld a, \[[hr][^l]', line1.code)),
+	(lambda line1, prev: re.match(r'ld a, \[[hr][^l]', line1.code)
+		and not isNotReallyHram(line1.code)),
 ],
 'Inefficient HRAM store': [
 	# Bad: ld [hFoo], a (or [rFoo])
 	# Good: ldh [hFoo], a
 	(lambda line1, prev: re.match(r'ld \[[hr][^l]', line1.code)
-		and line1.code.endswith(', a')),
+		and not isNotReallyHram(line1.code) and line1.code.endswith(', a')),
 ],
 # 'a = 0': [
 # 	# Bad: ld a, 0
@@ -112,6 +118,13 @@ patterns = {
 	# Bad: jr nc, .ok / { inc|dec a }+ / .ok
 	# Good: adc|sbc 0
 	(lambda line1, prev: re.match(r'(jr|jp|jmp) nc,', line1.code)),
+	(lambda line2, prev: line2.code in {'inc a', 'dec a'}),
+	(1, lambda line3, prev: line3.code.rstrip(':') == prev[0].code.split(',')[1].strip()),
+],
+'a++|a-- if not carry': [
+	# Bad: jr c, .ok / { inc|dec a }+ / .ok
+	# Good: adc|sbc -1
+	(lambda line1, prev: re.match(r'(jr|jp|jmp) c,', line1.code)),
 	(lambda line2, prev: line2.code in {'inc a', 'dec a'}),
 	(1, lambda line3, prev: line3.code.rstrip(':') == prev[0].code.split(',')[1].strip()),
 ],
@@ -324,6 +337,12 @@ patterns = {
 	(lambda line1, prev: line1.code.startswith('call ') and ',' not in line1.code),
 	(lambda line2, prev: line2.code == 'ret'),
 ],
+'Tail farcall': [
+	# Bad: farcall Foo / ret (unless Foo messes with the stack)
+	# Good: farjp Foo
+	(lambda line1, prev: line1.code.startswith('farcall ') and ',' not in line1.code),
+	(lambda line2, prev: line2.code == 'ret'),
+],
 'Tail predef': [
 	# Bad: predef Foo / ret
 	# Good: predef_jump Foo
@@ -386,7 +405,8 @@ patterns = {
 	(lambda line1, prev: (line1.code.startswith('ld ') or line1.code.startswith('ldh '))
 		and ',' in line1.code and not isVolatile(line1.code)),
 	(lambda line2, prev: (line2.code.startswith('ld ') or line2.code.startswith('ldh '))
-		and ',' in line2.code and line2.code.split(',')[0] == prev[0].code.split(',')[0]),
+		and ',' in line2.code and line2.code.split(',')[0] == prev[0].code.split(',')[0]
+		and line2.code not in {'ld h, [hl]', 'ld l, [hl]'}),
 ],
 'Redundant loads': [
 	# Bad: ld P, Q / ld Q, P (unless the lds have side effects)

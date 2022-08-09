@@ -192,28 +192,18 @@ _OakTimeWhatTimeIsItText::
 	text "What time is it?"
 	done
 
-SECTION "_OakTimeWhatHoursText", ROMX
-_OakTimeWhatHoursText::
-	text "What?"
-	done
-
-SECTION "_OakTimeHoursQuestionMarkText", ROMX
-_OakTimeHoursQuestionMarkText::
-	text "?"
-	done
-
 SECTION "_OakTimeHowManyMinutesText", ROMX
 _OakTimeHowManyMinutesText::
 	text "How many minutes?"
 	done
 
-SECTION "_OakTimeWhoaMinutesText", ROMX
-_OakTimeWhoaMinutesText::
+SECTION "_OakTimeWhoaText", ROMX
+_OakTimeWhoaText::
 	text "Whoa!"
 	done
 
-SECTION "_OakTimeMinutesQuestionMarkText", ROMX
-_OakTimeMinutesQuestionMarkText::
+SECTION "_OakTimeQuestionMarkText", ROMX
+_OakTimeQuestionMarkText::
 	text "?"
 	done
 
@@ -820,7 +810,7 @@ _LC_Text6::
 SECTION "_LC_Text7", ROMX
 _LC_Text7::
 	text_start
-	line "This week's Lucky"
+	line "Today's Lucky"
 	done
 
 SECTION "_LC_Text8", ROMX
@@ -1808,7 +1798,7 @@ SECTION "_NoRoomForEggText", ROMX
 _NoRoomForEggText::
 	text "You have no room"
 	line "in your party"
-	cont "or your box."
+	cont "or your Box."
 	cont "Come back later."
 	done
 
@@ -2372,6 +2362,22 @@ _PoisonFaintText::
 	cont "its poisoning!"
 	prompt
 
+SECTION "_UseSweetHoneyText", ROMX
+_UseSweetHoneyText::
+	text "<PLAYER> spread"
+if DEF(FAITHFUL)
+	line "the Honey!"
+else
+	line "the Sweet Honey!"
+endc
+	done
+
+SECTION "_SweetHoneyNothingText", ROMX
+_SweetHoneyNothingText::
+	text "Looks like there's"
+	line "nothing here…"
+	done
+
 SECTION "_SquirtbottleNothingText", ROMX
 _SquirtbottleNothingText::
 	text "<PLAYER> sprinkled"
@@ -2459,18 +2465,13 @@ _AskItemMoveText::
 
 SECTION "Text_AreYouABoyOrAreYouAGirl", ROMX
 Text_AreYouABoyOrAreYouAGirl::
-	text "Are you a boy?"
-	line "Or are you a girl?"
+	text "Which photo is on"
+	line "your Trainer Card?"
 	done
 
-SECTION "Text_SoYoureABoy", ROMX
-Text_SoYoureABoy::
-	text "So you're a boy?"
-	done
-
-SECTION "Text_SoYoureAGirl", ROMX
-Text_SoYoureAGirl::
-	text "So you're a girl?"
+SECTION "Text_SoThisIsYou", ROMX
+Text_SoThisIsYou::
+	text "So this is you?"
 	done
 
 SECTION "Text_BattleUser", ROMX
@@ -3289,8 +3290,8 @@ _ElmText2::
 	text "This world is in-"
 	line "habited by crea-"
 	cont "tures that we call"
-	cont "#mon."
-	done
+	cont "#mon.@"
+	text_end
 
 SECTION "_ElmText4", ROMX
 _ElmText4::
@@ -3352,6 +3353,7 @@ endc
 
 SECTION "_WarnVBAText", ROMX
 _WarnVBAText::
+if !DEF(DEBUG)
 	text "Warning!"
 
 	para "This Game Boy"
@@ -3366,6 +3368,11 @@ _WarnVBAText::
 	para "such as BGB, mGBA,"
 	line "or Gambatte."
 	prompt
+else
+	text "Emulator test"
+	line "failed."
+	prompt
+endc
 
 SECTION "_ClockTimeMayBeWrongText", ROMX
 _ClockTimeMayBeWrongText::

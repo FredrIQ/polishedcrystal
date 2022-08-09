@@ -1,8 +1,10 @@
 LoadCGBLayout::
+	assert CGB_RAM == 0
 	and a ; CGB_RAM?
 	jr nz, .not_ram
 	ld a, [wMemCGBLayout]
 .not_ram
+	assert CGB_PARTY_MENU_HP_PALS == NUM_CGB_LAYOUTS - 1
 	cp CGB_PARTY_MENU_HP_PALS
 	jmp z, ApplyPartyMenuHPPals
 	call ResetBGPals
@@ -14,30 +16,31 @@ LoadCGBLayout::
 	dw _CGB_BattleGrayscale
 	dw _CGB_BattleColors
 	dw _CGB_PokegearPals
-	dw _CGB_PokedexAreaPals
 	dw _CGB_StatsScreenHPPals
 	dw _CGB_Pokedex
+	dw _CGB_Pokedex_PrepareOnly
 	dw _CGB_SlotMachine
 	dw _CGB_Diploma
 	dw _CGB_MapPals
 	dw _CGB_PartyMenu
 	dw _CGB_Evolution
 	dw _CGB_MoveList
-	dw _CGB_Pokedex_PrepareOnly
 	dw _CGB_BuyMenu
 	dw _CGB_PackPals
 	dw _CGB_TrainerCard
 	dw _CGB_TrainerCard2
 	dw _CGB_TrainerCard3
-	dw _CGB_PokedexUnownMode
 	dw _CGB_BillsPC
 	dw _CGB_UnownPuzzle
 	dw _CGB_GameFreakLogo
 	dw _CGB_TradeTube
 	dw _CGB_IntroPals
+	dw _CGB_IntroGenderPals
 	dw _CGB_PlayerOrMonFrontpicPals
 	dw _CGB_TrainerOrMonFrontpicPals
 	dw _CGB_JudgeSystem
+	dw _CGB_NamingScreen
+	dw _CGB_FlyMap
 	assert_table_length NUM_CGB_LAYOUTS - 2 ; discount CGB_RAM and CGB_PARTY_MENU_HP_PALS
 
 _CGB_BattleGrayscale:
@@ -243,6 +246,13 @@ _CGB_FinishBattleScreenLayout:
 .apply_attr_map
 	jmp ApplyAttrMap
 
+_CGB_FlyMap:
+	ld hl, PokegearOBPals
+	ld de, wOBPals1
+	ld c, 8 palettes
+	call LoadPalettes
+	; fallthrough
+
 _CGB_PokegearPals:
 	ld hl, PokegearPals
 	ld de, wBGPals1
@@ -256,21 +266,6 @@ _CGB_PokegearPals:
 	ld de, wBGPals1 palette 0
 	call LoadOnePalette
 .male
-
-	call ApplyPals
-	ld a, $1
-	ldh [hCGBPalUpdate], a
-	ret
-
-_CGB_PokedexAreaPals:
-	ld hl, PokegearPals palette 1
-	ld de, wBGPals1 palette 1
-	ld c, 7 palettes
-	call LoadPalettes
-
-	ld hl, PokedexPals palette 1
-	ld de, wBGPals1 palette 0
-	call LoadOnePalette
 
 	call ApplyPals
 	ld a, $1
@@ -425,21 +420,37 @@ _CGB_Diploma:
 	call LoadPalettes
 
 	ld de, wBGPals1
-	ld hl, .DiplomaPalette
+	ld hl, DiplomaPalette
 	call LoadOnePalette
 
 	call WipeAttrMap
 	jmp ApplyAttrMap
 
-.DiplomaPalette
-if !DEF(MONOCHROME)
-	RGB 31, 31, 31
-	RGB 30, 22, 17
-	RGB 16, 14, 19
-	RGB 00, 00, 00
-else
-	MONOCHROME_RGB_FOUR
-endc
+_CGB_NamingScreen:
+	ld hl, DiplomaPals
+	ld de, wBGPals1
+	ld c, 16 palettes
+	call LoadPalettes
+
+	ld de, wBGPals1
+	ld hl, DiplomaPalette
+	call LoadOnePalette
+
+	ld a, [wNamingScreenType]
+	and a
+	jr nz, .not_pokemon
+	; mon minis use palette [wCurPartyMon]+2
+	ld hl, wOBPals1 palette 2 + 2
+	ld bc, 1 palettes
+	ld a, [wCurPartyMon]
+	rst AddNTimes
+	ld d, h
+	ld e, l
+	call LoadPartyMonPalette
+.not_pokemon
+
+	call WipeAttrMap
+	jmp ApplyAttrMap
 
 _CGB_MapPals:
 	call LoadMapPals
@@ -882,26 +893,6 @@ LoadFirstTwoTrainerCardPals:
 	pop de
 	ret
 
-_CGB_PokedexUnownMode:
-	ld de, wBGPals1
-	ld hl, PokedexPals
-	call LoadOnePalette
-
-	ld a, [wCurPartySpecies]
-	call GetMonPalettePointer
-	call LoadPalette_White_Col1_Col2_Black
-
-	call WipeAttrMap
-
-	hlcoord 6, 5, wAttrmap
-	lb bc, 7, 7
-	ld a, $1
-	call FillBoxWithByte
-
-	call InitPartyMenuOBPals
-
-	jmp _CGB_FinishLayout
-
 _CGB_BillsPC:
 	farcall GetBoxTheme
 BillsPC_PreviewTheme:
@@ -947,6 +938,9 @@ BillsPC_PreviewTheme:
 	call LoadOnePalette
 	ld hl, .PackPal
 	ld de, wOBPals1 palette 4
+	call LoadOnePalette
+	ld hl, .WhitePal
+	ld de, wOBPals1 palette 6
 	jmp LoadOnePalette
 
 .apply_pals
@@ -977,6 +971,19 @@ else
 	RGB_MONOCHROME_WHITE
 	RGB_MONOCHROME_DARK
 	RGB_MONOCHROME_BLACK
+endc
+
+.WhitePal:
+if !DEF(MONOCHROME)
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+	RGB 31, 31, 31
+else
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
+	RGB_MONOCHROME_WHITE
 endc
 
 _CGB_UnownPuzzle:
@@ -1106,7 +1113,7 @@ _CGB_IntroPals:
 	call VaryBGPal0ByTempMonDVs
 	pop de
 
-	ld hl, .IntroGradientPalette
+	ld hl, IntroGradientPalette
 	call LoadOnePalette
 
 	call WipeAttrMap
@@ -1119,7 +1126,31 @@ _CGB_IntroPals:
 	call ApplyAttrMap
 	jmp ApplyPals
 
-.IntroGradientPalette:
+_CGB_IntroGenderPals:
+	ld de, wBGPals1
+	ld hl, ChrisPalette
+	call LoadPalette_White_Col1_Col2_Black
+	ld hl, IntroGradientPalette
+	call LoadOnePalette
+	ld hl, KrisPalette
+	call LoadPalette_White_Col1_Col2_Black
+
+	call WipeAttrMap
+
+	hlcoord 0, 0, wAttrmap
+	lb bc, 3, 20
+	ld a, $1
+	call FillBoxWithByte
+
+	hlcoord 10, 3, wAttrmap
+	lb bc, 8, 7
+	ld a, $2
+	call FillBoxWithByte
+
+	call ApplyAttrMap
+	jmp ApplyPals
+
+IntroGradientPalette:
 if !DEF(MONOCHROME)
 	RGB 31, 31, 31
 	RGB 27, 31, 31

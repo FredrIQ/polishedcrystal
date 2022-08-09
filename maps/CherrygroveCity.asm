@@ -19,6 +19,7 @@ CherrygroveCity_MapScriptHeader:
 	def_bg_events
 	bg_event 30,  8, BGEVENT_JUMPTEXT, CherrygroveCitySignText
 	bg_event 23,  9, BGEVENT_JUMPTEXT, GuideGentsHouseSignText
+	bg_event 35,  2, BGEVENT_ITEM + NUGGET, EVENT_CHERRYGROVE_CITY_HIDDEN_NUGGET
 
 	def_object_events
 	object_event 32,  6, SPRITE_GRAMPS, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, CherrygroveCityGuideGent, EVENT_GUIDE_GENT_IN_HIS_HOUSE
@@ -97,9 +98,9 @@ CherrygroveSilverTriggerNorth:
 	playmusic MUSIC_RIVAL_ENCOUNTER
 	showtext CherrygroveRivalText_Seen
 	checkevent EVENT_GOT_TOTODILE_FROM_ELM
-	iftrue .Totodile
+	iftruefwd .Totodile
 	checkevent EVENT_GOT_CHIKORITA_FROM_ELM
-	iftrue .Chikorita
+	iftruefwd .Chikorita
 	winlosstext SilverCherrygroveWinText, SilverCherrygroveLossText
 	setlasttalked CHERRYGROVECITY_SILVER
 	loadtrainer RIVAL0, 3
@@ -107,7 +108,7 @@ CherrygroveSilverTriggerNorth:
 	startbattle
 	setevent EVENT_RIVAL_CHERRYGROVE_CITY
 	reloadmap
-	sjump .FinishRival
+	sjumpfwd .FinishRival
 
 .Totodile:
 	winlosstext SilverCherrygroveWinText, SilverCherrygroveLossText
@@ -118,7 +119,7 @@ CherrygroveSilverTriggerNorth:
 	dontrestartmapmusic
 	setevent EVENT_RIVAL_CHERRYGROVE_CITY
 	reloadmap
-	sjump .FinishRival
+	sjumpfwd .FinishRival
 
 .Chikorita:
 	winlosstext SilverCherrygroveWinText, SilverCherrygroveLossText

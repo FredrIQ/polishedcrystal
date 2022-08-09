@@ -9,7 +9,7 @@
 	const PC_MENU_MODE ; 0
 	const PC_SWAP_MODE ; 1
 	const PC_ITEM_MODE ; 2
-NUM_PC_MODES EQU const_value
+DEF NUM_PC_MODES EQU const_value
 
 ; BillsPC_MenuStrings indexes
 ; BillsPC_MenuJumptable indexes
@@ -476,6 +476,16 @@ else
 	MONOCHROME_RGB_TWO
 endc
 
+BillsPC_SafeRequest1bppInWRA6::
+	ldh a, [hROMBank]
+	ld b, a
+	call RunFunctionInWRA6
+.Function:
+	ldh a, [rLY]
+	cp $40
+	jmp c, Get1bpp
+	call DelayFrame
+	jr .Function
 
 BillsPC_SafeRequest2bppInWRA6::
 	ldh a, [hROMBank]
@@ -593,7 +603,7 @@ PCIconLoop:
 	push hl
 	push de
 	push bc
-	farcall GetStorageIcon_a
+	farcall GetStorageMini_a
 	pop bc
 	pop de
 	pop hl
@@ -694,7 +704,7 @@ WriteIconPaletteData:
 	ld a, [wTempMonForm]
 	ld b, a
 	ld a, [wTempMonShiny]
-	farcall GetMenuMonIconTruePalette
+	farcall GetMonPalInBCDE
 	ld h, b
 	ld l, c
 	pop bc
@@ -704,14 +714,17 @@ WriteIconPaletteData:
 	pop bc
 
 if !DEF(MONOCHROME)
-	; TODO: per-mon palettes
 	ld a, c
 	ld [hli], a
 	ld a, b
 	ld [hli], a
 	ld a, e
 	ld [hli], a
-	ld [hl], d
+	ld a, d
+	ld [hld], a
+	dec hl
+	dec hl
+	farcall VaryBGPalByTempMonDVs
 else
 	ld [hl], LOW(PAL_MONOCHROME_WHITE) ; no-optimize *hl++|*hl-- = N
 	inc hl
@@ -727,15 +740,23 @@ BillsPC_HideCursorAndMode:
 	call BillsPC_HideCursor
 	; fallthrough
 BillsPC_HideModeIcon:
-	ld hl, wVirtualOAMSprite09
+	call BillsPC_CheckBagDisplay
+	ld hl, wVirtualOAMSprite05
+	jr z, .got_mode_area
+	ld hl, wVirtualOAMSprite12
+.got_mode_area
 	ld bc, 20
 	xor a
 	rst ByteFill
 	ret
 
 BillsPC_HideCursor:
+	call BillsPC_CheckBagDisplay
 	ld hl, wVirtualOAM
-	ld bc, 36
+	ld bc, 48
+	jr nz, .got_bytecount
+	ld c, 20
+.got_bytecount
 	xor a
 	rst ByteFill
 	ret
@@ -1003,7 +1024,7 @@ _GetCursorMon:
 .delay_loop
 	; Delay first before finishing frontpic. Retry if it puts us too late.
 	; If we try to proceed otherwise, we might run past the hblank interrupt
-	; window with GetPreparedFrontpic.
+	; window with Get2bpp.
 	call DelayFrame
 	ldh a, [rLY]
 	cp $13
@@ -1018,7 +1039,15 @@ _GetCursorMon:
 	ld a, 1
 	ldh [rVBK], a
 .dont_switch_vbk
-	farcall GetPreparedFrontpic
+	ldh a, [rSVBK]
+	push af
+	ld a, BANK(wDecompressScratch)
+	ldh [rSVBK], a
+	call GetPaddedFrontpicAddress
+	lb bc, BANK(_GetCursorMon), 7 * 7
+	call Get2bpp
+	pop af
+	ldh [rSVBK], a
 	xor a
 	ldh [rVBK], a
 	ld hl, wBillsPC_ItemVWF
@@ -1580,6 +1609,10 @@ BillsPC_CursorPick2:
 
 BillsPC_SetIcon:
 ; Writes icon tiles to hl depending on species data in de. Assumes vbk1.
+; If b is -1, also write icon mask data.
+	ld a, b
+	inc a ; Will set zero if we're dealing with held/quick slot.
+	push af
 	ld a, [de]
 	inc de
 	ld [wCurIcon], a
@@ -1589,7 +1622,13 @@ BillsPC_SetIcon:
 	call BillsPC_SetPals
 	call DelayFrame
 	pop hl
-	farjp GetStorageIcon
+	pop af
+	jr nz, .mask_done
+
+	farcall GetStorageMask
+
+.mask_done
+	farjp GetStorageMini
 
 BillsPC_MoveIconData:
 ; Copies icon data from slot bc to slot de, then blanks slot bc.
@@ -1626,7 +1665,7 @@ BillsPC_MoveIconData:
 	inc a
 	ld de, vTiles3 tile $20 ; Item for mon cursor is hovering
 	jr nz, .got_item_tile
-	ld de, vTiles3 tile $10 ; Item cursor is holding.
+	ld de, vTiles3 tile $08 ; Item cursor is holding.
 .got_item_tile
 	ld hl, vTiles3 tile $14 ; Quick tile.
 	push bc
@@ -1640,7 +1679,7 @@ BillsPC_MoveIconData:
 	inc b
 	ld a, c
 	or b
-	ld hl, vTiles3 tile $10
+	ld hl, vTiles3 tile $08
 	ld a, 1
 	call z, BillsPC_BlankTiles
 	jr .done
@@ -1677,7 +1716,13 @@ BillsPC_MoveIconData:
 	ld [hli], a
 	ld a, 2
 	call .GetAddr
-	ld a, 1
+
+	; If we're blanking held or quick, blank 2x4 instead of 1x4 to include mask.
+	inc b
+	ld a, 2
+	jr z, .got_blanking_range
+	dec a
+.got_blanking_range
 	call BillsPC_BlankTiles
 
 .done
@@ -2321,7 +2366,7 @@ BillsPC_MoveItem:
 	ret
 
 BillsPC_LoadCursorItemIcon:
-	ld hl, vTiles3 tile $10
+	ld hl, vTiles3 tile $08
 	lb bc, BANK(HeldItemIcons), 1
 
 	ld a, [wBillsPC_CursorItem]
@@ -2460,7 +2505,7 @@ BillsPC_UpdateStorage_CheckMewtwo:
 	ld [wCurIconForm], a
 	call BillsPC_GetMonTileAddr
 	push bc
-	farcall GetStorageIcon
+	farcall GetStorageMini
 	pop bc
 	call WriteIconPaletteData
 
@@ -2810,7 +2855,7 @@ BillsPC_ReleaseAll:
 
 .ReallyReleaseBox:
 	text "Really release the"
-	line "entire box?"
+	line "entire Box?"
 	done
 
 .CantRecallReleasedMons:
@@ -2820,7 +2865,7 @@ BillsPC_ReleaseAll:
 	done
 
 .NothingThere:
-	text "This box is empty."
+	text "The Box is empty."
 	prompt
 
 .NothingReleased:
@@ -3303,7 +3348,7 @@ BillsPC_SwapStorage:
 	prompt
 
 .BoxIsFull:
-	text "The box is full."
+	text "The Box is full."
 	prompt
 
 .IsHoldingMail:

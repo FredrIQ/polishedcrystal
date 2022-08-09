@@ -4,9 +4,8 @@
 	db NORMAL, FLYING ; type
 	db 255 ; catch rate
 	db 58 ; base exp
-	db NO_ITEM ; item 1
-	db SHARP_BEAK ; item 2
-	dn GENDER_F50, 2 ; gender ratio, step cycles to hatch
+	db NO_ITEM, SHARP_BEAK ; held items
+	dn GENDER_F50, HATCH_FAST ; gender ratio, step cycles to hatch
 	INCBIN "gfx/pokemon/spearow/front.dimensions"
 	abilities_for SPEAROW, KEEN_EYE, KEEN_EYE, SNIPER
 	db GROWTH_MEDIUM_FAST ; growth rate
