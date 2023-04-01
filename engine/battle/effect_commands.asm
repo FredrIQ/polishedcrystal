@@ -622,6 +622,43 @@ MoveDisabled:
 	ld hl, DisabledMoveText
 	jmp StdBattleTextbox
 
+CheckOpponentAffection:
+	call StackCallOpponentTurn
+CheckAffection:
+; Returns an Affection level between 0-5.
+; If affection level is 0, also returns z.
+	; If this isn't a Link battle...
+	ld a, [wLinkMode]
+	and a
+	jr z, .cont
+	xor a
+	ret
+
+.cont
+	; ...and it is the enemy's turn...
+	ldh a, [hBattleTurn]
+	and a
+	ret z
+
+	; ...and it's a Trainer battle...
+	ld a, [wBattleMode]
+	dec a
+	ret z
+
+	; ...then Affection Level is 5.
+	ld a, 5
+	ret
+
+OpponentAffectionText:
+	call StackCallOpponentTurn
+AffectionText:
+; Prints battle text and displays an affection animation.
+	call StdBattleTextbox
+	xor a
+	ld [wNumHits], a
+	ld de, ANIM_AFFECTION
+	farjp PlayBattleAnimDE_OnlyIfVisible
+
 GenericHitAnim:
 	; Flicker the monster pic unless flying or underground.
 	xor a
@@ -1174,8 +1211,18 @@ BattleCommand_critical:
 	ld hl, CriticalHitChances
 	ld b, 0
 	add hl, bc
-	call BattleRandom
-	cp [hl]
+	ld b, [hl]
+
+	; Sufficient Affection doubles critrate, independently of stages.
+	call CheckAffection
+	cp 5
+	jr c, .no_affection_boost
+	sla b
+.no_affection_boost
+	ld a, 24
+	call BattleRandomRange
+
+	cp b
 	ret nc
 .guranteed_crit
 	ld a, 1
@@ -1827,6 +1874,18 @@ BattleCommand_checkhit:
 	and a
 	ret z
 
+	; Affection-based evasion
+	call CheckOpponentAffection
+	cp 5
+	jr c, .no_affection_evasion
+
+	ld a, 100
+	call BattleRandomRange
+	cp 10
+	ld a, ATKFAIL_AFFECTION
+	jmp c, .Miss_skipset
+
+.no_affection_evasion
 	; Now doing usual accuracy check
 	ld a, [wPlayerAccLevel]
 	ld b, a
@@ -2449,6 +2508,25 @@ BattleCommand_applydamage:
 	jr .enduring
 
 .not_enduring
+	call CheckOpponentAffection
+	cp 3
+	jr c, .cont
+
+	; chance to endure: AffLevel * 5 - 5 (always 0 at levels below 3)
+	dec a
+	ld b, a
+	add a
+	add a
+	add b
+	ld b, a
+
+	ld a, 100
+	call BattleRandomRange
+	cp b
+	ld b, $5
+	jr c, .enduring
+
+.cont
 	call GetOpponentItem
 	ld a, b
 	ld b, $3
@@ -2487,6 +2565,9 @@ BattleCommand_applydamage:
 	ld a, b
 	and a
 	ret z
+	cp 5
+	ld hl, AffectionEndureText
+	jmp z, OpponentAffectionText
 	dec a
 	jr nz, .not_enduring2
 	ld hl, EnduredText
@@ -2607,8 +2688,18 @@ FailText_CheckOpponentProtect:
 	dec a
 	ld hl, DoesntAffectText
 	jr z, .printmsg
+	dec a
+	jr nz, .no_affection_evasion
+	ld hl, AffectionEvasionText
+	call OpponentAffectionText
+
+	; Still counts as a miss in general.
+	jr .cont_atkmiss
+
+.no_affection_evasion
 	ld hl, AttackMissedText
 	call StdBattleTextbox
+.cont_atkmiss
 	predef GetUserItemAfterUnnerve
 	ld a, b
 	cp HELD_BLUNDER_POLICY
@@ -2647,9 +2738,24 @@ BattleCommand_criticaltext:
 	and a
 	jr z, .wait
 
+	; At level 5 affection, critical hit chance is doubled.
+	; Thus, if this applies, show the relevant msg 50% of the
+	; time in place of the regular one.
+	call CheckAffection
+	cp 5
+	jr c, .no_affection_boost
+	call BattleRandom
+	add a
+	jr c, .no_affection_boost
+	ld hl, AffectionCriticalText
+	call AffectionText
+	jr .crit_text_done
+
+.no_affection_boost
 	ld hl, CriticalHitText
 	call StdBattleTextbox
 
+.crit_text_done
 ; Add 1 to the critical hit count if it's the player's turn
 	ld a, [wLinkMode]
 	and a

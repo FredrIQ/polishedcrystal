@@ -1453,6 +1453,40 @@ BecameHealthyText:
 	line "became healthy!"
 	prompt
 
+; Affection dialog assumes only enemy Trainers have Affection.
+AffectionEndureText:
+	text "<USER>"
+	line "toughed it out so"
+
+	para "<ENEMY>"
+	line "wouldn't feel sad!"
+	prompt
+
+AffectionEvasionText:
+	text "<USER>"
+	line "avoided the move"
+
+	para "in time with"
+	line "<ENEMY>'s"
+	cont "shout!"
+	prompt
+
+AffectionSelfCureText:
+	text "<USER>"
+	line "became healthy so"
+
+	para "<ENEMY>"
+	line "wouldn't worry!"
+	prompt
+
+AffectionCriticalText:
+	text "<USER>"
+	line "landed a critical"
+
+	para "hit, wishing to be"
+	line "praised!"
+	prompt
+
 NotifyAirBalloonText:
 	text "<USER>"
 	line "floats in the air"
