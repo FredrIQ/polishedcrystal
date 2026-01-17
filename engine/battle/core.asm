@@ -3,6 +3,7 @@ BattleCore:
 DoBattle:
 	farcall FixPlayerEVsAndStats
 	call BackupBattleItems
+	call BackupBattleForms
 	call ResetParticipants
 	xor a
 	ld [wBattlePlayerAction], a
@@ -187,6 +188,8 @@ BattleTurn:
 	call CheckOpponentForfeit
 	ret c
 
+	call HandleMegaEvolution
+
 	call DetermineMoveOrder
 	; a = carry ? 0 (player first) : 1 (enemy first)
 	sbc a
@@ -224,6 +227,86 @@ BattleTurn:
 	ld a, [wBattleEnded]
 	and a
 	ret
+
+HandleMegaEvolution:
+	call SetFastestTurn
+	call .do_it
+	call SwitchTurn
+
+.do_it
+	ldh a, [hBattleTurn]
+	and a
+	ld a, [wPendingMega]
+	jr z, .got_mega
+	swap a
+.got_mega
+	bit 0, a
+	res 0, a
+	ret z
+
+	; Update form data.
+	ld hl, wBattleMonForm
+	call GetUserMonAttr
+	ld a, [hl]
+	and ~FORM_MASK
+	or GYARADOS_RED_FORM
+	ld [hl], a
+
+	push af
+	ld a, MON_FORM
+	call UserPartyAttr
+	pop af
+	ld [hl], a
+
+	; Get base data, needed for typings and the mega's base stats.
+	ld [wCurForm], a
+	ld a, MON_SPECIES
+	call UserPartyAttr
+	ld [wCurSpecies], a
+	ld [wNamedObjectIndex], a
+	call GetPokemonName
+	call GetBaseData
+
+	; Update party stats.
+	ld a, MON_MAXHP
+	call UserPartyAttr
+	push hl
+	ld a, MON_EVS - 1
+	call UserPartyAttr
+	pop de
+	farcall GetBattlerHyperTraining
+	or TRUE
+	ld b, a
+	farcall CalcPkmnStats
+
+	; Write new stats to battler stats.
+	ld hl, wBattleMonStats
+	call GetUserMonAttr
+	push hl
+	ld a, MON_STATS
+	call UserPartyAttr
+	pop de
+	ld bc, NUM_BATTLE_STATS * 2
+	rst CopyBytes
+
+	; Update typing.
+	ld hl, wBattleMonType
+	call GetUserMonAttr
+	ld a, [wBaseType1]
+	ld [hli], a
+	ld a, [wBaseType2]
+	ld [hl], a
+
+	; Update ability.
+	call ResetUserAbility
+
+	; Mega "animation"
+	ld de, TRANSFORM
+	farcall FarPlayBattleAnimation
+
+	ld hl, BattleText_MegaEvolvedInto
+	call StdBattleTextbox
+	farjp RunEntryAbilitiesInner
 
 ResetAbilityIgnorance:
 ; Resets the "ignoring foe's ability" flag for both sides.
@@ -2188,6 +2271,27 @@ FaintUserPokemon:
 	call GetBattleVarAddr
 	res SUBSTATUS_IN_LOOP, [hl]
 
+	; Revert mega form, if applicable.
+	ldh a, [hBattleTurn]
+	and a
+	ld a, [wCurBattleMon]
+	ld hl, wPartyBackupForms
+	jr z, .got_backup_data
+	ld a, [wCurOTMon]
+	ld hl, wOTPartyBackupForms
+.got_backup_data
+	add l
+	ld l, a
+	adc h
+	sub l
+	ld h, a
+	ld a, [hl]
+	push af
+	ld a, MON_FORM
+	call UserPartyAttr
+	pop af
+	ld [hl], a
+
 	ld hl, BattleText_PkmnFainted
 	ldh a, [hBattleTurn]
 	and a
@@ -3066,6 +3170,11 @@ ResetEnemyAbility:
 	xor a
 	ret
 
+ResetUserAbility:
+	ldh a, [hBattleTurn]
+	and a
+	jr nz, ResetEnemyAbility
+	; fallthrough
 ResetPlayerAbility:
 	push hl
 	ld hl, wBattleMonPersonality
@@ -3266,6 +3375,7 @@ PostBattleTasks::
 	push bc
 	push de
 	call RestoreBattleItems
+	call RestoreBattleForms
 	ld a, [wPartyCount]
 	and a
 	jr z, .no_party

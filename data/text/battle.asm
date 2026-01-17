@@ -71,6 +71,14 @@ BattleText_EnemyFled:
 	line "fled!"
 	prompt
 
+BattleText_MegaEvolvedInto:
+	text "<USER>"
+	line "Mega Evolved into"
+	cont "Mega "
+	text_ram wStringBuffer1
+	text "!"
+	prompt
+
 BattleText_EnemyCantEscape:
 	text "<USER>"
 	line "can't escape!"

@@ -1355,8 +1355,8 @@
 	wildmon 3, HOPPIP
 	wildmon 3, HOPPIP
 	; day
-	wildmon 2, PIDGEY
-	wildmon 2, SENTRET
+	wildmon 2, GYARADOS
+	wildmon 2, GYARADOS
 	wildmon 3, PIDGEY
 	wildmon 3, SENTRET
 	wildmon 2, RATTATA

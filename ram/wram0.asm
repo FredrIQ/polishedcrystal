@@ -488,6 +488,13 @@ wPartyBackupItems::
 ; Berries and items stolen from wild Pokémon since those changes are retained.
 	ds PARTY_LENGTH
 
+wPartyBackupForms::
+; Back up of party forms. Needed for Mega Evolution. We can't store mega as
+; "form + 16" or similar, because Gyarados (effectively) has >15 forms.
+	ds PARTY_LENGTH
+
+wOTPartyBackupForms:: ds PARTY_LENGTH
+
 wPartyUsedItems::
 ; For the benefit of Pickup/Harvest
 	ds PARTY_LENGTH
@@ -579,7 +586,9 @@ wTrickRoom:: db
 
 wBattleLowHealthAlarm:: db
 
-	ds 3 ; unused
+wPendingMega:: db
+
+	ds 2 ; unused
 
 wPlayerHazards::
 ; bit
@@ -885,7 +894,7 @@ wFootprintQueue:: ds 3 * 2 + 1
 
 SECTION "Unused", WRAM0
 
-	ds 69 ; it's free real estate
+	ds 57 ; it's free real estate
 
 
 SECTION UNION "Misc 1300", WRAM0
